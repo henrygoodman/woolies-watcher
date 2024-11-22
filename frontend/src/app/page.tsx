@@ -18,6 +18,7 @@ interface Product {
   current_price: number;
   product_size: string;
   url: string;
+  imageUrl: string | null;
 }
 
 export default function Home() {
@@ -32,6 +33,8 @@ export default function Home() {
     try {
       const response = await fetch(`/api/search?query=${searchQuery}&page=${page}`);
       const data = await response.json();
+
+      console.log("Data", data)
 
       setProducts(data.results);
       setCurrentPage(data.current_page);
@@ -71,6 +74,11 @@ export default function Home() {
         {products.map((product) => (
           <Card key={product.barcode} className="w-full">
             <CardHeader>
+              <img
+                src={product.imageUrl || "https://placehold.co/200"}
+                alt={product.product_name}
+                className="w-full h-48 object-contain rounded-t-xl"
+              />
               <CardTitle>{product.product_name}</CardTitle>
               <CardDescription>{product.product_size}</CardDescription>
             </CardHeader>
@@ -88,7 +96,7 @@ export default function Home() {
                 View Product
               </a>
             </CardFooter>
-          </Card>
+          </Card>        
         ))}
       </div>
 
