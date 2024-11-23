@@ -9,6 +9,7 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
+      - ./types:/app/types
       - /app/node_modules
     environment:
       - NODE_ENV=development
@@ -21,6 +22,7 @@ services:
       - "5000:5000"
     volumes:
       - ./backend:/app
+      - ./types:/app/types
     environment:
       - DATABASE_URL=postgres://postgres:password@db:5432/woolies-watcher
     depends_on:

@@ -11,15 +11,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 
-interface Product {
-  barcode: string;
-  product_name: string;
-  product_brand: string;
-  current_price: number;
-  product_size: string;
-  url: string;
-  imageUrl: string | null;
-}
+import { Product } from "@shared-types/product";
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -33,8 +25,6 @@ export default function Home() {
     try {
       const response = await fetch(`/api/search?query=${searchQuery}&page=${page}`);
       const data = await response.json();
-
-      console.log("Data", data)
 
       setProducts(data.results);
       setCurrentPage(data.current_page);
@@ -75,7 +65,7 @@ export default function Home() {
           <Card key={product.barcode} className="w-full">
             <CardHeader>
               <img
-                src={product.imageUrl || "https://placehold.co/200"}
+                src={product.image_url || "https://placehold.co/200"}
                 alt={product.product_name}
                 className="w-full h-48 object-contain rounded-t-xl"
               />
