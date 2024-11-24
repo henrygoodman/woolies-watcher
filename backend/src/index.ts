@@ -4,25 +4,40 @@ import express, { Request, Response } from "express";
 
 import { fetchProductImage } from "@/utils/fetchImage";
 import { getProductFromDB, saveProductToDB } from "@/db/productRepository";
+import { SearchQueryParams, SearchResponse } from "@shared-types/api";
 import pool from "@/db/db";
 
 dotenv.config();
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-app.get("/api/search", async (req: Request, res: Response): Promise<void> => {
-  console.log("Received search request");
-
+const parseQueryParams = (req: Request): SearchQueryParams | null => {
   const query = req.query.query as string;
-  const page = parseInt(req.query.page as string) || 1;
-  const size = 20;
+
+  const page = req.query.page ? parseInt(req.query.page as string, 10) : 1;
+  const size = req.query.size ? parseInt(req.query.size as string, 10) : 20;
 
   if (!query) {
-    console.error("Query parameter is missing");
+    return null;
+  }
+
+  return {
+    query,
+    page: page,
+    size: size,
+  };
+};
+
+app.get("/api/search", async (req: Request, res: Response<SearchResponse | { error: string }>) => {
+  const queryParams = parseQueryParams(req);
+
+  if (!queryParams) {
     res.status(400).json({ error: "Query parameter is required" });
     return;
   }
+
+  const { query, page, size } = queryParams;
 
   try {
     const response = await axios.get(
@@ -38,26 +53,36 @@ app.get("/api/search", async (req: Request, res: Response): Promise<void> => {
 
     const results = await Promise.all(
       response.data.results.map(async (product: any) => {
-        let cachedProduct = await getProductFromDB(product.barcode);
+        const barcode = String(product.barcode);
+        const cachedProduct = await getProductFromDB(barcode);
 
         if (!cachedProduct) {
-          const image_url = await fetchProductImage(product.url);
-
-          cachedProduct = {
-            barcode: product.barcode,
+          const productWithoutImage = {
+            barcode: barcode,
             product_name: product.product_name,
             product_brand: product.product_brand,
             current_price: parseFloat(product.current_price),
             product_size: product.product_size,
             url: product.url,
-            image_url,
+            image_url: null,
             last_updated: new Date().toISOString(),
           };
 
-          await saveProductToDB(cachedProduct);
+          await saveProductToDB(productWithoutImage);
+
+          fetchProductImage(product.url)
+            .then(async (image_url) => {
+              if (image_url) {
+                await saveProductToDB({ ...productWithoutImage, image_url });
+                console.log(`Image updated for product ${barcode}`);
+              }
+            })
+            .catch((error) => {
+              console.error(`Failed to fetch image for ${barcode}:`, error);
+            });
         }
 
-        return cachedProduct;
+        return cachedProduct || { ...product, image_url: null };
       })
     );
 
@@ -75,7 +100,7 @@ app.get("/api/search", async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-app.get("/api/db-test", async (req, res) => {
+app.get("/api/db-test", async (req: Request, res: Response) => {
   try {
     const result = await pool.query("SELECT 1+1 AS result");
     res.json({ success: true, result: result.rows[0] });

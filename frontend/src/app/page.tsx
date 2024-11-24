@@ -11,26 +11,41 @@ import {
   CardContent,
 } from "@/components/ui/card";
 
-import { Product } from "@shared-types/product";
+import { Product, SearchQueryParams, SearchResponse } from "@shared-types/api";
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [query, setQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [query, setQuery] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchProducts = async (searchQuery: string, page: number) => {
     setLoading(true);
+    setError(null);
+
+    const params: SearchQueryParams = {
+      query: searchQuery,
+      page,
+      size: 20,
+    };
+
     try {
-      const response = await fetch(`/api/search?query=${searchQuery}&page=${page}`);
-      const data = await response.json();
+      const response = await fetch(
+        `/api/search?query=${params.query}&page=${params.page}&size=${params.size}`
+      );
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status} ${response.statusText}`);
+      }
+      const data: SearchResponse = await response.json();
 
       setProducts(data.results);
-      setCurrentPage(data.current_page);
+      setCurrentPage(data.page);
       setTotalPages(data.total_pages);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+    } catch (err) {
+      console.error("Error fetching products:", err);
+      setError("Failed to fetch products. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -53,12 +68,54 @@ export default function Home() {
     }
   };
 
+  useEffect(() => {
+    if (!products.length) return;
+  
+    const pollForUpdates = async () => {
+      try {
+        const response = await fetch(`/api/search?query=${query}&page=${currentPage}`);
+        if (!response.ok) {
+          console.error(`Polling failed: ${response.status}`);
+          return;
+        }
+  
+        const data: SearchResponse = await response.json();
+  
+        setProducts((prevProducts) =>
+          prevProducts.map((product) => {
+            const updatedProduct = data.results.find((p) => p.barcode === product.barcode);
+
+            console.log("Here", data.results, updatedProduct, product)
+            // Only update if the image_url is different
+            if (updatedProduct && updatedProduct.image_url !== product.image_url) {
+              console.log("Updated", updatedProduct)
+              return { ...product, image_url: updatedProduct.image_url };
+            }
+  
+            return product;
+          })
+        );
+      } catch (err) {
+        console.error("Error polling for updates:", err);
+      }
+    };
+  
+    const interval = setInterval(pollForUpdates, 5000);
+  
+    return () => clearInterval(interval);
+  }, [products, query, currentPage]);  
+
   return (
     <main className="flex flex-col items-center p-8">
       <h1 className="text-4xl font-bold mb-4">Search Groceries</h1>
       <SearchBar onSearch={handleSearch} />
 
-      {loading && <p>Loading...</p>}
+      {loading && <p className="text-gray-500">Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+
+      {!loading && !error && products.length === 0 && query && (
+        <p className="text-gray-500">No products found for "{query}".</p>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
         {products.map((product) => (
@@ -73,7 +130,9 @@ export default function Home() {
               <CardDescription>{product.product_size}</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-green-600 font-bold">${product.current_price}</p>
+              <p className="text-green-600 font-bold">
+                ${product.current_price.toFixed(2)}
+              </p>
               <p className="text-gray-600">{product.product_brand}</p>
             </CardContent>
             <CardFooter>
@@ -86,29 +145,31 @@ export default function Home() {
                 View Product
               </a>
             </CardFooter>
-          </Card>        
+          </Card>
         ))}
       </div>
 
-      <div className="flex mt-8 gap-4">
-        <button
-          onClick={handlePreviousPage}
-          disabled={currentPage === 1}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Previous
-        </button>
-        <p>
-          Page {currentPage} of {totalPages}
-        </p>
-        <button
-          onClick={handleNextPage}
-          disabled={currentPage === totalPages}
-          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      {products.length > 0 && (
+        <div className="flex mt-8 gap-4">
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Previous
+          </button>
+          <p>
+            Page {currentPage} of {totalPages}
+          </p>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </main>
   );
 }

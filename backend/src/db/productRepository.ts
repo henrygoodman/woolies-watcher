@@ -1,5 +1,5 @@
 import pool from "./db";
-import { Product } from "@shared-types/product";
+import { Product } from "@shared-types/api";
 
 export async function getProductFromDB(barcode: string): Promise<Product | null> {
   const query = "SELECT * FROM products WHERE barcode = $1";

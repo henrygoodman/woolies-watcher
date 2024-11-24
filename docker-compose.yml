@@ -40,7 +40,20 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
-  
+
+  migrations:
+    image: postgres:14
+    container_name: postgres_migrations
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: woolies-watcher
+    depends_on:
+      - db
+    volumes:
+      - ./db/migrations:/migrations
+    entrypoint: ["sh", "-c", "./migrations/migrate.sh"]
+
   pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin_container

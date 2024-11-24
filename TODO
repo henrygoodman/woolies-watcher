@@ -2,6 +2,19 @@
 
 ---
 
+**ATM**
+- Fix pagination controls (Done)
+- Add the optimistic loading (load the card and render image later if we dont have image cached)
+- Clean up folder structure (before we progress further)
+- Prettier
+- CI
+- Dark mode toggle
+
+**Key issues**
+- API usage and fetching images
+  - Employ some optimistic fetching techniques, update once daily, cache results
+
+
 **Key Features**  
 
 - Search for products by name, category, or brand.  
