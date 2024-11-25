@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { SearchBar } from '@/components/ui/search-bar';
 import {
   Card,
@@ -159,16 +160,18 @@ export default function Home() {
       {error && <p className="text-red-500">{error}</p>}
 
       {!loading && !error && products.length === 0 && query && (
-        <p className="text-gray-500">No products found for "{query}".</p>
+        <p className="text-gray-500">No products found for: {query}.</p>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
         {products.map((product, index) => (
           <Card key={product.id ?? `temp-${index}`} className="w-full">
             <CardHeader>
-              <img
+              <Image
                 src={product.image_url || 'https://placehold.co/200'}
                 alt={product.product_name}
+                width={200}
+                height={200}
                 className="w-full h-48 object-contain rounded-t-xl"
               />
               <CardTitle>{product.product_name}</CardTitle>
