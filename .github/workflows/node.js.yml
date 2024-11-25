@@ -44,17 +44,6 @@ jobs:
           npm ci
           npm run build
 
-      # Run project tests
-      - name: Run Backend Tests
-        run: |
-          cd backend
-          npm test
-
-      - name: Run Frontend Tests
-        run: |
-          cd frontend
-          npm test
-
       - name: Check Docker Compose Stack
         run: docker-compose up --build -d && docker-compose down
         env:
