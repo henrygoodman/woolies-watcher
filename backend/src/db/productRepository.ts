@@ -1,16 +1,53 @@
-import pool from "./db";
-import { Product } from "@shared-types/api";
+import pool from './pool';
+import { Product } from '@shared-types/api';
 
-export async function getProductFromDB(barcode: string): Promise<Product | null> {
-  const query = "SELECT * FROM products WHERE barcode = $1";
+export async function findProductByFields(
+  barcode: string | null,
+  product_name: string
+): Promise<Product | null> {
+  const query = `
+    SELECT * FROM products
+    WHERE (barcode = $1 OR $1 IS NULL)
+    AND product_name = $2
+    LIMIT 1
+  `;
   try {
-    const result = await pool.query(query, [barcode]);
+    const result = await pool.query(query, [barcode, product_name]);
+
+    if (result.rows.length === 0) {
+      return null;
+    }
+
+    const dbProduct = result.rows[0];
+    return {
+      id: dbProduct.id,
+      barcode: dbProduct.barcode,
+      product_name: dbProduct.product_name,
+      product_brand: dbProduct.product_brand,
+      current_price: parseFloat(dbProduct.current_price),
+      product_size: dbProduct.product_size,
+      url: dbProduct.url,
+      image_url: dbProduct.image_url,
+      last_updated: dbProduct.last_updated,
+    };
+  } catch (error) {
+    console.error('Error querying product by fields:', error);
+    throw error;
+  }
+}
+
+export async function getProductFromDB(id: number): Promise<Product | null> {
+  const query = 'SELECT * FROM products WHERE id = $1';
+  try {
+    const result = await pool.query(query, [id]);
+
     if (result.rows.length === 0) {
       return null;
     }
 
     const dbProduct = result.rows[0];
     const product: Product = {
+      id: dbProduct.id,
       barcode: dbProduct.barcode,
       product_name: dbProduct.product_name,
       product_brand: dbProduct.product_brand,
@@ -23,7 +60,7 @@ export async function getProductFromDB(barcode: string): Promise<Product | null>
 
     return product;
   } catch (error) {
-    console.error("Error querying database:", error);
+    console.error('Error querying database:', error);
     throw error;
   }
 }
@@ -53,7 +90,7 @@ export async function saveProductToDB(product: Product): Promise<void> {
       product.image_url,
     ]);
   } catch (error) {
-    console.error("Error saving to database:", error);
+    console.error('Error saving to database:', error);
     throw error;
   }
 }

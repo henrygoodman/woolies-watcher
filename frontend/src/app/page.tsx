@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { SearchBar } from "@/components/ui/search-bar";
+import { useState, useEffect } from 'react';
+import { SearchBar } from '@/components/ui/search-bar';
 import {
   Card,
   CardHeader,
@@ -9,13 +9,13 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-} from "@/components/ui/card";
+} from '@/components/ui/card';
 
-import { Product, SearchQueryParams, SearchResponse } from "@shared-types/api";
+import { Product } from '@shared-types/api';
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [query, setQuery] = useState<string>("");
+  const [query, setQuery] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
@@ -25,7 +25,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
 
-    const params: SearchQueryParams = {
+    const params = {
       query: searchQuery,
       page,
       size: 20,
@@ -35,17 +35,31 @@ export default function Home() {
       const response = await fetch(
         `/api/search?query=${params.query}&page=${params.page}&size=${params.size}`
       );
+
       if (!response.ok) {
         throw new Error(`Error: ${response.status} ${response.statusText}`);
       }
-      const data: SearchResponse = await response.json();
+
+      const data = await response.json();
+
+      console.log('Fetched data from search API:', data);
+
+      if (!Array.isArray(data.results)) {
+        console.error(
+          'Invalid data structure: results is not an array',
+          data.results
+        );
+        setError('Unexpected API response. Please try again later.');
+        setProducts([]);
+        return;
+      }
 
       setProducts(data.results);
       setCurrentPage(data.page);
       setTotalPages(data.total_pages);
     } catch (err) {
-      console.error("Error fetching products:", err);
-      setError("Failed to fetch products. Please try again later.");
+      console.error('Error fetching products:', err);
+      setError('Failed to fetch products. Please try again later.');
     } finally {
       setLoading(false);
     }
@@ -69,41 +83,72 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (!products.length) return;
-  
     const pollForUpdates = async () => {
       try {
-        const response = await fetch(`/api/search?query=${query}&page=${currentPage}`);
-        if (!response.ok) {
-          console.error(`Polling failed: ${response.status}`);
+        const productsToUpdate = products.filter(
+          (product) => product.image_url === null
+        );
+
+        if (productsToUpdate.length === 0) {
           return;
         }
-  
-        const data: SearchResponse = await response.json();
-  
+
+        const productIdentifiers = productsToUpdate.map((product) => ({
+          id: product.id,
+          barcode: product.barcode,
+          product_name: product.product_name,
+        }));
+
+        const response = await fetch('/api/product/update', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ productIdentifiers }),
+        });
+
+        if (!response.ok) {
+          console.error(
+            `Polling failed: ${response.status} ${response.statusText}`
+          );
+          const errorResponse = await response.text();
+          console.error('Server response:', errorResponse);
+          return;
+        }
+
+        const data = await response.json();
+
         setProducts((prevProducts) =>
           prevProducts.map((product) => {
-            const updatedProduct = data.results.find((p) => p.barcode === product.barcode);
+            const updatedProduct = data.find(
+              (p: Product) =>
+                (p.id === product.id && product.id !== 0) ||
+                (p.barcode === product.barcode &&
+                  p.product_name === product.product_name)
+            );
 
-            console.log("Here", data.results, updatedProduct, product)
-            // Only update if the image_url is different
-            if (updatedProduct && updatedProduct.image_url !== product.image_url) {
-              console.log("Updated", updatedProduct)
-              return { ...product, image_url: updatedProduct.image_url };
+            if (
+              updatedProduct &&
+              updatedProduct.image_url !== product.image_url
+            ) {
+              return {
+                ...product,
+                image_url: updatedProduct.image_url,
+              };
             }
-  
+
             return product;
           })
         );
       } catch (err) {
-        console.error("Error polling for updates:", err);
+        console.error('Error polling for updates:', err);
       }
     };
-  
-    const interval = setInterval(pollForUpdates, 5000);
-  
+
+    const interval = setInterval(pollForUpdates, 1000);
+
     return () => clearInterval(interval);
-  }, [products, query, currentPage]);  
+  }, [products]);
 
   return (
     <main className="flex flex-col items-center p-8">
@@ -118,11 +163,11 @@ export default function Home() {
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
-        {products.map((product) => (
-          <Card key={product.barcode} className="w-full">
+        {products.map((product, index) => (
+          <Card key={product.id ?? `temp-${index}`} className="w-full">
             <CardHeader>
               <img
-                src={product.image_url || "https://placehold.co/200"}
+                src={product.image_url || 'https://placehold.co/200'}
                 alt={product.product_name}
                 className="w-full h-48 object-contain rounded-t-xl"
               />

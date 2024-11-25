@@ -1,51 +1,43 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import { useForm } from "react-hook-form"
-import { Search } from 'lucide-react'
+import * as React from 'react';
+import { useForm } from 'react-hook-form';
+import { Search } from 'lucide-react';
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-} from "@/components/ui/form"
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 
 interface SearchBarProps extends React.HTMLAttributes<HTMLFormElement> {
-  onSearch: (query: string) => void
+  onSearch: (query: string) => void;
 }
 
 interface SearchFormValues {
-  query: string
+  query: string;
 }
 
 export function SearchBar({ className, onSearch, ...props }: SearchBarProps) {
-  const [isSearching, setIsSearching] = React.useState(false)
+  const [isSearching, setIsSearching] = React.useState(false);
   const form = useForm<SearchFormValues>({
     defaultValues: {
-      query: "",
+      query: '',
     },
-  })
+  });
 
   function onSubmit(data: SearchFormValues) {
-    setIsSearching(true)
-    onSearch(data.query)
+    setIsSearching(true);
+    onSearch(data.query);
     setTimeout(() => {
-      setIsSearching(false)
-    }, 1000)
+      setIsSearching(false);
+    }, 1000);
   }
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className={cn(
-          "flex w-full max-w-sm items-center space-x-2",
-          className
-        )}
+        className={cn('flex w-full max-w-sm items-center space-x-2', className)}
         {...props}
       >
         <FormField
@@ -74,6 +66,5 @@ export function SearchBar({ className, onSearch, ...props }: SearchBarProps) {
         </Button>
       </form>
     </Form>
-  )
+  );
 }
-

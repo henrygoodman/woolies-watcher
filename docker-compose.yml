@@ -6,7 +6,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - '3000:3000'
     volumes:
       - ./frontend:/app
       - ./types:/app/types
@@ -19,7 +19,7 @@ services:
   backend:
     build: ./backend
     ports:
-      - "5000:5000"
+      - '5000:5000'
     volumes:
       - ./backend:/app
       - ./types:/app/types
@@ -32,7 +32,7 @@ services:
     image: postgres:14
     container_name: postgres_db
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
@@ -52,7 +52,7 @@ services:
       - db
     volumes:
       - ./db/migrations:/migrations
-    entrypoint: ["sh", "-c", "./migrations/migrate.sh"]
+    entrypoint: ['sh', '-c', './migrations/migrate.sh']
 
   pgadmin:
     image: dpage/pgadmin4
@@ -61,7 +61,7 @@ services:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "5050:80"
+      - '5050:80'
     depends_on:
       - db
 
