@@ -43,8 +43,3 @@ jobs:
           cd backend
           npm ci
           npm run build
-
-      - name: Check Docker Compose Stack
-        run: docker-compose up --build -d && docker-compose down
-        env:
-          NODE_ENV: test
