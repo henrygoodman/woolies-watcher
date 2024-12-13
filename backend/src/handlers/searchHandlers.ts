@@ -68,8 +68,11 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
 
               if (image_url) {
                 productToSave.image_url = image_url;
-                await saveProductToDB(productToSave);
+              } else {
+                productToSave.image_url = 'https://placehold.co/200';
               }
+
+              await saveProductToDB(productToSave);
 
               console.log(
                 `Image fetch completed (${product_name}) in ${timeTaken}ms`
@@ -79,6 +82,9 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
                 `Failed to fetch image for product ${product_name}:`,
                 error
               );
+
+              productToSave.image_url = 'https://placehold.co/200';
+              await saveProductToDB(productToSave);
             }
           });
         }
