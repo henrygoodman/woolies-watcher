@@ -69,7 +69,7 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
               if (image_url) {
                 productToSave.image_url = image_url;
               } else {
-                productToSave.image_url = 'https://placehold.co/200';
+                productToSave.image_url = '/images/placeholder.jpeg';
               }
 
               await saveProductToDB(productToSave);
@@ -83,7 +83,7 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
                 error
               );
 
-              productToSave.image_url = 'https://placehold.co/200';
+              productToSave.image_url = '/images/placeholder.jpeg';
               await saveProductToDB(productToSave);
             }
           });
