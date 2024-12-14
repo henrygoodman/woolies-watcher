@@ -2,15 +2,13 @@ version: '3.8'
 
 services:
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    build: ./frontend
+    container_name: woolies-watcher-frontend
     ports:
       - '3000:3000'
     volumes:
       - ./frontend:/app
       - ./types:/app/types
-      - /app/node_modules
     environment:
       - NODE_ENV=development
     depends_on:
@@ -18,12 +16,14 @@ services:
 
   backend:
     build: ./backend
+    container_name: woolies-watcher-backend
     ports:
       - '5000:5000'
     volumes:
       - ./backend:/app
       - ./types:/app/types
     environment:
+      - NODE_ENV=development
       - DATABASE_URL=postgres://postgres:password@db:5432/woolies-watcher
     depends_on:
       - db

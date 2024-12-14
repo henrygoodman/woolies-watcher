@@ -9,3 +9,8 @@ export interface Product {
   image_url: string | null;
   last_updated: string;
 }
+
+export interface User {
+  name: string;
+  email: string;
+}

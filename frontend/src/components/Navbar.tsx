@@ -1,6 +1,6 @@
 'use client';
 
-import { LoginPopup } from '@/components/LoginPopup';
+import { AuthButton } from '@/components/AuthButton';
 
 export const Navbar: React.FC = () => {
   return (
@@ -11,7 +11,7 @@ export const Navbar: React.FC = () => {
           Home
         </a>
         <span className="text-gray-500">|</span>
-        <LoginPopup />
+        <AuthButton />
       </nav>
     </header>
   );

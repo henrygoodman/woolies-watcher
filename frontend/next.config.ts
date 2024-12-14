@@ -4,8 +4,12 @@ const nextConfig: NextConfig = {
   async rewrites() {
     return [
       {
+        source: '/api/auth/:path*',
+        destination: '/api/auth/:path*',
+      },
+      {
         source: '/api/:path*',
-        destination: 'http://backend:5000/api/:path*', // Should match docker service name
+        destination: 'http://backend:5000/api/:path*',
       },
     ];
   },
