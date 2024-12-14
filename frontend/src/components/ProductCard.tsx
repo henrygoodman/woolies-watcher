@@ -17,13 +17,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Card className="w-full">
       <CardHeader>
-        <Image
-          src={product.image_url || '/images/product_placeholder.jpeg'}
-          alt={product.product_name}
-          width={200}
-          height={200}
-          className="w-full h-48 object-contain rounded-t-xl"
-        />
+        <div className="w-full h-48 relative object-contain rounded-t-xl overflow-hidden">
+          <Image
+            src={product.image_url || '/images/product_placeholder.jpeg'}
+            alt={product.product_name}
+            layout="fill"
+            objectFit="contain"
+          />
+        </div>
         <CardTitle>{product.product_name}</CardTitle>
         <CardDescription>{product.product_size}</CardDescription>
       </CardHeader>

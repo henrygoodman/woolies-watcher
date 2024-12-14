@@ -1,13 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { Navbar } from '@/components/Navbar';
+import { MainArea } from '@/components/MainArea';
 import { ProductCard } from '@/components/ProductCard';
 import { Pagination } from '@/components/Pagination';
+import { SearchBar } from '@/components/ui/search-bar';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { ErrorMessage } from '@/components/ErrorMessage';
-import { SearchBar } from '@/components/ui/search-bar';
 import { useFetchProducts } from '@/hooks/useFetchProducts';
 import { usePollingUpdates } from '@/hooks/usePollingUpdates';
+import { User } from '@shared-types/api';
 
 export default function Home() {
   const {
@@ -19,7 +22,9 @@ export default function Home() {
     totalPages,
     fetchProducts,
   } = useFetchProducts();
+
   const [query, setQuery] = useState('');
+  const [user, setUser] = useState<User | null>(null);
 
   usePollingUpdates(products, (updatedProducts) => {
     setProducts(updatedProducts);
@@ -31,27 +36,30 @@ export default function Home() {
   };
 
   return (
-    <main className="flex flex-col items-center p-8">
-      <h1 className="text-4xl font-bold mb-4">Search Groceries</h1>
-      <SearchBar onSearch={handleSearch} />
+    <div className="min-h-screen bg-gray-100">
+      <Navbar />
+      <MainArea>
+        <h1 className="text-4xl font-bold mb-8">Search Groceries</h1>
+        <SearchBar onSearch={handleSearch} />
 
-      {loading && <LoadingIndicator />}
-      {error && <ErrorMessage message={error} />}
+        {loading && <LoadingIndicator />}
+        {error && <ErrorMessage message={error} />}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
-        {products.map((product, index) => (
-          <ProductCard key={index} product={product} />
-        ))}
-      </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
+          {products.map((product, index) => (
+            <ProductCard key={index} product={product} />
+          ))}
+        </div>
 
-      {products.length > 0 && (
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onNext={() => fetchProducts(query, currentPage + 1)}
-          onPrevious={() => fetchProducts(query, currentPage - 1)}
-        />
-      )}
-    </main>
+        {products.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onNext={() => fetchProducts(query, currentPage + 1)}
+            onPrevious={() => fetchProducts(query, currentPage - 1)}
+          />
+        )}
+      </MainArea>
+    </div>
   );
 }
