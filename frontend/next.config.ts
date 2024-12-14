@@ -21,16 +21,10 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      {
-        protocol: 'https',
-        hostname: 'placehold.co',
-        port: '',
-        pathname: '/**',
-      },
     ],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy:
-      "default-src 'self'; img-src 'self' https: data:; script-src 'none'; sandbox;",
+      "default-src 'self'; img-src 'self' https: data:; script-src 'self'; sandbox;",
   },
 };
 
