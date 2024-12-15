@@ -8,6 +8,8 @@ import { useFetchProducts } from '@/hooks/useFetchProducts';
 import { usePollingUpdates } from '@/hooks/usePollingUpdates';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { LoadingIndicator } from '@/components/LoadingIndicator';
+import { ErrorMessage } from '@/components/ErrorMessage';
 
 export default function Home() {
   const router = useRouter();
@@ -40,7 +42,7 @@ export default function Home() {
     setQuery(searchQuery);
     setPerPage(perPageFromQuery);
     fetchProducts(searchQuery, page, perPageFromQuery);
-  }, [searchParams, fetchProducts]);
+  }, [searchParams]);
 
   const handleSearch = (searchQuery: string) => {
     const encodedQuery = encodeURIComponent(searchQuery);
@@ -72,8 +74,8 @@ export default function Home() {
 
         <SearchBar onSearch={handleSearch} />
 
-        {loading && <p className="text-muted-foreground">Loading...</p>}
-        {error && <p className="text-destructive-foreground">Error: {error}</p>}
+        {loading && <LoadingIndicator />}
+        {error && <ErrorMessage message={error} />}
 
         {!loading && !error && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
