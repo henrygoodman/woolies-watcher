@@ -1,3 +1,5 @@
+import { ProductCard } from '@/components/ProductCard';
+
 export interface Product {
   id?: number;
   barcode: string | null;
@@ -16,6 +18,9 @@ export type ProductIdentifier = Pick<
 >;
 
 export interface User {
+  id?: number;
   name: string;
   email: string;
 }
+
+export type WatchlistRequest = Pick<Product, 'id'>;

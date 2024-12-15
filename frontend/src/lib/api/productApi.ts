@@ -4,11 +4,14 @@ export const fetchProductUpdates = async (
   productIdentifiers: ProductIdentifier[]
 ) => {
   try {
-    const response = await fetch('/api/product/update', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productIdentifiers }),
-    });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/product/update`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ productIdentifiers }),
+      }
+    );
 
     if (!response.ok)
       throw new Error(`Error: ${response.status} ${response.statusText}`);

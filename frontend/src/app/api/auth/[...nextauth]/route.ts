@@ -10,17 +10,19 @@ const authOptions: AuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, token }) {
-      if (token.email) {
-        session.user.email = token.email;
-      }
-      return session;
-    },
-    async jwt({ token, profile }) {
-      if (profile?.email) {
-        token.email = profile.email;
+    async jwt({ token, account, profile }) {
+      if (account) {
+        token.accessToken = account.access_token;
+        if (profile?.email) {
+          token.email = profile.email;
+        }
       }
       return token;
+    },
+    async session({ session, token }) {
+      session.accessToken = token.accessToken as string;
+      session.user.email = token.email || session.user.email;
+      return session;
     },
   },
 };

@@ -8,9 +8,10 @@ services:
       - '3000:3000'
     volumes:
       - ./frontend:/app
-      - ./types:/app/types
+      - ./shared-types:/app/shared-types
     environment:
-      - NODE_ENV=development
+      NODE_ENV: development
+      NEXT_PUBLIC_API_URL: /backend-api
     depends_on:
       - backend
 
@@ -21,10 +22,10 @@ services:
       - '5000:5000'
     volumes:
       - ./backend:/app
-      - ./types:/app/types
+      - ./shared-types:/app/shared-types
     environment:
-      - NODE_ENV=development
-      - DATABASE_URL=postgres://postgres:password@db:5432/woolies-watcher
+      NODE_ENV: development
+      DATABASE_URL: postgres://postgres:password@db:5432/woolies-watcher
     depends_on:
       - db
 

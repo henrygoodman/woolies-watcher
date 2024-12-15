@@ -13,7 +13,7 @@ export const useFetchProducts = () => {
     setError(null);
     try {
       const response = await fetch(
-        `/api/search?query=${query}&page=${page}&size=${size}`
+        `${process.env.NEXT_PUBLIC_API_URL}/search?query=${query}&page=${page}&size=${size}`
       );
       if (!response.ok)
         throw new Error(`Error: ${response.status} ${response.statusText}`);

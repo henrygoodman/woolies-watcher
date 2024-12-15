@@ -1,5 +1,9 @@
+'use client';
+
 import { Product } from '@shared-types/api';
 import Image from 'next/image';
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
 import {
   Card,
   CardHeader,
@@ -8,14 +12,66 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card';
+import { Heart } from 'lucide-react';
+import { addToWatchlist, removeFromWatchlist } from '@/lib/api/watchlistApi';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const { data: session } = useSession();
+  const isLoggedIn = !!session?.user;
+
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const toggleWatchlist = async () => {
+    if (!isLoggedIn) {
+      console.warn('User must be logged in to modify the watchlist.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      if (isInWatchlist) {
+        await removeFromWatchlist(product.id);
+        console.log(`Removed product ${product.id} from watchlist.`);
+      } else {
+        await addToWatchlist(product.id);
+        console.log(`Added product ${product.id} to watchlist.`);
+      }
+      setIsInWatchlist(!isInWatchlist);
+    } catch (error) {
+      console.error('Error toggling watchlist:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <Card className="w-full bg-card text-card-foreground border border-border rounded-lg shadow-md overflow-hidden flex flex-col">
+    <Card className="w-full bg-card text-card-foreground border border-border rounded-lg shadow-md overflow-hidden flex flex-col relative">
+      {/* Heart Icon */}
+      {isLoggedIn && (
+        <button
+          onClick={toggleWatchlist}
+          className={`absolute top-2 left-2 p-1 rounded-full bg-white shadow hover:bg-muted transition-colors z-10 ${
+            loading ? 'cursor-wait' : ''
+          }`}
+          aria-label={
+            isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
+          }
+          disabled={loading} // Prevent multiple clicks during API call
+        >
+          {isInWatchlist ? (
+            <Heart fill="white" className="text-destructive h-5 w-5" />
+          ) : (
+            <Heart className="text-muted-foreground h-5 w-5" />
+          )}
+        </button>
+      )}
+
       {/* Clickable Image Container */}
       <a
         href={product.url}
@@ -27,8 +83,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <Image
             src={product.image_url || '/images/product_placeholder.jpeg'}
             alt={product.product_name}
-            layout="fill"
-            objectFit="contain"
+            fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            style={{
+              objectFit: 'contain',
+            }}
             className="absolute top-0 left-0 w-full h-full"
           />
         </div>

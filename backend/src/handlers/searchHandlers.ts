@@ -1,4 +1,4 @@
-import { Request, Response, RequestHandler } from 'express';
+import { RequestHandler } from 'express';
 import axios from 'axios';
 import { fetchProductImage } from '@/utils/fetchImage';
 import { findProductByFields, saveProductToDB } from '@/db/productRepository';
