@@ -1,6 +1,5 @@
 'use client';
 
-import { Navbar } from '@/components/Navbar';
 import { Pagination } from '@/components/Pagination';
 import { ProductCard } from '@/components/ProductCard';
 import { SearchBar } from '@/components/ui/search-bar';
@@ -66,7 +65,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Navbar />
       <div className="flex flex-col items-center p-8">
         <h1 className="text-4xl font-bold mb-8 text-primary">
           Search Groceries

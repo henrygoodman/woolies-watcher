@@ -22,7 +22,9 @@ export const useFetchProducts = () => {
       setCurrentPage(data.page);
       setTotalPages(data.total_pages);
     } catch {
-      setError('Failed to fetch products. Please try again later.');
+      if (query !== '') {
+        setError('Failed to fetch products. Please try again later.');
+      }
     } finally {
       setLoading(false);
     }
