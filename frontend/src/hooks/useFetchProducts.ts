@@ -13,7 +13,7 @@ export const useFetchProducts = () => {
     setError(null);
     try {
       const response = await fetch(
-        `/api/search?query=${query}&page=${page}&size=20`
+        `/api/search?query=${query}&page=${page}&size=18`
       );
       if (!response.ok)
         throw new Error(`Error: ${response.status} ${response.statusText}`);
