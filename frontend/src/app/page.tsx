@@ -40,7 +40,7 @@ export default function Home() {
     setQuery(searchQuery);
     setPerPage(perPageFromQuery);
     fetchProducts(searchQuery, page, perPageFromQuery);
-  }, [searchParams]);
+  }, [searchParams, fetchProducts]);
 
   const handleSearch = (searchQuery: string) => {
     const encodedQuery = encodeURIComponent(searchQuery);

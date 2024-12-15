@@ -13,7 +13,7 @@ import {
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 export const Navbar: React.FC = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const user = session?.user;
 
   return (
@@ -22,10 +22,8 @@ export const Navbar: React.FC = () => {
         <h1 className="text-lg font-bold text-primary">Woolies Watcher</h1>
 
         <div className="flex items-center space-x-4">
-          {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* User Dropdown Menu */}
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
