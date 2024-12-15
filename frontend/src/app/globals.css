@@ -75,8 +75,8 @@ body {
     --primary-foreground: 140 40% 95%;
     --secondary: 140 20% 80%;
     --secondary-foreground: 140 40% 20%;
-    --muted: 140 20% 90%;
-    --muted-foreground: 140 30% 30%;
+    --muted: 140 20% 80%; /* Slightly darker muted green */
+    --muted-foreground: 140 40% 30%;
     --accent: 140 60% 50%;
     --accent-foreground: 140 20% 95%;
     --destructive: 0 60% 50%;
@@ -103,12 +103,12 @@ body {
     --primary-foreground: 140 80% 95%; /* Bright green text */
     --secondary: 140 30% 20%; /* Dark muted green */
     --secondary-foreground: 140 50% 80%; /* Softer green text */
-    --muted: 140 20% 15%;
-    --muted-foreground: 140 50% 70%;
+    --muted: 140 25% 20%; /* Lighter muted green */
+    --muted-foreground: 140 60% 70%;
     --accent: 140 50% 30%; /* Accent is more vibrant */
     --accent-foreground: 140 70% 90%; /* Contrasting accent text */
-    --destructive: 0 50% 20%;
-    --destructive-foreground: 0 70% 90%;
+    --destructive: 0 65% 40%; /* Brightened red for better visibility */
+    --destructive-foreground: 0 90% 95%;
     --border: 140 20% 12%;
     --input: 140 20% 15%;
     --ring: 140 40% 25%;

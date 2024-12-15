@@ -1,62 +1,81 @@
 'use client';
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useSession, signIn, signOut } from 'next-auth/react';
 import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuList,
-} from '@/components/ui/navigation-menu';
-import { AuthButton } from '@/components/AuthButton';
-import { useState, useEffect } from 'react';
-import { Switch } from '@/components/ui/switch';
-import { SunIcon, MoonIcon } from '@heroicons/react/24/solid';
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export const Navbar: React.FC = () => {
-  const [isGreenTheme, setIsGreenTheme] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    const savedTheme = sessionStorage.getItem('theme') || 'green';
-    setIsGreenTheme(savedTheme === 'green');
-    document.documentElement.setAttribute('data-theme', savedTheme);
-  }, []);
-
-  const handleThemeToggle = (checked: boolean) => {
-    const theme = checked ? 'dark-green' : 'green';
-    setIsGreenTheme(!checked);
-    document.documentElement.setAttribute('data-theme', theme);
-    sessionStorage.setItem('theme', theme);
-  };
-
-  if (isGreenTheme === null) {
-    return null;
-  }
+  const { data: session, status } = useSession();
+  const user = session?.user;
 
   return (
     <header className="w-full bg-background text-foreground p-4 shadow-md">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
         <h1 className="text-lg font-bold text-primary">Woolies Watcher</h1>
 
-        <NavigationMenu>
-          <NavigationMenuList className="flex items-center space-x-4">
-            <NavigationMenuItem>
-              <AuthButton />
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <div className="flex items-center space-x-2">
-                {isGreenTheme ? (
-                  <SunIcon className="w-5 h-5 text-accent" />
-                ) : (
-                  <MoonIcon className="w-5 h-5 text-accent" />
-                )}
+        <div className="flex items-center space-x-4">
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
-                <Switch
-                  checked={!isGreenTheme}
-                  onCheckedChange={handleThemeToggle}
-                  aria-label="Toggle theme"
-                />
-              </div>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
+          {/* User Dropdown Menu */}
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="w-8 h-8 cursor-pointer">
+                  <AvatarImage
+                    src={user.image || undefined}
+                    alt={user.name || 'User'}
+                    className="rounded-full"
+                  />
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    {user.name
+                      ? user.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .toUpperCase()
+                      : 'U'}
+                  </AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48 bg-popover rounded-lg shadow-md">
+                <DropdownMenuLabel className="font-semibold">
+                  {user.name}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  onClick={() => alert('Navigate to Watchlist')}
+                >
+                  Watchlist
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => alert('Navigate to Settings')}>
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+
+                <DropdownMenuItem
+                  onClick={() => signOut()}
+                  className="text-destructive"
+                >
+                  Log Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <button onClick={() => signIn()} className="text-sm">
+              Sign In
+            </button>
+          )}
+        </div>
       </div>
     </header>
   );

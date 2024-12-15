@@ -1,15 +1,18 @@
 'use client';
 
-import { useState } from 'react';
 import { Navbar } from '@/components/Navbar';
-import { ProductCard } from '@/components/ProductCard';
 import { Pagination } from '@/components/Pagination';
+import { ProductCard } from '@/components/ProductCard';
 import { SearchBar } from '@/components/ui/search-bar';
 import { useFetchProducts } from '@/hooks/useFetchProducts';
 import { usePollingUpdates } from '@/hooks/usePollingUpdates';
-import { User } from '@shared-types/api';
+import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function Home() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
   const {
     products,
     setProducts,
@@ -21,15 +24,42 @@ export default function Home() {
   } = useFetchProducts();
 
   const [query, setQuery] = useState('');
-  const [user, setUser] = useState<User | null>(null);
+  const [perPage, setPerPage] = useState(() => {
+    return parseInt(searchParams.get('size') || '18', 10);
+  });
 
   usePollingUpdates(products, (updatedProducts) => {
     setProducts(updatedProducts);
   });
 
-  const handleSearch = (searchQuery: string) => {
+  useEffect(() => {
+    const searchQuery = searchParams.get('search') || '';
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const perPageFromQuery = parseInt(searchParams.get('size') || '18', 10);
+
     setQuery(searchQuery);
-    fetchProducts(searchQuery, 1);
+    setPerPage(perPageFromQuery);
+    fetchProducts(searchQuery, page, perPageFromQuery);
+  }, [searchParams]);
+
+  const handleSearch = (searchQuery: string) => {
+    const encodedQuery = encodeURIComponent(searchQuery);
+    setQuery(encodedQuery);
+
+    router.push(`/?search=${encodedQuery}&page=1&size=${perPage}`);
+    fetchProducts(encodedQuery, 1, perPage);
+  };
+
+  const handlePagination = (page: number) => {
+    router.push(`/?search=${query}&page=${page}&size=${perPage}`);
+    fetchProducts(query, page, perPage);
+  };
+
+  const handlePerPageChange = (value: number) => {
+    setPerPage(value);
+
+    router.push(`/?search=${query}&page=1&size=${value}`);
+    fetchProducts(query, 1, value);
   };
 
   return (
@@ -57,8 +87,10 @@ export default function Home() {
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
-            onNext={() => fetchProducts(query, currentPage + 1)}
-            onPrevious={() => fetchProducts(query, currentPage - 1)}
+            perPage={perPage}
+            onNext={() => handlePagination(currentPage + 1)}
+            onPrevious={() => handlePagination(currentPage - 1)}
+            onPerPageChange={handlePerPageChange}
           />
         )}
       </div>

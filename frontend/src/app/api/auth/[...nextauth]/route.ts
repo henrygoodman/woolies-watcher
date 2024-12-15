@@ -16,7 +16,7 @@ export const authOptions: AuthOptions = {
       }
       return session;
     },
-    async jwt({ token, profile, account }) {
+    async jwt({ token, profile }) {
       if (profile?.email) {
         token.email = profile.email;
       }

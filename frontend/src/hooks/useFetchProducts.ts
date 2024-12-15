@@ -8,12 +8,12 @@ export const useFetchProducts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
 
-  const fetchProducts = async (query: string, page: number) => {
+  const fetchProducts = async (query: string, page: number, size: number) => {
     setLoading(true);
     setError(null);
     try {
       const response = await fetch(
-        `/api/search?query=${query}&page=${page}&size=18`
+        `/api/search?query=${query}&page=${page}&size=${size}`
       );
       if (!response.ok)
         throw new Error(`Error: ${response.status} ${response.statusText}`);
@@ -21,7 +21,7 @@ export const useFetchProducts = () => {
       setProducts(data.results);
       setCurrentPage(data.page);
       setTotalPages(data.total_pages);
-    } catch (err) {
+    } catch {
       setError('Failed to fetch products. Please try again later.');
     } finally {
       setLoading(false);

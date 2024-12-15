@@ -2,9 +2,13 @@ import { jwtDecode } from 'jwt-decode';
 
 const VALIDATE_TOKEN_API = '/api/auth/validate';
 
+interface JwtDecoded {
+  exp: number;
+}
+
 export const validateToken = async (token: string): Promise<boolean> => {
   try {
-    const decoded: any = jwtDecode(token);
+    const decoded: JwtDecoded = jwtDecode(token);
     const currentTime = Math.floor(Date.now() / 1000);
     if (decoded.exp < currentTime) {
       console.warn('Token is expired.');

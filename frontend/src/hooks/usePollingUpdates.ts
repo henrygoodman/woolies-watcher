@@ -1,45 +1,36 @@
-import { useEffect } from 'react';
-import { Product } from '@shared-types/api';
+import { useEffect, useRef } from 'react';
+import { Product, ProductIdentifier } from '@shared-types/api';
+import { fetchProductUpdates } from '@/lib/api/productApi';
 
 export const usePollingUpdates = (
   products: Product[],
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>
 ) => {
+  const productsRef = useRef(products);
+
+  useEffect(() => {
+    productsRef.current = products;
+  }, [products]);
+
   useEffect(() => {
     const pollForUpdates = async () => {
       try {
-        const productsToUpdate = products.filter(
+        const productsToUpdate = productsRef.current.filter(
           (product) => product.image_url === null
         );
 
-        if (productsToUpdate.length === 0) {
-          return;
-        }
+        if (productsToUpdate.length === 0) return;
 
-        const productIdentifiers = productsToUpdate.map((product) => ({
-          id: product.id,
-          barcode: product.barcode,
-          product_name: product.product_name,
-        }));
+        const productIdentifiers: ProductIdentifier[] = productsToUpdate.map(
+          (product) => ({
+            id: product.id!,
+            barcode: product.barcode!,
+            product_name: product.product_name,
+          })
+        );
 
-        const response = await fetch('/api/product/update', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ productIdentifiers }),
-        });
-
-        if (!response.ok) {
-          console.error(
-            `Polling failed: ${response.status} ${response.statusText}`
-          );
-          const errorResponse = await response.text();
-          console.error('Server response:', errorResponse);
-          return;
-        }
-
-        const updatedProducts: Product[] = await response.json();
+        const updatedProducts: Product[] =
+          await fetchProductUpdates(productIdentifiers);
 
         setProducts((prevProducts) =>
           prevProducts.map((product) => {
@@ -68,8 +59,8 @@ export const usePollingUpdates = (
       }
     };
 
-    const interval = setInterval(pollForUpdates, 1000);
+    const interval = setInterval(pollForUpdates, 2000);
 
     return () => clearInterval(interval);
-  }, [products, setProducts]);
+  }, [setProducts]);
 };
