@@ -10,6 +10,11 @@ export interface Product {
   last_updated: string;
 }
 
+export type ProductIdentifier = Pick<
+  Product,
+  'id' | 'barcode' | 'product_name'
+>;
+
 export interface User {
   name: string;
   email: string;
