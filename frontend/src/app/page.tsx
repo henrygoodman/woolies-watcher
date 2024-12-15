@@ -72,7 +72,7 @@ export default function Home() {
           Search Groceries
         </h1>
 
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar value={query} onSearch={handleSearch} />
 
         {loading && <LoadingIndicator />}
         {error && <ErrorMessage message={error} />}

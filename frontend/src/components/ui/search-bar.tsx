@@ -11,27 +11,38 @@ import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 
 interface SearchBarProps extends React.HTMLAttributes<HTMLFormElement> {
   onSearch: (query: string) => void;
+  value?: string;
 }
 
 interface SearchFormValues {
   query: string;
 }
 
-export function SearchBar({ className, onSearch, ...props }: SearchBarProps) {
+export function SearchBar({
+  className,
+  onSearch,
+  value = '',
+  ...props
+}: SearchBarProps) {
   const [isSearching, setIsSearching] = React.useState(false);
+
   const form = useForm<SearchFormValues>({
     defaultValues: {
-      query: '',
+      query: value,
     },
   });
 
-  function onSubmit(data: SearchFormValues) {
+  React.useEffect(() => {
+    form.reset({ query: value });
+  }, [value, form]);
+
+  const onSubmit = (data: SearchFormValues) => {
     setIsSearching(true);
-    onSearch(data.query);
+    onSearch(data.query.trim());
     setTimeout(() => {
       setIsSearching(false);
     }, 1000);
-  }
+  };
 
   return (
     <Form {...form}>
@@ -56,9 +67,13 @@ export function SearchBar({ className, onSearch, ...props }: SearchBarProps) {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isSearching}>
+        <Button
+          type="submit"
+          disabled={isSearching}
+          className="flex items-center"
+        >
           {isSearching ? (
-            <span className="animate-spin mr-2">◌</span>
+            <span className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
           ) : (
             <Search className="mr-2 h-4 w-4" />
           )}
