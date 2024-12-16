@@ -59,7 +59,7 @@ export function SearchBar({
               <FormControl>
                 <Input
                   type="search"
-                  placeholder="Search..."
+                  placeholder="Search products..."
                   className="w-full"
                   {...field}
                 />

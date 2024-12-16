@@ -13,16 +13,21 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
+import { SearchBar } from '@/components/ui/search-bar';
 
 export const Navbar: React.FC = () => {
   const { data: session } = useSession();
   const user = session?.user;
   const router = useRouter();
 
+  const handleSearch = (query: string) => {
+    router.push(`/search?search=${encodeURIComponent(query)}`);
+  };
+
   return (
     <header className="w-full bg-background text-foreground p-4 shadow-md">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
-        {/* Clickable Logo */}
+        {/* Logo */}
         <h1
           className="text-lg font-bold text-primary cursor-pointer"
           onClick={() => router.push('/')}
@@ -30,8 +35,17 @@ export const Navbar: React.FC = () => {
           Woolies Watcher
         </h1>
 
+        {/* Centered Search Bar */}
+        <div className="flex-grow mx-4 flex justify-center">
+          <SearchBar
+            value=""
+            onSearch={handleSearch}
+            className="max-w-lg w-full" // Cap width and make it responsive
+          />
+        </div>
+
+        {/* Right Section */}
         <div className="flex items-center space-x-4">
-          {/* Home Button */}
           <Button
             variant="ghost"
             size="sm"
@@ -41,7 +55,6 @@ export const Navbar: React.FC = () => {
             Home
           </Button>
 
-          {/* Theme Toggle */}
           <ThemeToggle />
 
           {user ? (
@@ -69,16 +82,13 @@ export const Navbar: React.FC = () => {
                   {user.name}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-
-                {/* Navigate to Watchlist */}
                 <DropdownMenuItem onClick={() => router.push('/dashboard')}>
                   Watchlist
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => alert('Navigate to Settings')}>
+                <DropdownMenuItem onClick={() => router.push('/settings')}>
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-
                 <DropdownMenuItem
                   onClick={() => signOut()}
                   className="text-destructive"

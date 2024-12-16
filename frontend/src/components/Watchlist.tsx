@@ -16,7 +16,6 @@ export const Watchlist: React.FC = () => {
     const fetchWatchlist = async () => {
       try {
         const data = await getWatchlist();
-
         setWatchlist(data.watchlist || []);
       } catch (err) {
         setError('Failed to load watchlist.');
@@ -35,7 +34,7 @@ export const Watchlist: React.FC = () => {
   return (
     <div className="container mx-auto">
       <h2 className="text-2xl font-bold mb-4">Your Watchlist</h2>
-      <DataTable columns={columns} data={watchlist} />
+      <DataTable columns={columns(setWatchlist)} data={watchlist} />
     </div>
   );
 };

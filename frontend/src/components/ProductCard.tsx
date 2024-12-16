@@ -14,17 +14,24 @@ import {
 } from '@/components/ui/card';
 import { Heart } from 'lucide-react';
 import { addToWatchlist, removeFromWatchlist } from '@/lib/api/watchlistApi';
+import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 interface ProductCardProps {
   product: Product;
+  isInWatchlist: boolean;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  isInWatchlist: initialWatchlistState,
+}) => {
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
 
-  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [isInWatchlist, setIsInWatchlist] = useState(initialWatchlistState);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const toggleWatchlist = async () => {
     if (!isLoggedIn) {
@@ -38,9 +45,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       if (isInWatchlist) {
         await removeFromWatchlist(product.id);
         console.log(`Removed product ${product.id} from watchlist.`);
+        toast({
+          title: 'Removed from Watchlist',
+          description: `${product.product_name} has been removed from your watchlist.`,
+          variant: 'destructive',
+        });
       } else {
         await addToWatchlist(product.id);
         console.log(`Added product ${product.id} to watchlist.`);
+        toast({
+          title: 'Added to Watchlist',
+          description: (
+            <span>
+              <span>
+                {product.product_name} has been added to your watchlist.{' '}
+              </span>
+              <Link href="/dashboard" className="text-primary underline">
+                View Watchlist
+              </Link>
+            </span>
+          ),
+        });
       }
       setIsInWatchlist(!isInWatchlist);
     } catch (error) {
@@ -65,7 +90,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           disabled={loading} // Prevent multiple clicks during API call
         >
           {isInWatchlist ? (
-            <Heart fill="white" className="text-destructive h-5 w-5" />
+            <Heart fill="red" className="text-destructive h-5 w-5" />
           ) : (
             <Heart className="text-muted-foreground h-5 w-5" />
           )}
@@ -95,39 +120,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
       {/* Card Content */}
       <div className="flex flex-1 flex-col justify-between py-2">
-        {/* Title and Quantity */}
-        <div className="flex flex-col gap-1 min-h-[4.5rem]">
-          <CardHeader className="flex flex-col gap-1">
-            <CardTitle className="text-primary text-base font-semibold line-clamp-2">
-              {product.product_name}
-            </CardTitle>
-            <CardDescription className="text-muted-foreground text-sm">
-              {product.product_size}
-            </CardDescription>
-          </CardHeader>
-        </div>
-
-        {/* Price, Brand, and Link */}
-        <div className="flex flex-col items-start gap-2">
-          <CardContent className="flex flex-col">
-            <p className="text-accent font-bold">
-              ${product.current_price.toFixed(2)}
-            </p>
-            <p className="text-muted-foreground text-sm">
-              {product.product_brand}
-            </p>
-          </CardContent>
-          <CardFooter>
-            <a
-              href={product.url}
-              target="_blank"
-              className="text-primary font-semibold hover:underline hover:text-primary-foreground"
-              rel="noreferrer"
-            >
-              View Product
-            </a>
-          </CardFooter>
-        </div>
+        <CardHeader>
+          <CardTitle className="text-primary text-base font-semibold line-clamp-2">
+            {product.product_name}
+          </CardTitle>
+          <CardDescription className="text-muted-foreground text-sm">
+            {product.product_size}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-accent font-bold">
+            ${product.current_price.toFixed(2)}
+          </p>
+          <p className="text-muted-foreground text-sm">
+            {product.product_brand}
+          </p>
+        </CardContent>
+        <CardFooter>
+          <a
+            href={product.url}
+            target="_blank"
+            rel="noreferrer"
+            className="text-primary font-semibold hover:underline"
+          >
+            View Product
+          </a>
+        </CardFooter>
       </div>
     </Card>
   );
