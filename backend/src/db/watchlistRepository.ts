@@ -1,3 +1,4 @@
+import { DBProduct } from '@shared-types/db';
 import pool from './pool';
 
 export const addToWatchlist = async (
@@ -42,25 +43,15 @@ export const removeFromWatchlist = async (
   }
 };
 
-export const getWatchlist = async (userId: number) => {
+export const getWatchlist = async (userId: number): Promise<DBProduct[]> => {
   const query = `
-    SELECT
-      w.product_id,
-      p.product_name,
-      p.product_brand,
-      p.current_price,
-      p.image_url,
-      w.added_at
-    FROM
-      watchlist w
-    JOIN
-      products p ON w.product_id = p.id
-    WHERE
-      w.user_id = $1
+    SELECT p.* 
+    FROM products p
+    INNER JOIN watchlist w ON p.id = w.product_id
+    WHERE w.user_id = $1
   `;
-
-  const result = await pool.query(query, [userId]);
-  return result.rows;
+  const { rows } = await pool.query(query, [userId]);
+  return rows as DBProduct[];
 };
 
 export const getWatchlistCountForProduct = async (

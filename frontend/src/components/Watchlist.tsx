@@ -16,7 +16,15 @@ export const Watchlist: React.FC = () => {
     const fetchWatchlist = async () => {
       try {
         const data = await getWatchlist();
-        setWatchlist(data.watchlist || []);
+        setWatchlist(
+          data.watchlist.map((product) => ({
+            product_id: product.id!,
+            product_name: product.product_name,
+            product_brand: product.product_brand,
+            current_price: product.current_price,
+            image_url: product.image_url || '',
+          }))
+        );
       } catch (err) {
         setError('Failed to load watchlist.');
         console.error(err);

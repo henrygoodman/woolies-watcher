@@ -1,8 +1,8 @@
 'use client';
 
-import { Product } from '@shared-types/api';
+import { DBProduct } from '@shared-types/db';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import {
   Card,
@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
 interface ProductCardProps {
-  product: Product;
+  product: DBProduct;
   isInWatchlist: boolean;
 }
 
@@ -33,6 +33,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    setIsInWatchlist(initialWatchlistState);
+  }, [initialWatchlistState]);
+
   const toggleWatchlist = async () => {
     if (!isLoggedIn) {
       console.warn('User must be logged in to modify the watchlist.');
@@ -44,7 +48,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     try {
       if (isInWatchlist) {
         await removeFromWatchlist(product.id);
-        console.log(`Removed product ${product.id} from watchlist.`);
         toast({
           title: 'Removed from Watchlist',
           description: `${product.product_name} has been removed from your watchlist.`,
@@ -52,7 +55,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         });
       } else {
         await addToWatchlist(product.id);
-        console.log(`Added product ${product.id} to watchlist.`);
         toast({
           title: 'Added to Watchlist',
           description: (
@@ -87,7 +89,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           aria-label={
             isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
           }
-          disabled={loading} // Prevent multiple clicks during API call
+          disabled={loading}
         >
           {isInWatchlist ? (
             <Heart fill="red" className="text-destructive h-5 w-5" />
@@ -97,7 +99,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </button>
       )}
 
-      {/* Clickable Image Container */}
+      {/* Product Image */}
       <a
         href={product.url}
         target="_blank"
@@ -118,7 +120,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         </div>
       </a>
 
-      {/* Card Content */}
+      {/* Product Info */}
       <div className="flex flex-1 flex-col justify-between py-2">
         <CardHeader>
           <CardTitle className="text-primary text-base font-semibold line-clamp-2">

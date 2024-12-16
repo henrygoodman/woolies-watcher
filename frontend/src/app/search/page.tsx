@@ -38,6 +38,7 @@ export default function SearchPage() {
       try {
         const data = await getWatchlist();
         setWatchlist(data.watchlist.map((item) => item.id as number));
+        console.log(data.watchlist);
       } catch (err) {
         console.error('Error fetching watchlist:', err);
       }

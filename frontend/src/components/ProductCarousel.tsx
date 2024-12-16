@@ -11,9 +11,9 @@ import {
 } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { ProductCard } from '@/components/ProductCard';
-import { type Product } from '@shared-types/api';
+import { type DBProduct } from '@shared-types/db';
 
-const products: Product[] = [
+const products: DBProduct[] = [
   {
     id: 1,
     barcode: null,

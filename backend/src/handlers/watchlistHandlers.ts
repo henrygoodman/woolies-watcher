@@ -5,6 +5,7 @@ import {
   removeFromWatchlist,
 } from '@/db/watchlistRepository';
 import { WatchlistRequest } from '@shared-types/api';
+import { DBProduct } from '@shared-types/db';
 
 export const handleWatchlistAdd: RequestHandler = async (req, res) => {
   const user = req.user;
@@ -75,11 +76,9 @@ export const handleWatchlistGet: RequestHandler = async (req, res) => {
   }
 
   try {
-    const watchlist = await getWatchlist(user.id);
+    const watchlist: DBProduct[] = await getWatchlist(user.id);
 
-    console.log('Got watchlist', watchlist, user);
-
-    if (!watchlist || watchlist.length === 0) {
+    if (watchlist.length === 0) {
       res.status(200).json({ message: 'Watchlist is empty', watchlist: [] });
       return;
     }
