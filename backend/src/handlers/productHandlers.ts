@@ -1,8 +1,8 @@
 import { RequestHandler } from 'express';
-import pool from '@/db/pool';
+import { findProductsByIdentifiers } from '@/db/productRepository';
 
 export const handleProductUpdates: RequestHandler = async (req, res) => {
-  const { productIdentifiers } = req.body; // Assume an array of objects { id, barcode, product_name }
+  const { productIdentifiers } = req.body;
 
   if (
     !productIdentifiers ||
@@ -18,12 +18,6 @@ export const handleProductUpdates: RequestHandler = async (req, res) => {
   }
 
   try {
-    const query = `
-        SELECT id, barcode, product_name, image_url 
-        FROM products 
-        WHERE id = ANY($1::int[]) OR (barcode = ANY($2::text[]) AND product_name = ANY($3::text[]))
-      `;
-
     const ids = productIdentifiers.map((p) => p.id).filter((id) => id !== 0);
     const barcodes = productIdentifiers
       .map((p) => p.barcode)
@@ -32,12 +26,11 @@ export const handleProductUpdates: RequestHandler = async (req, res) => {
       .map((p) => p.product_name)
       .filter((name) => name);
 
-    const { rows: products } = await pool.query(query, [
+    const products = await findProductsByIdentifiers(
       ids,
       barcodes,
-      productNames,
-    ]);
-
+      productNames
+    );
     res.json(products);
   } catch (error) {
     console.error('Error fetching product updates:', error);

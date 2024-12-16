@@ -37,12 +37,7 @@ export default function SearchPage() {
     const fetchWatchlist = async () => {
       try {
         const data = await getWatchlist();
-        setWatchlist(
-          data.watchlist.map((item: { product_id: number }) => item.product_id)
-        );
-        console.log(
-          data.watchlist.map((item: { product_id: number }) => item.product_id)
-        );
+        setWatchlist(data.watchlist.map((item) => item.id as number));
       } catch (err) {
         console.error('Error fetching watchlist:', err);
       }

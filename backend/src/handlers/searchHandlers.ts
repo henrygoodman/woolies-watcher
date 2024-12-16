@@ -3,16 +3,8 @@ import axios from 'axios';
 import { fetchProductImage } from '@/utils/fetchImage';
 import { findProductByFields, saveProductToDB } from '@/db/productRepository';
 import { parseQueryParams } from '@/utils/parseQueryParams';
-import { Product } from '@shared-types/api';
-
-interface SearchResponse {
-  query: string;
-  page: number;
-  size: number;
-  total_results: number;
-  total_pages: number;
-  results: Product[];
-}
+import { DBProduct } from '@shared-types/db';
+import { ProductSearchResponse } from '@shared-types/api';
 
 export const handleSearchProducts: RequestHandler = async (req, res) => {
   const queryParams = parseQueryParams(req);
@@ -43,7 +35,7 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
 
         const cachedProduct = await findProductByFields(barcode, product_name);
 
-        const productToSave: Product = {
+        const productToSave: DBProduct = {
           id: cachedProduct?.id,
           barcode: barcode,
           product_name,
@@ -101,7 +93,7 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
       total_results: response.data.total_results,
       total_pages: response.data.total_pages,
       results,
-    } as SearchResponse);
+    } as ProductSearchResponse);
   } catch (error) {
     console.error('Error occurred during search request:', error);
     res.status(500).json({ error: 'Failed to fetch data' });

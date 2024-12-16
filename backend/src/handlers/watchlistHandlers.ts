@@ -15,7 +15,7 @@ export const handleWatchlistAdd: RequestHandler = async (req, res) => {
   }
 
   const { id: user_id } = user;
-  const { id: product_id }: WatchlistRequest = req.body;
+  const { product_id }: WatchlistRequest = req.body;
 
   if (!product_id) {
     res.status(400).json({ error: 'product_id is required' });

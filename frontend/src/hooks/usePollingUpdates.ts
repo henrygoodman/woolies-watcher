@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { Product, ProductIdentifier } from '@shared-types/api';
-import { fetchProductUpdates } from '@/lib/api/productApi';
+import { DBProduct } from '@shared-types/db';
+import { ProductIdentifier } from '@shared-types/api';
+import { fetchProductUpdatesApi } from '@/lib/api/productApi';
 
 export const usePollingUpdates = (
-  products: Product[],
-  setProducts: React.Dispatch<React.SetStateAction<Product[]>>
+  products: DBProduct[],
+  setProducts: React.Dispatch<React.SetStateAction<DBProduct[]>>
 ) => {
   const productsRef = useRef(products);
 
@@ -29,8 +30,8 @@ export const usePollingUpdates = (
           })
         );
 
-        const updatedProducts: Product[] =
-          await fetchProductUpdates(productIdentifiers);
+        const updatedProducts: DBProduct[] =
+          await fetchProductUpdatesApi(productIdentifiers);
 
         setProducts((prevProducts) =>
           prevProducts.map((product) => {

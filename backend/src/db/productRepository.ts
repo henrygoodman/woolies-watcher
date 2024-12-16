@@ -1,10 +1,10 @@
 import pool from './pool';
-import { Product } from '@shared-types/api';
+import { DBProduct } from '@shared-types/db';
 
 export async function findProductByFields(
   barcode: string | null,
   product_name: string
-): Promise<Product | null> {
+): Promise<DBProduct | null> {
   const query = `
     SELECT * FROM products
     WHERE (barcode = $1 OR $1 IS NULL)
@@ -36,7 +36,36 @@ export async function findProductByFields(
   }
 }
 
-export async function getProductFromDB(id: number): Promise<Product | null> {
+export async function findProductsByIdentifiers(
+  ids: number[],
+  barcodes: string[],
+  productNames: string[]
+): Promise<DBProduct[]> {
+  const query = `
+    SELECT id, barcode, product_name, image_url 
+    FROM products 
+    WHERE id = ANY($1::int[]) OR (barcode = ANY($2::text[]) AND product_name = ANY($3::text[]))
+  `;
+  try {
+    const { rows } = await pool.query(query, [ids, barcodes, productNames]);
+    return rows.map((row) => ({
+      id: row.id,
+      barcode: row.barcode,
+      product_name: row.product_name,
+      product_brand: row.product_brand,
+      current_price: parseFloat(row.current_price),
+      product_size: row.product_size,
+      url: row.url,
+      image_url: row.image_url,
+      last_updated: row.last_updated,
+    }));
+  } catch (error) {
+    console.error('Error fetching products by identifiers:', error);
+    throw error;
+  }
+}
+
+export async function getProductFromDB(id: number): Promise<DBProduct | null> {
   const query = 'SELECT * FROM products WHERE id = $1';
   try {
     const result = await pool.query(query, [id]);
@@ -46,7 +75,7 @@ export async function getProductFromDB(id: number): Promise<Product | null> {
     }
 
     const dbProduct = result.rows[0];
-    const product: Product = {
+    const product: DBProduct = {
       id: dbProduct.id,
       barcode: dbProduct.barcode,
       product_name: dbProduct.product_name,
@@ -65,7 +94,7 @@ export async function getProductFromDB(id: number): Promise<Product | null> {
   }
 }
 
-export async function saveProductToDB(product: Product): Promise<void> {
+export async function saveProductToDB(product: DBProduct): Promise<void> {
   const query = `
     INSERT INTO products (barcode, product_name, product_brand, current_price, product_size, url, image_url, last_updated)
     VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
