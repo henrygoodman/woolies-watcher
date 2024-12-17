@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { DataTable } from '@/components/DataTable';
-import { columns, WatchlistItem } from '@/app/dashboard/watchlistColumns';
+import { columns } from '@/app/dashboard/watchlistColumns';
 import { getWatchlist } from '@/lib/api/watchlistApi';
 import { LoadingIndicator } from './LoadingIndicator';
 import { ErrorMessage } from './ErrorMessage';
+import { DBProduct } from '@shared-types/db';
 
 export const Watchlist: React.FC = () => {
-  const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
+  const [watchlist, setWatchlist] = useState<DBProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -16,15 +17,7 @@ export const Watchlist: React.FC = () => {
     const fetchWatchlist = async () => {
       try {
         const data = await getWatchlist();
-        setWatchlist(
-          data.watchlist.map((product) => ({
-            product_id: product.id!,
-            product_name: product.product_name,
-            product_brand: product.product_brand,
-            current_price: product.current_price,
-            image_url: product.image_url || '',
-          }))
-        );
+        setWatchlist(data.watchlist);
       } catch (err) {
         setError('Failed to load watchlist.');
         console.error(err);

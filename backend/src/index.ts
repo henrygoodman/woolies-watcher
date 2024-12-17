@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import routes from '@/routes';
+import errorLogMiddleware from './middleware/errorLogMiddleware';
 
 dotenv.config();
 
@@ -16,6 +17,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use(errorLogMiddleware);
 
 app.use('/api', routes);
 

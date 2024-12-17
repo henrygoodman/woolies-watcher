@@ -5,6 +5,7 @@ import { findProductByFields, saveProductToDB } from '@/db/productRepository';
 import { parseQueryParams } from '@/utils/parseQueryParams';
 import { DBProduct } from '@shared-types/db';
 import { ProductSearchResponse } from '@shared-types/api';
+import { createCipheriv } from 'crypto';
 
 export const handleSearchProducts: RequestHandler = async (req, res) => {
   const queryParams = parseQueryParams(req);
@@ -97,5 +98,82 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
   } catch (error) {
     console.error('Error occurred during search request:', error);
     res.status(500).json({ error: 'Failed to fetch data' });
+  }
+};
+
+/**
+ * Fetch product by name using the search API with size=1 for an exact match.
+ */
+export const handleSearchProductByName: RequestHandler = async (req, res) => {
+  const { productName } = req.params;
+
+  if (!productName || typeof productName !== 'string') {
+    res.status(400).json({ error: 'Product name is required' });
+    return;
+  }
+
+  try {
+    const cachedProduct = await findProductByFields(null, productName);
+
+    if (cachedProduct) {
+      res.json(cachedProduct);
+      return;
+    }
+
+    const response = await axios.get(
+      'https://woolworths-products-api.p.rapidapi.com/woolworths/product-search/',
+      {
+        headers: {
+          'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
+          'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
+        },
+        params: { query: productName, page: 1, size: 1 },
+      }
+    );
+
+    const results = response.data.results;
+    if (!results || results.length === 0) {
+      console.error('Not found');
+      res.status(404).json({ error: 'Product not found' });
+      return;
+    }
+
+    const product = results[0];
+    const barcode = product.barcode ? String(product.barcode) : null;
+
+    const productToSave: DBProduct = {
+      id: undefined,
+      barcode: barcode,
+      product_name: product.product_name,
+      product_brand: product.product_brand,
+      current_price: parseFloat(product.current_price),
+      product_size: product.product_size,
+      url: product.url,
+      image_url: null,
+      last_updated: new Date().toISOString(),
+    };
+
+    const savedProduct = await saveProductToDB(productToSave);
+
+    if (!productToSave.image_url) {
+      setImmediate(async () => {
+        try {
+          const image_url = await fetchProductImage(product.url);
+          savedProduct.image_url = image_url || '/images/placeholder.jpeg';
+          await saveProductToDB(savedProduct);
+          console.log(`Fetched and updated image for ${product.product_name}`);
+        } catch (error) {
+          console.error(
+            `Image fetch failed for ${product.product_name}:`,
+            error
+          );
+        }
+      });
+    }
+
+    res.json(savedProduct);
+  } catch (error) {
+    console.error('Error fetching product by name:', error);
+    res.status(500).json({ error: 'Failed to fetch product' });
   }
 };

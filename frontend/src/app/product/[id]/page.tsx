@@ -5,21 +5,17 @@ import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { fetchProductDetailsApi } from '@/lib/api/productApi';
 import { DBProduct } from '@shared-types/db';
-import { Heart } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { HeartIcon } from '@/components/HeartIcon';
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const [product, setProduct] = useState<DBProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const { isInWatchlist, toggleWatchlist, watchlistLoading } = useWatchlist(
-    Number(id)
-  );
 
   useEffect(() => {
     const loadProductDetails = async () => {
@@ -45,23 +41,10 @@ export default function ProductDetailsPage() {
         {/* Product Image */}
         <div className="relative w-full lg:w-1/3 bg-white p-4 rounded-xl shadow-md">
           {/* Heart Icon Positioned on Top of Image */}
-          <button
-            onClick={() => toggleWatchlist(product.product_name)}
-            className={`absolute top-2 left-2 z-10 p-2 rounded-full bg-white shadow hover:bg-muted transition-colors ${
-              watchlistLoading ? 'cursor-wait opacity-70' : ''
-            }`}
-            aria-label={
-              isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
-            }
-            disabled={watchlistLoading}
-          >
-            <Heart
-              fill={isInWatchlist ? 'red' : 'none'}
-              className={`h-6 w-6 ${
-                isInWatchlist ? 'text-destructive' : 'text-muted-foreground'
-              }`}
-            />
-          </button>
+          <HeartIcon
+            productId={product.id!}
+            productName={product.product_name}
+          />
 
           <div className="relative w-full h-80 flex items-center justify-center">
             <Image

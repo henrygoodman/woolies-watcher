@@ -4,7 +4,7 @@ import {
   handleWatchlistDelete,
   handleWatchlistGet,
 } from '@/handlers/watchlistHandlers';
-import { handleAuth } from '@/handlers/authMiddleware';
+import { handleAuth } from '@/middleware/authMiddleware';
 
 const router = express.Router();
 

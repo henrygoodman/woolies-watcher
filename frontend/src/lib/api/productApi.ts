@@ -73,3 +73,23 @@ export const fetchProductUpdatesApi = async (
 
   return (await response.json()) as DBProduct[];
 };
+
+/**
+ * Fetch a product by name.
+ * @param name - The exact product name to search for.
+ * @returns A promise that resolves to the fetched product details.
+ * @throws Will throw an error if the fetch fails.
+ */
+export const fetchProductByNameApi = async (
+  name: string
+): Promise<DBProduct> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/search/name/${encodeURIComponent(name)}`
+  );
+
+  if (!response.ok) {
+    throw new Error(`Error: ${response.status} ${response.statusText}`);
+  }
+
+  return (await response.json()) as DBProduct;
+};

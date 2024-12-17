@@ -15,29 +15,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import { removeFromWatchlist } from '@/lib/api/watchlistApi';
 import Link from 'next/link';
-
-export type WatchlistItem = {
-  product_id: number;
-  product_name: string;
-  product_brand: string;
-  current_price: number;
-  image_url: string;
-};
+import { DBProduct } from '@shared-types/db';
 
 export const columns = (
-  setWatchlist: React.Dispatch<React.SetStateAction<WatchlistItem[]>>
-): ColumnDef<WatchlistItem>[] => [
+  setWatchlist: React.Dispatch<React.SetStateAction<DBProduct[]>>
+): ColumnDef<DBProduct>[] => [
   {
     accessorKey: 'product_name',
     header: 'Product Name',
     cell: ({ row }) => {
-      const { product_name, product_id } = row.original;
+      const { product_name, id } = row.original;
 
       return (
-        <Link
-          href={`/product/${product_id}`}
-          className="text-primary hover:underline"
-        >
+        <Link href={`/product/${id}`} className="text-primary hover:underline">
           {product_name}
         </Link>
       );
@@ -66,10 +56,10 @@ export const columns = (
 
       const handleRemove = async () => {
         try {
-          await removeFromWatchlist(item.product_id);
+          await removeFromWatchlist(item.id);
           console.log(`Removed ${item.product_name} from watchlist.`);
           setWatchlist((prev) =>
-            prev.filter((product) => product.product_id !== item.product_id)
+            prev.filter((product) => product.id !== item.id)
           );
         } catch (error) {
           console.error('Error removing item from watchlist:', error);

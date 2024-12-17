@@ -102,7 +102,7 @@ export const getProductFromDB = async (
   }
 };
 
-export async function saveProductToDB(product: DBProduct): Promise<void> {
+export async function saveProductToDB(product: DBProduct): Promise<DBProduct> {
   const query = `
     INSERT INTO products (barcode, product_name, product_brand, current_price, product_size, url, image_url, last_updated)
     VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
@@ -115,9 +115,10 @@ export async function saveProductToDB(product: DBProduct): Promise<void> {
       url = $6,
       image_url = $7,
       last_updated = CURRENT_TIMESTAMP
+    RETURNING *;
   `;
   try {
-    await pool.query(query, [
+    const result = await pool.query(query, [
       product.barcode,
       product.product_name,
       product.product_brand,
@@ -126,6 +127,11 @@ export async function saveProductToDB(product: DBProduct): Promise<void> {
       product.url,
       product.image_url,
     ]);
+
+    const updatedProduct = result.rows[0];
+    updatedProduct.current_price = parseFloat(updatedProduct.current_price);
+
+    return updatedProduct as DBProduct;
   } catch (error) {
     console.error('Error saving to database:', error);
     throw error;
