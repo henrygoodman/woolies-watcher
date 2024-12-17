@@ -14,6 +14,7 @@ import {
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
 import { removeFromWatchlist } from '@/lib/api/watchlistApi';
+import Link from 'next/link';
 
 export type WatchlistItem = {
   product_id: number;
@@ -29,6 +30,18 @@ export const columns = (
   {
     accessorKey: 'product_name',
     header: 'Product Name',
+    cell: ({ row }) => {
+      const { product_name, product_id } = row.original;
+
+      return (
+        <Link
+          href={`/product/${product_id}`}
+          className="text-primary hover:underline"
+        >
+          {product_name}
+        </Link>
+      );
+    },
   },
   {
     accessorKey: 'product_brand',
