@@ -46,15 +46,6 @@ export const Navbar: React.FC = () => {
 
         {/* Right Section */}
         <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.push('/')}
-            className="hidden sm:block"
-          >
-            Home
-          </Button>
-
           <ThemeToggle />
 
           {user ? (
@@ -90,7 +81,7 @@ export const Navbar: React.FC = () => {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => signOut()}
+                  onClick={() => signOut({ callbackUrl: '/' })}
                   className="text-destructive"
                 >
                   Log Out
