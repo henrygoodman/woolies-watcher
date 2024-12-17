@@ -20,7 +20,7 @@ interface ProductCardProps {
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Card className="relative w-full flex flex-col bg-card text-card-foreground border border-border rounded-xl overflow-hidden h-full">
-      <HeartIcon productId={product.id!} productName={product.product_name} />
+      <HeartIcon product={product} />
 
       <Link href={`/product/${product.id}`}>
         <div className="relative h-64 w-full bg-white flex items-center justify-center p-8">

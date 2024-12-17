@@ -77,13 +77,7 @@ export const handleWatchlistGet: RequestHandler = async (req, res) => {
 
   try {
     const watchlist: DBProduct[] = await getWatchlist(user.id);
-
-    if (watchlist.length === 0) {
-      res.status(200).json({ message: 'Watchlist is empty', watchlist: [] });
-      return;
-    }
-
-    res.status(200).json({ watchlist });
+    res.status(200).json(watchlist);
   } catch (error) {
     console.error('Error fetching watchlist:', error);
     res.status(500).json({ error: 'Failed to fetch watchlist' });

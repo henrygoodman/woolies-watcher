@@ -1,14 +1,21 @@
 import { DBProduct } from '@shared-types/db';
 import pool from './pool';
+import { resourceLimits } from 'worker_threads';
 
 export const addToWatchlist = async (
   user_id: number,
   product_id: number
 ): Promise<void> => {
   const query = `
-    INSERT INTO watchlist (user_id, product_id)
-    VALUES ($1, $2)
-    ON CONFLICT DO NOTHING
+    WITH insert_watchlist AS (
+      INSERT INTO watchlist (user_id, product_id)
+      VALUES ($1, $2)
+      ON CONFLICT DO NOTHING
+      RETURNING product_id
+    )
+    UPDATE products
+    SET watch_count = watch_count + 1
+    WHERE id = (SELECT product_id FROM insert_watchlist)
   `;
   try {
     await pool.query(query, [user_id, product_id]);
@@ -26,14 +33,19 @@ export const removeFromWatchlist = async (
   product_id: number
 ): Promise<boolean> => {
   const query = `
+    WITH delete_watchlist AS (
       DELETE FROM watchlist
       WHERE user_id = $1 AND product_id = $2
-      RETURNING *
-    `;
+      RETURNING product_id
+    )
+    UPDATE products
+    SET watch_count = GREATEST(watch_count - 1, 0)
+    WHERE id = (SELECT product_id FROM delete_watchlist)
+    RETURNING *
+  `;
   try {
     const result = await pool.query(query, [user_id, product_id]);
-
-    return result.rowCount !== null && result.rowCount > 0;
+    return result.rowCount != null && result.rowCount > 0;
   } catch (error) {
     if (error instanceof Error) {
       console.error('Error removing product from watchlist:', error.message);

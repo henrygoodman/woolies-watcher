@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { signIn, useSession } from 'next-auth/react';
+import { DBProduct } from '@shared-types/db';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -16,16 +17,11 @@ import {
 } from '@/components/ui/alert-dialog';
 
 interface HeartIconProps {
-  productId: number;
-  productName: string;
+  product: DBProduct;
 }
 
-export const HeartIcon: React.FC<HeartIconProps> = ({
-  productId,
-  productName,
-}) => {
-  const { isInWatchlist, toggleWatchlist, watchlistLoading } =
-    useWatchlist(productId);
+export const HeartIcon: React.FC<HeartIconProps> = ({ product }) => {
+  const { isInWatchlist, toggleWatchlist } = useWatchlist(product);
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
 
@@ -36,20 +32,17 @@ export const HeartIcon: React.FC<HeartIconProps> = ({
       setShowAlert(true);
       return;
     }
-    toggleWatchlist(productName);
+    toggleWatchlist();
   };
 
   return (
     <>
       <button
         onClick={handleClick}
-        className={`absolute top-2 left-2 p-1 rounded-full bg-white hover:bg-muted transition-colors z-10 ${
-          watchlistLoading ? 'cursor-wait opacity-70' : ''
-        }`}
+        className={`p-1 rounded-full bg-white hover:bg-muted transition-colors shadow-md`}
         aria-label={
           isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
         }
-        disabled={watchlistLoading}
       >
         <Heart
           fill={isInWatchlist ? 'red' : 'none'}
@@ -76,7 +69,6 @@ export const HeartIcon: React.FC<HeartIconProps> = ({
               onClick={() =>
                 signIn('google', { callbackUrl: window.location.href })
               }
-              className="text-sm font-medium hover:underline"
             >
               Sign In
             </AlertDialogAction>

@@ -2,7 +2,6 @@
 
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
-import { useWatchlist } from '@/hooks/useWatchlist';
 import { fetchProductDetailsApi } from '@/lib/api/productApi';
 import { DBProduct } from '@shared-types/db';
 import { useParams } from 'next/navigation';
@@ -41,10 +40,7 @@ export default function ProductDetailsPage() {
         {/* Product Image */}
         <div className="relative w-full lg:w-1/3 bg-white p-4 rounded-xl shadow-md">
           {/* Heart Icon Positioned on Top of Image */}
-          <HeartIcon
-            productId={product.id!}
-            productName={product.product_name}
-          />
+          <HeartIcon product={product} />
 
           <div className="relative w-full h-80 flex items-center justify-center">
             <Image

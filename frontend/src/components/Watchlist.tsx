@@ -7,8 +7,10 @@ import { getWatchlist } from '@/lib/api/watchlistApi';
 import { LoadingIndicator } from './LoadingIndicator';
 import { ErrorMessage } from './ErrorMessage';
 import { DBProduct } from '@shared-types/db';
+import { useWatchlistContext } from '@/contexts/WatchlistContext';
 
 export const Watchlist: React.FC = () => {
+  const { removeFromWatchlist } = useWatchlistContext();
   const [watchlist, setWatchlist] = useState<DBProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +19,7 @@ export const Watchlist: React.FC = () => {
     const fetchWatchlist = async () => {
       try {
         const data = await getWatchlist();
-        setWatchlist(data.watchlist);
+        setWatchlist(data);
       } catch (err) {
         setError('Failed to load watchlist.');
         console.error(err);
@@ -35,7 +37,10 @@ export const Watchlist: React.FC = () => {
   return (
     <div className="container mx-auto">
       <h2 className="text-2xl font-bold mb-4">Your Watchlist</h2>
-      <DataTable columns={columns(setWatchlist)} data={watchlist} />
+      <DataTable
+        columns={columns(setWatchlist, removeFromWatchlist)}
+        data={watchlist}
+      />
     </div>
   );
 };

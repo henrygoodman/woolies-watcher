@@ -1,5 +1,6 @@
 import { getSession } from 'next-auth/react';
-import { WatchlistRequest, WatchlistResponse } from '@shared-types/api';
+import { WatchlistRequest } from '@shared-types/api';
+import { DBProduct } from '@shared-types/db';
 
 /**
  * Add a product to the user's watchlist.
@@ -9,7 +10,7 @@ import { WatchlistRequest, WatchlistResponse } from '@shared-types/api';
  */
 export const addToWatchlist = async (
   product_id: number | undefined
-): Promise<WatchlistResponse> => {
+): Promise<DBProduct[]> => {
   if (!product_id) throw new Error('No product ID specified');
 
   const session = await getSession();
@@ -30,7 +31,7 @@ export const addToWatchlist = async (
     throw new Error(`Error: ${response.status} ${response.statusText}`);
   }
 
-  return (await response.json()) as WatchlistResponse;
+  return (await response.json()) as DBProduct[];
 };
 
 /**
@@ -41,7 +42,7 @@ export const addToWatchlist = async (
  */
 export const removeFromWatchlist = async (
   productId: number | undefined
-): Promise<WatchlistResponse> => {
+): Promise<DBProduct[]> => {
   if (!productId) throw new Error('No product ID specified');
 
   const session = await getSession();
@@ -61,7 +62,7 @@ export const removeFromWatchlist = async (
     throw new Error(`Error: ${response.status} ${response.statusText}`);
   }
 
-  return (await response.json()) as WatchlistResponse;
+  return (await response.json()) as DBProduct[];
 };
 
 /**
@@ -69,7 +70,7 @@ export const removeFromWatchlist = async (
  * @returns A promise that resolves to the user's watchlist.
  * @throws Will throw an error if the user is not authenticated or the fetch fails.
  */
-export const getWatchlist = async (): Promise<WatchlistResponse> => {
+export const getWatchlist = async (): Promise<DBProduct[]> => {
   const session = await getSession();
   if (!session) throw new Error('User is not authenticated');
 
@@ -84,5 +85,5 @@ export const getWatchlist = async (): Promise<WatchlistResponse> => {
     throw new Error(`Error: ${response.status} ${response.statusText}`);
   }
 
-  return (await response.json()) as WatchlistResponse;
+  return (await response.json()) as DBProduct[];
 };
