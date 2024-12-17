@@ -83,7 +83,8 @@ export const ProductCarousel: React.FC = () => {
   }, [api]);
 
   return (
-    <div className="w-full">
+    <div className="w-full relative px-4 sm:px-8">
+      {' '}
       <Carousel
         setApi={setApi}
         plugins={[
@@ -91,12 +92,15 @@ export const ProductCarousel: React.FC = () => {
             delay: 3000,
           }),
         ]}
+        className="overflow-visible p-4"
       >
-        <CarouselContent className="-ml-4">
+        <CarouselContent className="-ml-4 sm:-ml-8">
+          {' '}
+          {/* Adjust for padding */}
           {products.map((product) => (
             <CarouselItem
               key={product.id}
-              className="basis-full sm:basis-1/3 pl-4"
+              className="basis-full sm:basis-1/3 pl-4 sm:pl-8"
             >
               <ProductCard product={product} isInWatchlist={false} />
             </CarouselItem>

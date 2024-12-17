@@ -7,6 +7,6 @@ import {
 const router = express.Router();
 
 router.get('/:id', handleProductGet);
-router.get('/update', handleProductUpdates);
+router.post('/update', handleProductUpdates);
 
 export default router;

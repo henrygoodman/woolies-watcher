@@ -61,7 +61,7 @@ export const fetchProductUpdatesApi = async (
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/product/update`,
     {
-      method: 'GET',
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productIdentifiers }),
     }

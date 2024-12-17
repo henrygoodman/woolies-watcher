@@ -5,9 +5,9 @@ import { useForm } from 'react-hook-form';
 import { Search } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import { Button } from '@/components/ui/button';
 
 interface SearchBarProps extends React.HTMLAttributes<HTMLFormElement> {
   onSearch: (query: string) => void;
@@ -24,31 +24,33 @@ export function SearchBar({
   value = '',
   ...props
 }: SearchBarProps) {
-  const [isSearching, setIsSearching] = React.useState(false);
-
   const form = useForm<SearchFormValues>({
     defaultValues: {
       query: value,
     },
   });
 
-  React.useEffect(() => {
-    form.reset({ query: value });
-  }, [value, form]);
+  const queryValue = form.watch('query').trim();
 
-  const onSubmit = (data: SearchFormValues) => {
-    setIsSearching(true);
-    onSearch(data.query.trim());
-    setTimeout(() => {
-      setIsSearching(false);
-    }, 1000);
+  const onEnterSubmit = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      if (queryValue) {
+        onSearch(queryValue);
+      }
+    }
+  };
+
+  const handleSearchClick = () => {
+    if (queryValue) {
+      onSearch(queryValue);
+    }
   };
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
-        className={cn('flex w-full max-w-sm items-center space-x-2', className)}
+        className={cn('relative flex w-full max-w-md items-center', className)}
         {...props}
       >
         <FormField
@@ -57,28 +59,33 @@ export function SearchBar({
           render={({ field }) => (
             <FormItem className="flex-grow">
               <FormControl>
-                <Input
-                  type="search"
-                  placeholder="Search products..."
-                  className="w-full"
-                  {...field}
-                />
+                <div className="relative">
+                  <Input
+                    type="search"
+                    placeholder="Search products..."
+                    className="w-full pr-10 h-9 text-sm rounded-lg"
+                    {...field}
+                    onKeyDown={onEnterSubmit}
+                  />
+                  {/* Search Button Inside Input */}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleSearchClick}
+                    disabled={!queryValue}
+                    className={cn(
+                      'absolute top-1/2 right-2 -translate-y-1/2 h-7 w-7',
+                      queryValue ? 'text-primary' : 'text-muted-foreground'
+                    )}
+                  >
+                    <Search className="h-4 w-4 mr-0" />
+                  </Button>
+                </div>
               </FormControl>
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          disabled={isSearching}
-          className="flex items-center"
-        >
-          {isSearching ? (
-            <span className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full"></span>
-          ) : (
-            <Search className="mr-2 h-4 w-4" />
-          )}
-          Search
-        </Button>
       </form>
     </Form>
   );

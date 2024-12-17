@@ -78,18 +78,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <Card className="w-full bg-card text-card-foreground border border-border rounded-lg shadow-md overflow-hidden flex flex-col relative">
+    <Card className="relative w-full bg-card text-card-foreground border border-border flex flex-col rounded-xl overflow-hidden">
       {/* Heart Icon */}
       {isLoggedIn && (
         <button
           onClick={toggleWatchlist}
-          className={`absolute top-2 left-2 p-1 rounded-full bg-white shadow hover:bg-muted transition-colors z-10 ${
+          className={`absolute top-2 left-2 p-1 rounded-full bg-white hover:bg-muted transition-colors z-10 ${
             loading ? 'cursor-wait' : ''
           }`}
           aria-label={
             isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
           }
           disabled={loading}
+          style={{ border: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} // Remove border, add subtle shadow
         >
           {isInWatchlist ? (
             <Heart fill="red" className="text-destructive h-5 w-5" />
@@ -110,10 +111,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             alt={product.product_name}
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            style={{
-              objectFit: 'contain',
-            }}
-            className="absolute top-0 left-0 w-full h-full"
+            className="rounded-md object-contain"
           />
         </div>
       </Link>
@@ -139,7 +137,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         <CardFooter>
           <Link
             href={`/product/${product.id}`}
-            className="relative w-full bg-white flex items-center justify-center p-4"
+            className="inline-block w-full text-center bg-primary text-primary-foreground font-medium py-2 px-4 rounded-md transition-all hover:bg-primary/90 focus:outline-none focus:ring focus:ring-primary/70"
           >
             View Product
           </Link>

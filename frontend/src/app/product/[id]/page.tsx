@@ -37,14 +37,16 @@ export default function ProductDetailsPage() {
     <div className="container mx-auto p-8">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Product Image */}
-        <div className="w-full lg:w-1/3">
-          <Image
-            src={product.image_url || '/images/product_placeholder.jpeg'}
-            alt={product.product_name}
-            width={400}
-            height={400}
-            className="rounded-lg object-contain bg-white"
-          />
+        <div className="w-full lg:w-1/3 bg-white p-4 rounded-xl shadow-md">
+          <div className="relative w-full h-80 flex items-center justify-center">
+            <Image
+              src={product.image_url || '/images/product_placeholder.jpeg'}
+              alt={product.product_name}
+              layout="fill"
+              objectFit="contain"
+              className="rounded-lg"
+            />
+          </div>
         </div>
 
         {/* Product Details */}
