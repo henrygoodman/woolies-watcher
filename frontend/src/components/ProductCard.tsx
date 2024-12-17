@@ -2,8 +2,8 @@
 
 import { DBProduct } from '@shared-types/db';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
-import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { Heart } from 'lucide-react';
 import {
   Card,
   CardHeader,
@@ -12,93 +12,38 @@ import {
   CardDescription,
   CardContent,
 } from '@/components/ui/card';
-import { Heart } from 'lucide-react';
-import { addToWatchlist, removeFromWatchlist } from '@/lib/api/watchlistApi';
-import { useToast } from '@/hooks/use-toast';
-import Link from 'next/link';
+import { useWatchlist } from '@/hooks/useWatchlist';
 
 interface ProductCardProps {
   product: DBProduct;
-  isInWatchlist: boolean;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-  isInWatchlist: initialWatchlistState,
-}) => {
-  const { data: session } = useSession();
-  const isLoggedIn = !!session?.user;
-
-  const [isInWatchlist, setIsInWatchlist] = useState(initialWatchlistState);
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
-
-  useEffect(() => {
-    setIsInWatchlist(initialWatchlistState);
-  }, [initialWatchlistState]);
-
-  const toggleWatchlist = async () => {
-    if (!isLoggedIn) {
-      console.warn('User must be logged in to modify the watchlist.');
-      return;
-    }
-
-    setLoading(true);
-
-    try {
-      if (isInWatchlist) {
-        await removeFromWatchlist(product.id);
-        toast({
-          title: 'Removed from Watchlist',
-          description: `${product.product_name} has been removed from your watchlist.`,
-          variant: 'destructive',
-        });
-      } else {
-        await addToWatchlist(product.id);
-        toast({
-          title: 'Added to Watchlist',
-          description: (
-            <span>
-              <span>
-                {product.product_name} has been added to your watchlist.{' '}
-              </span>
-              <Link href="/dashboard" className="text-primary underline">
-                View Watchlist
-              </Link>
-            </span>
-          ),
-        });
-      }
-      setIsInWatchlist(!isInWatchlist);
-    } catch (error) {
-      console.error('Error toggling watchlist:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const { isInWatchlist, toggleWatchlist, watchlistLoading } = useWatchlist(
+    product.id!
+  );
 
   return (
     <Card className="relative w-full bg-card text-card-foreground border border-border flex flex-col rounded-xl overflow-hidden">
       {/* Heart Icon */}
-      {isLoggedIn && (
-        <button
-          onClick={toggleWatchlist}
-          className={`absolute top-2 left-2 p-1 rounded-full bg-white hover:bg-muted transition-colors z-10 ${
-            loading ? 'cursor-wait' : ''
+      <button
+        onClick={() => toggleWatchlist(product.product_name)}
+        className={`absolute top-2 left-2 p-1 rounded-full bg-white hover:bg-muted transition-colors z-10 ${
+          watchlistLoading ? 'cursor-wait opacity-70' : ''
+        }`}
+        aria-label={
+          isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
+        }
+        disabled={watchlistLoading}
+        style={{ border: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+      >
+        <Heart
+          fill={isInWatchlist ? 'red' : 'none'}
+          className={`h-5 w-5 ${
+            isInWatchlist ? 'text-destructive' : 'text-muted-foreground'
           }`}
-          aria-label={
-            isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
-          }
-          disabled={loading}
-          style={{ border: 'none', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} // Remove border, add subtle shadow
-        >
-          {isInWatchlist ? (
-            <Heart fill="red" className="text-destructive h-5 w-5" />
-          ) : (
-            <Heart className="text-muted-foreground h-5 w-5" />
-          )}
-        </button>
-      )}
+        />
+      </button>
 
       {/* Product Image */}
       <Link

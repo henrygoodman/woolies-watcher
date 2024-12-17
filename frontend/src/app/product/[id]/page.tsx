@@ -1,19 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { ErrorMessage } from '@/components/ErrorMessage';
+import { LoadingIndicator } from '@/components/LoadingIndicator';
+import { useWatchlist } from '@/hooks/useWatchlist';
+import { fetchProductDetailsApi } from '@/lib/api/productApi';
 import { DBProduct } from '@shared-types/db';
+import { Heart } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { LoadingIndicator } from '@/components/LoadingIndicator';
-import { ErrorMessage } from '@/components/ErrorMessage';
-import { fetchProductDetailsApi } from '@/lib/api/productApi';
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const [product, setProduct] = useState<DBProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { isInWatchlist, toggleWatchlist, watchlistLoading } = useWatchlist(
+    Number(id)
+  );
 
   useEffect(() => {
     const loadProductDetails = async () => {
@@ -37,7 +43,26 @@ export default function ProductDetailsPage() {
     <div className="container mx-auto p-8">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Product Image */}
-        <div className="w-full lg:w-1/3 bg-white p-4 rounded-xl shadow-md">
+        <div className="relative w-full lg:w-1/3 bg-white p-4 rounded-xl shadow-md">
+          {/* Heart Icon Positioned on Top of Image */}
+          <button
+            onClick={() => toggleWatchlist(product.product_name)}
+            className={`absolute top-2 left-2 z-10 p-2 rounded-full bg-white shadow hover:bg-muted transition-colors ${
+              watchlistLoading ? 'cursor-wait opacity-70' : ''
+            }`}
+            aria-label={
+              isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
+            }
+            disabled={watchlistLoading}
+          >
+            <Heart
+              fill={isInWatchlist ? 'red' : 'none'}
+              className={`h-6 w-6 ${
+                isInWatchlist ? 'text-destructive' : 'text-muted-foreground'
+              }`}
+            />
+          </button>
+
           <div className="relative w-full h-80 flex items-center justify-center">
             <Image
               src={product.image_url || '/images/product_placeholder.jpeg'}
@@ -51,7 +76,7 @@ export default function ProductDetailsPage() {
 
         {/* Product Details */}
         <div className="flex-1">
-          <h1 className="text-3xl font-bold text-primary mb-4">
+          <h1 className="text-3xl font-bold text-primary leading-tight mb-4">
             {product.product_name}
           </h1>
           <p className="text-muted-foreground mb-2">
@@ -68,7 +93,6 @@ export default function ProductDetailsPage() {
           <Link
             href={product.url}
             target="_blank"
-            rel="noopener noreferrer"
             className="text-primary hover:underline font-medium"
           >
             View on Woolworths
@@ -76,24 +100,18 @@ export default function ProductDetailsPage() {
         </div>
       </div>
 
-      {/* Additional Information */}
-      <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Additional Information</h2>
-
-        {/* Placeholder Sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="p-4 border rounded-md shadow-sm">
-            <h3 className="text-lg font-semibold mb-2">Historical Price</h3>
-            <div className="h-32 bg-gray-200 flex items-center justify-center">
-              <span className="text-muted-foreground">Coming Soon</span>
-            </div>
+      {/* Placeholder Sections */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div className="p-4 border rounded-md shadow-sm">
+          <h3 className="text-lg font-semibold mb-2">Historical Price</h3>
+          <div className="h-32 bg-gray-200 flex items-center justify-center">
+            <span className="text-muted-foreground">Coming Soon</span>
           </div>
-
-          <div className="p-4 border rounded-md shadow-sm">
-            <h3 className="text-lg font-semibold mb-2">Number of Watchers</h3>
-            <div className="h-32 bg-gray-200 flex items-center justify-center">
-              <span className="text-muted-foreground">Coming Soon</span>
-            </div>
+        </div>
+        <div className="p-4 border rounded-md shadow-sm">
+          <h3 className="text-lg font-semibold mb-2">Number of Watchers</h3>
+          <div className="h-32 bg-gray-200 flex items-center justify-center">
+            <span className="text-muted-foreground">Coming Soon</span>
           </div>
         </div>
       </div>

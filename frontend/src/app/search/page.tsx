@@ -38,7 +38,6 @@ export default function SearchPage() {
       try {
         const data = await getWatchlist();
         setWatchlist(data.watchlist.map((item) => item.id as number));
-        console.log(data.watchlist);
       } catch (err) {
         console.error('Error fetching watchlist:', err);
       }
@@ -78,13 +77,7 @@ export default function SearchPage() {
         {!loading && !error && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
             {products.map((product, index) => (
-              <ProductCard
-                key={index}
-                product={product}
-                isInWatchlist={
-                  product.id !== undefined && watchlist.includes(product.id)
-                }
-              />
+              <ProductCard key={index} product={product} />
             ))}
           </div>
         )}

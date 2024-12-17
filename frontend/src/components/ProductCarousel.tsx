@@ -102,7 +102,7 @@ export const ProductCarousel: React.FC = () => {
               key={product.id}
               className="basis-full sm:basis-1/3 pl-4 sm:pl-8"
             >
-              <ProductCard product={product} isInWatchlist={false} />
+              <ProductCard product={product} />
             </CarouselItem>
           ))}
         </CarouselContent>
