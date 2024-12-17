@@ -12,7 +12,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { Button } from '@/components/ui/button';
 import { SearchBar } from '@/components/ui/search-bar';
 
 export const Navbar: React.FC = () => {
