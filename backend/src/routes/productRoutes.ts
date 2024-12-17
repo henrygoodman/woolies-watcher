@@ -1,8 +1,12 @@
 import express from 'express';
-import { handleProductUpdates } from '@/handlers/productHandlers';
+import {
+  handleProductGet,
+  handleProductUpdates,
+} from '@/handlers/productHandlers';
 
 const router = express.Router();
 
-router.post('/update', handleProductUpdates);
+router.get('/:id', handleProductGet);
+router.get('/update', handleProductUpdates);
 
 export default router;

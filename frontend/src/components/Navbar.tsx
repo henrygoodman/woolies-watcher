@@ -25,7 +25,7 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="w-full bg-background text-foreground p-4 shadow-md">
+    <header className="w-full bg-background text-foreground p-4 drop-shadow-2xl">
       <div className="flex justify-between items-center max-w-7xl mx-auto">
         {/* Logo */}
         <h1
@@ -99,7 +99,7 @@ export const Navbar: React.FC = () => {
             </DropdownMenu>
           ) : (
             <button
-              onClick={() => signIn()}
+              onClick={() => signIn('google', { callbackUrl: '/' })}
               className="text-sm font-medium hover:underline"
             >
               Sign In

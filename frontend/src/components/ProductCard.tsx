@@ -100,10 +100,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       )}
 
       {/* Product Image */}
-      <a
-        href={product.url}
-        target="_blank"
-        rel="noreferrer"
+      <Link
+        href={`/product/${product.id}`}
         className="relative w-full bg-white flex items-center justify-center p-4"
       >
         <div className="relative h-40 w-full">
@@ -118,7 +116,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             className="absolute top-0 left-0 w-full h-full"
           />
         </div>
-      </a>
+      </Link>
 
       {/* Product Info */}
       <div className="flex flex-1 flex-col justify-between py-2">
@@ -139,14 +137,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           </p>
         </CardContent>
         <CardFooter>
-          <a
-            href={product.url}
-            target="_blank"
-            rel="noreferrer"
-            className="text-primary font-semibold hover:underline"
+          <Link
+            href={`/product/${product.id}`}
+            className="relative w-full bg-white flex items-center justify-center p-4"
           >
             View Product
-          </a>
+          </Link>
         </CardFooter>
       </div>
     </Card>
