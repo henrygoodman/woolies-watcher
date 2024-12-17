@@ -8,8 +8,8 @@ export const addToWatchlist = async (
 ): Promise<void> => {
   const query = `
     WITH insert_watchlist AS (
-      INSERT INTO watchlist (user_id, product_id)
-      VALUES ($1, $2)
+      INSERT INTO watchlist (user_id, product_id, date_added)
+      VALUES ($1, $2, CURRENT_TIMESTAMP)
       ON CONFLICT DO NOTHING
       RETURNING product_id
     )
@@ -57,13 +57,19 @@ export const removeFromWatchlist = async (
 
 export const getWatchlist = async (userId: number): Promise<DBProduct[]> => {
   const query = `
-    SELECT p.* 
+    SELECT p.*
     FROM products p
     INNER JOIN watchlist w ON p.id = w.product_id
     WHERE w.user_id = $1
+    ORDER BY w.date_added ASC;
   `;
-  const { rows } = await pool.query(query, [userId]);
-  return rows as DBProduct[];
+  try {
+    const { rows } = await pool.query(query, [userId]);
+    return rows as DBProduct[];
+  } catch (error) {
+    console.error('Error fetching watchlist:', error);
+    throw new Error('Failed to fetch watchlist.');
+  }
 };
 
 export const getWatchlistCountForProduct = async (

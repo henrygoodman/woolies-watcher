@@ -39,7 +39,14 @@ export const HeartIcon: React.FC<HeartIconProps> = ({ product }) => {
     <>
       <button
         onClick={handleClick}
-        className={`p-1 rounded-full bg-white hover:bg-muted transition-colors shadow-md`}
+        className={`absolute top-2 left-2 p-1 rounded-full bg-white hover:bg-muted transition-colors shadow-md z-10`}
+        style={{
+          width: '2rem',
+          height: '2rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
         aria-label={
           isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
         }

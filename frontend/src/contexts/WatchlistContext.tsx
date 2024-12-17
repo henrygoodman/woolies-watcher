@@ -7,7 +7,7 @@ import {
   removeFromWatchlist as apiRemoveFromWatchlist,
 } from '@/lib/api/watchlistApi';
 import { useSession } from 'next-auth/react';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 import { DBProduct } from '@shared-types/db';
 
 interface WatchlistContextProps {
@@ -32,7 +32,6 @@ export const WatchlistProvider = ({
 
   const [watchlist, setWatchlist] = useState<DBProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
 
   const fetchWatchlist = async () => {
     if (!isLoggedIn) return;

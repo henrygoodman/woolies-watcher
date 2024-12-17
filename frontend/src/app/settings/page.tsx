@@ -5,12 +5,11 @@ import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
   const user = session?.user;
-  const { toast } = useToast();
 
   const [email, setEmail] = useState(user?.email || '');
   const [notificationTime, setNotificationTime] = useState('7am AEST');
