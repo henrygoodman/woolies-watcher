@@ -5,7 +5,12 @@ import { findProductByFields, saveProductToDB } from '@/db/productRepository';
 import { parseQueryParams } from '@/utils/parseQueryParams';
 import { DBProduct } from '@shared-types/db';
 import { ProductSearchResponse } from '@shared-types/api';
-import { createCipheriv } from 'crypto';
+
+const isStaleProduct = (lastUpdated: string): boolean => {
+  const cutoff = new Date();
+  cutoff.setHours(3, 0, 0, 0); // 3 AM today
+  return new Date(lastUpdated) < cutoff;
+};
 
 export const handleSearchProducts: RequestHandler = async (req, res) => {
   const queryParams = parseQueryParams(req);
@@ -34,7 +39,14 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
         const barcode = product.barcode ? String(product.barcode) : null;
         const product_name = product.product_name;
 
-        const cachedProduct = await findProductByFields(barcode, product_name);
+        let cachedProduct = await findProductByFields(barcode, product_name);
+
+        if (cachedProduct && isStaleProduct(cachedProduct.last_updated)) {
+          // Update only the price field if stale
+          cachedProduct.current_price = parseFloat(product.current_price);
+          cachedProduct.last_updated = new Date().toISOString();
+          await saveProductToDB(cachedProduct);
+        }
 
         const productToSave: DBProduct = {
           id: cachedProduct?.id,
@@ -50,34 +62,17 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
 
         await saveProductToDB(productToSave);
 
-        // If the product lacks an image URL, fetch and update it in the background
         if (!productToSave.image_url) {
           setImmediate(async () => {
-            const startTime = Date.now();
             try {
               const image_url = await fetchProductImage(product.url);
-              const endTime = Date.now();
-              const timeTaken = endTime - startTime;
-
-              if (image_url) {
-                productToSave.image_url = image_url;
-              } else {
-                productToSave.image_url = '/images/placeholder.jpeg';
-              }
-
+              productToSave.image_url = image_url || '/images/placeholder.jpeg';
               await saveProductToDB(productToSave);
-
-              console.log(
-                `Image fetch completed (${product_name}) in ${timeTaken}ms`
-              );
             } catch (error) {
               console.error(
-                `Failed to fetch image for product ${product_name}:`,
+                `Failed to fetch image for ${product_name}:`,
                 error
               );
-
-              productToSave.image_url = '/images/placeholder.jpeg';
-              await saveProductToDB(productToSave);
             }
           });
         }
@@ -86,7 +81,6 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
       })
     );
 
-    // Immediately return the results (image URLs may still be null)
     res.json({
       query,
       page,
@@ -101,9 +95,6 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
   }
 };
 
-/**
- * Fetch product by name using the search API with size=1 for an exact match.
- */
 export const handleSearchProductByName: RequestHandler = async (req, res) => {
   const { productName } = req.params;
 
@@ -113,9 +104,9 @@ export const handleSearchProductByName: RequestHandler = async (req, res) => {
   }
 
   try {
-    const cachedProduct = await findProductByFields(null, productName);
+    let cachedProduct = await findProductByFields(null, productName);
 
-    if (cachedProduct) {
+    if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
       res.json(cachedProduct);
       return;
     }
@@ -133,7 +124,6 @@ export const handleSearchProductByName: RequestHandler = async (req, res) => {
 
     const results = response.data.results;
     if (!results || results.length === 0) {
-      console.error('Not found');
       res.status(404).json({ error: 'Product not found' });
       return;
     }
@@ -142,14 +132,14 @@ export const handleSearchProductByName: RequestHandler = async (req, res) => {
     const barcode = product.barcode ? String(product.barcode) : null;
 
     const productToSave: DBProduct = {
-      id: undefined,
+      id: cachedProduct?.id,
       barcode: barcode,
       product_name: product.product_name,
       product_brand: product.product_brand,
       current_price: parseFloat(product.current_price),
       product_size: product.product_size,
       url: product.url,
-      image_url: null,
+      image_url: cachedProduct?.image_url || null,
       last_updated: new Date().toISOString(),
     };
 
@@ -161,7 +151,6 @@ export const handleSearchProductByName: RequestHandler = async (req, res) => {
           const image_url = await fetchProductImage(product.url);
           savedProduct.image_url = image_url || '/images/placeholder.jpeg';
           await saveProductToDB(savedProduct);
-          console.log(`Fetched and updated image for ${product.product_name}`);
         } catch (error) {
           console.error(
             `Image fetch failed for ${product.product_name}:`,

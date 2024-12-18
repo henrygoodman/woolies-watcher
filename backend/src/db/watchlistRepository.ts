@@ -94,3 +94,52 @@ export const getWatchlistCountForProduct = async (
     throw error;
   }
 };
+
+interface UserWatchlist {
+  email: string;
+  watchlist: DBProduct[];
+}
+
+export const getAllUserWatchlists = async (): Promise<UserWatchlist[]> => {
+  const query = `
+    SELECT u.email, p.*
+    FROM users u
+    INNER JOIN watchlist w ON u.id = w.user_id
+    INNER JOIN products p ON w.product_id = p.id
+    ORDER BY u.email, w.date_added DESC;
+  `;
+
+  try {
+    const { rows } = await pool.query(query);
+
+    const userWatchlists: Record<string, DBProduct[]> = {};
+
+    for (const row of rows) {
+      const email = row.email;
+
+      if (!userWatchlists[email]) {
+        userWatchlists[email] = [];
+      }
+
+      userWatchlists[email].push({
+        id: row.id,
+        barcode: row.barcode,
+        product_name: row.product_name,
+        product_brand: row.product_brand,
+        current_price: parseFloat(row.current_price),
+        product_size: row.product_size,
+        url: row.url,
+        image_url: row.image_url,
+        last_updated: row.last_updated,
+      });
+    }
+
+    return Object.entries(userWatchlists).map(([email, watchlist]) => ({
+      email,
+      watchlist,
+    }));
+  } catch (error) {
+    console.error('Error fetching all user watchlists:', error);
+    throw new Error('Failed to fetch user watchlists.');
+  }
+};

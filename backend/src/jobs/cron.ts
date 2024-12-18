@@ -1,0 +1,39 @@
+import cron from 'node-cron';
+import { getAllUserWatchlists } from '@/db/watchlistRepository';
+import { getEmailService } from '@/services/email/index';
+
+export const scheduleDailyWatchlistEmails = () => {
+  cron.schedule('0 8 * * *', async () => {
+    console.log('Starting daily watchlist email job...');
+
+    let emailsSent = 0;
+    let errorsOccurred = 0;
+
+    try {
+      const userWatchlists = await getAllUserWatchlists();
+
+      await Promise.all(
+        userWatchlists.map(async ({ email, watchlist }) => {
+          if (watchlist.length > 0) {
+            try {
+              await getEmailService().sendWatchlistEmail(email, watchlist);
+              emailsSent++;
+            } catch (error) {
+              errorsOccurred++;
+              console.error(`Error sending email to ${email}:`, error);
+            }
+          }
+        })
+      );
+
+      console.log(
+        `Daily watchlist email job completed. Emails sent: ${emailsSent}, Errors: ${errorsOccurred}.`
+      );
+    } catch (error) {
+      console.error(
+        'Error during daily watchlist email job initialization:',
+        error
+      );
+    }
+  });
+};
