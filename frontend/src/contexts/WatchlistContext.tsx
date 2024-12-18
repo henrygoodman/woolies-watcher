@@ -37,6 +37,7 @@ export const WatchlistProvider = ({
     if (!isLoggedIn) return;
 
     try {
+      console.log('Trying to get watchlist');
       const data = await getWatchlist();
       setWatchlist(data);
     } catch (error) {

@@ -53,9 +53,9 @@ export default function ProductDetailsPage() {
             <Image
               src={product.image_url || '/images/product_placeholder.jpeg'}
               alt={product.product_name}
-              layout="fill"
-              objectFit="contain"
-              className="rounded-lg"
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              className="rounded-md object-contain"
             />
           </div>
         </div>

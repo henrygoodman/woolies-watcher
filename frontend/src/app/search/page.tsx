@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { ErrorMessage } from '@/components/ErrorMessage';
-import { getWatchlist } from '@/lib/api/watchlistApi';
 
 export default function SearchPage() {
   const router = useRouter();
@@ -24,7 +23,6 @@ export default function SearchPage() {
     fetchProducts,
   } = useFetchProducts();
 
-  const [watchlist, setWatchlist] = useState<number[]>([]);
   const [perPage, setPerPage] = useState(() => {
     return parseInt(searchParams.get('size') || '18', 10);
   });
@@ -32,19 +30,6 @@ export default function SearchPage() {
   usePollingUpdates(products, (updatedProducts) => {
     setProducts(updatedProducts);
   });
-
-  useEffect(() => {
-    const fetchWatchlist = async () => {
-      try {
-        const data = await getWatchlist();
-        setWatchlist(data.map((item) => item.id as number));
-      } catch (err) {
-        console.error('Error fetching watchlist:', err);
-      }
-    };
-
-    fetchWatchlist();
-  }, []);
 
   useEffect(() => {
     const searchQuery = searchParams.get('search') || '';
