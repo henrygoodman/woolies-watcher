@@ -1,6 +1,6 @@
 import './globals.css';
 import localFont from 'next/font/local';
-import { Providers } from './providers';
+import { Providers } from '../contexts/Providers';
 import { Navbar } from '@/components/Navbar';
 import { Toaster } from '@/components/ui/toaster';
 import { PageContainer } from '@/components/PageContainer';

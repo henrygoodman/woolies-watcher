@@ -69,7 +69,7 @@ export const ProductCarousel: React.FC = () => {
         setApi={setApi}
         plugins={[
           Autoplay({
-            delay: 3000,
+            delay: 5000, // Carousel delay
           }),
         ]}
         className="overflow-visible p-4"

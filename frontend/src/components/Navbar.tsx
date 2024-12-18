@@ -54,6 +54,7 @@ export const Navbar: React.FC = () => {
                   <AvatarImage
                     src={user.image || undefined}
                     alt={user.name || 'User'}
+                    loading="lazy"
                     className="rounded-full"
                   />
                   <AvatarFallback className="bg-primary text-primary-foreground">
@@ -69,7 +70,7 @@ export const Navbar: React.FC = () => {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-48 bg-popover rounded-lg shadow-md">
                 <DropdownMenuLabel className="font-semibold">
-                  {user.name}
+                  {user.name || 'User'}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => router.push('/watchlist')}>
