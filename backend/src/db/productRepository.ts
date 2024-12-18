@@ -1,5 +1,6 @@
 import pool from './pool';
 import { DBProduct } from '@shared-types/db';
+import { addPriceUpdate } from '@/db/priceRepository';
 
 export async function findProductByFields(
   barcode: string | null,
@@ -102,21 +103,40 @@ export const getProductFromDB = async (
   }
 };
 
+/**
+ * Save product to DB and track price updates
+ */
 export async function saveProductToDB(product: DBProduct): Promise<DBProduct> {
+  const existingProduct = product.barcode
+    ? await findProductByFields(product.barcode, product.product_name)
+    : null;
+
+  if (
+    existingProduct &&
+    existingProduct.current_price !== product.current_price
+  ) {
+    addPriceUpdate(
+      existingProduct.id!,
+      existingProduct.current_price,
+      product.current_price
+    );
+  }
+
   const query = `
     INSERT INTO products (barcode, product_name, product_brand, current_price, product_size, url, image_url, last_updated)
     VALUES ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
     ON CONFLICT (barcode)
     DO UPDATE SET
-      product_name = $2,
-      product_brand = $3,
-      current_price = $4,
-      product_size = $5,
-      url = $6,
-      image_url = $7,
+      product_name = EXCLUDED.product_name,
+      product_brand = EXCLUDED.product_brand,
+      current_price = EXCLUDED.current_price,
+      product_size = EXCLUDED.product_size,
+      url = EXCLUDED.url,
+      image_url = EXCLUDED.image_url,
       last_updated = CURRENT_TIMESTAMP
     RETURNING *;
   `;
+
   try {
     const result = await pool.query(query, [
       product.barcode,

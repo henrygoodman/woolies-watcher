@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { HeartIcon } from '@/components/HeartIcon';
+import { PriceChart } from '@/components/PriceChart';
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
@@ -87,15 +88,10 @@ export default function ProductDetailsPage() {
 
       {/* Placeholder Sections */}
       <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="p-4 border rounded-md shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Historical Price</h3>
-          <div className="h-32 bg-gray-200 flex items-center justify-center">
-            <span className="text-muted-foreground">Coming Soon</span>
-          </div>
-        </div>
+        <PriceChart productId={product.id!} />
         <div className="p-4 border rounded-md shadow-sm">
           <h3 className="text-lg font-semibold mb-2">Number of Watchers</h3>
-          <div className="h-32 bg-gray-200 flex items-center justify-center">
+          <div className="h-32 bg-muted flex items-center justify-center">
             <span className="text-muted-foreground">Coming Soon</span>
           </div>
         </div>
