@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { DataTable } from '@/components/DataTable';
-import { columns } from '@/app/dashboard/watchlistColumns';
+import { columns } from '@/app/watchlist/watchlistColumns';
 import { getWatchlist } from '@/lib/api/watchlistApi';
 import { LoadingIndicator } from './LoadingIndicator';
 import { ErrorMessage } from './ErrorMessage';

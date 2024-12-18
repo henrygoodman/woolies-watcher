@@ -53,6 +53,10 @@ export default function SearchPage() {
 
     setPerPage(perPageFromQuery);
     fetchProducts(searchQuery, page, perPageFromQuery);
+
+    if (searchQuery.trim()) {
+      document.title = `${searchQuery} - Woolies Watcher`;
+    }
   }, [searchParams]);
 
   const handlePagination = (page: number) => {

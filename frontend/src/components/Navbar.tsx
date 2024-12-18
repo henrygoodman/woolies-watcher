@@ -72,7 +72,7 @@ export const Navbar: React.FC = () => {
                   {user.name}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                <DropdownMenuItem onClick={() => router.push('/watchlist')}>
                   Watchlist
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push('/settings')}>

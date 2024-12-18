@@ -31,6 +31,12 @@ export default function ProductDetailsPage() {
     if (id) loadProductDetails();
   }, [id]);
 
+  useEffect(() => {
+    if (product?.product_name) {
+      document.title = `${product.product_name} - Woolies Watcher`;
+    }
+  }, [product]);
+
   if (loading) return <LoadingIndicator />;
   if (error || !product) return <ErrorMessage message={error || 'Not found'} />;
 
