@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { fetchUserConfigApi, updateUserConfigApi } from '@/lib/api/userApi';
+import { LoadingIndicator } from '@/components/LoadingIndicator';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -67,6 +68,8 @@ export default function SettingsPage() {
       });
     }
   };
+
+  if (loading) return <LoadingIndicator />;
 
   return (
     <div className="container mx-auto max-w-2xl py-10">
