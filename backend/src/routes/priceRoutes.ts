@@ -1,5 +1,5 @@
 import express from 'express';
-import { handleGetPriceUpdates } from '@/handlers/priceHandler';
+import { handleGetPriceUpdates } from '@/handlers/priceHandlers';
 
 const router = express.Router();
 

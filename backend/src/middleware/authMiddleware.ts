@@ -1,4 +1,4 @@
-import { findOrCreateUser } from '@/db/authRepository';
+import { findOrCreateUser } from '@/db/userRepository';
 import { RequestHandler } from 'express';
 
 export const handleAuth: RequestHandler = async (req, res, next) => {
