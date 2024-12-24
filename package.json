@@ -12,5 +12,8 @@
   "devDependencies": {
     "prettier": "^3.3.3"
   },
-  "dependencies": {}
+  "dependencies": {
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0"
+  }
 }

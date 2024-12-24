@@ -12,8 +12,13 @@
   - Need users to 'watch' certain items and get email notifications when price drops or raises
   - Find smart way to implement watching and fetching the prices cron daily
     - If we have barcodes for all 'watched' items (will just be a set) we can just do all those API calls
-  - Determine best user management system (SSO, email verification code?) should be minimal
 - Coles too
+
+- Rate limiting stuff
+  - RapidAPI header check
+  - Backend middleware
+- Watchlist use the fetchWatchlist from context provider when loading
+- Finalize cron stuff and watchlist configs
 
 **Key issues**
 

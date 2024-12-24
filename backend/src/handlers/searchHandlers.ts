@@ -1,20 +1,44 @@
 import { RequestHandler } from 'express';
 import axios from 'axios';
-import { fetchProductImage } from '@/utils/fetchImage';
 import { findProductByFields, saveProductToDB } from '@/db/productRepository';
 import { parseQueryParams } from '@/utils/parseQueryParams';
 import { DBProduct } from '@shared-types/db';
-import { ProductSearchResponse } from '@shared-types/api';
+import { ProductIdentifier, ProductSearchResponse } from '@shared-types/api';
+import { isStaleProduct } from '@/utils/staleProductCheck';
 
-const isStaleProduct = (lastUpdated: string): boolean => {
-  const cutoff = new Date();
-  cutoff.setHours(3, 0, 0, 0); // 3 AM today
-  return new Date(lastUpdated) < cutoff;
+let apiUsageExceeded = false;
+let resetTimeout: NodeJS.Timeout | null = null;
+
+const handleApiRateLimit = (headers: any) => {
+  const remainingRequests = parseInt(
+    headers['x-ratelimit-requests-remaining'],
+    10
+  );
+
+  console.log('Performing API call (no cache or stale)', remainingRequests);
+
+  const resetTime = parseInt(headers['x-ratelimit-requests-reset'], 10);
+
+  if (remainingRequests === 0) {
+    apiUsageExceeded = true;
+
+    if (resetTimeout) clearTimeout(resetTimeout);
+    resetTimeout = setTimeout(() => {
+      apiUsageExceeded = false;
+      console.log('API quota reset. Resuming requests.');
+    }, resetTime * 1000);
+  }
 };
 
 export const handleSearchProducts: RequestHandler = async (req, res) => {
-  const queryParams = parseQueryParams(req);
+  if (apiUsageExceeded) {
+    res
+      .status(429)
+      .json({ error: 'API usage limit reached. Please try again later.' });
+    return;
+  }
 
+  const queryParams = parseQueryParams(req);
   if (!queryParams) {
     res.status(400).json({ error: 'Query parameter is required' });
     return;
@@ -34,19 +58,21 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
       }
     );
 
+    handleApiRateLimit(response.headers);
+
     const results = await Promise.all(
       response.data.results.map(async (product: any) => {
-        const barcode = product.barcode ? String(product.barcode) : null;
+        const product_url = product.url;
         const product_name = product.product_name;
+        const barcode = product.barcode ? String(product.barcode) : null;
 
-        let cachedProduct = await findProductByFields(barcode, product_name);
+        let cachedProduct = await findProductByFields(
+          product_name,
+          product_url
+        );
 
-        if (cachedProduct && isStaleProduct(cachedProduct.last_updated)) {
-          // Update only the price field if stale
-          cachedProduct.current_price = parseFloat(product.current_price);
-          cachedProduct.last_updated = new Date().toISOString();
-          await saveProductToDB(cachedProduct);
-        }
+        const productId = product_url.split('/').pop();
+        const image_url = `https://assets.woolworths.com.au/images/1005/${productId}.jpg?impolicy=wowsmkqiema&w=600&h=600`;
 
         const productToSave: DBProduct = {
           id: cachedProduct?.id,
@@ -55,27 +81,12 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
           product_brand: product.product_brand,
           current_price: parseFloat(product.current_price),
           product_size: product.product_size,
-          url: product.url,
-          image_url: cachedProduct?.image_url || null,
+          url: product_url,
+          image_url,
           last_updated: new Date().toISOString(),
         };
 
         await saveProductToDB(productToSave);
-
-        if (!productToSave.image_url) {
-          setImmediate(async () => {
-            try {
-              const image_url = await fetchProductImage(product.url);
-              productToSave.image_url = image_url || '/images/placeholder.jpeg';
-              await saveProductToDB(productToSave);
-            } catch (error) {
-              console.error(
-                `Failed to fetch image for ${product_name}:`,
-                error
-              );
-            }
-          });
-        }
 
         return productToSave;
       })
@@ -95,16 +106,21 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
   }
 };
 
-export const handleSearchProductByName: RequestHandler = async (req, res) => {
-  const { productName } = req.params;
-
-  if (!productName || typeof productName !== 'string') {
-    res.status(400).json({ error: 'Product name is required' });
+export const handleSearchProductByNameAndUrl: RequestHandler = async (
+  req,
+  res
+) => {
+  if (apiUsageExceeded) {
+    res
+      .status(429)
+      .json({ error: 'API usage limit reached. Please try again later.' });
     return;
   }
 
+  const { product_name, url } = req.body as ProductIdentifier;
+
   try {
-    let cachedProduct = await findProductByFields(null, productName);
+    let cachedProduct = await findProductByFields(product_name, url);
 
     if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
       res.json(cachedProduct);
@@ -118,9 +134,11 @@ export const handleSearchProductByName: RequestHandler = async (req, res) => {
           'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
           'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
         },
-        params: { query: productName, page: 1, size: 1 },
+        params: { query: product_name, page: 1, size: 1 },
       }
     );
+
+    handleApiRateLimit(response.headers);
 
     const results = response.data.results;
     if (!results || results.length === 0) {
@@ -128,41 +146,34 @@ export const handleSearchProductByName: RequestHandler = async (req, res) => {
       return;
     }
 
-    const product = results[0];
-    const barcode = product.barcode ? String(product.barcode) : null;
+    const product = results.find((p: any) => p.url === url);
+    if (!product) {
+      res
+        .status(404)
+        .json({ error: 'No matching product found for the provided URL' });
+      return;
+    }
+
+    const productId = url.split('/').pop();
+    const image_url = `https://assets.woolworths.com.au/images/1005/${productId}.jpg?impolicy=wowsmkqiema&w=600&h=600`;
 
     const productToSave: DBProduct = {
       id: cachedProduct?.id,
-      barcode: barcode,
+      barcode: product.barcode ? String(product.barcode) : null,
       product_name: product.product_name,
       product_brand: product.product_brand,
       current_price: parseFloat(product.current_price),
       product_size: product.product_size,
       url: product.url,
-      image_url: cachedProduct?.image_url || null,
+      image_url,
       last_updated: new Date().toISOString(),
     };
 
     const savedProduct = await saveProductToDB(productToSave);
 
-    if (!productToSave.image_url) {
-      setImmediate(async () => {
-        try {
-          const image_url = await fetchProductImage(product.url);
-          savedProduct.image_url = image_url || '/images/placeholder.jpeg';
-          await saveProductToDB(savedProduct);
-        } catch (error) {
-          console.error(
-            `Image fetch failed for ${product.product_name}:`,
-            error
-          );
-        }
-      });
-    }
-
     res.json(savedProduct);
   } catch (error) {
-    console.error('Error fetching product by name:', error);
+    console.error('Error fetching product by name and URL:', error);
     res.status(500).json({ error: 'Failed to fetch product' });
   }
 };

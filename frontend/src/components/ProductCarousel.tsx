@@ -12,20 +12,32 @@ import {
 import Autoplay from 'embla-carousel-autoplay';
 import { ProductCard } from '@/components/ProductCard';
 import { type DBProduct } from '@shared-types/db';
-import { fetchProductByNameApi } from '@/lib/api/productApi';
+import { fetchProductByNameAndUrlApi } from '@/lib/api/productApi';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { ErrorMessage } from '@/components/ErrorMessage';
+import { ProductIdentifier } from '@shared-types/api';
 
-/* Note: these product names must match exactly for caching to work, i.e they
-   must be findable in our DB. Otherwise we would have to perform API call to find
-   the closest match
-*/
-const productNames = [
-  'Woolworths Lean Beef Mince',
-  'Woolworths Rspca Chicken Breast Fillets',
-  'Musashi 100% Whey Protein Vanilla Milkshake Flavour',
-  'Superior Gold Salmon Smoked',
-  'Puregg Free Range Liquid Egg White',
+const productIdentifiers: ProductIdentifier[] = [
+  {
+    product_name: 'Woolworths Lean Beef Mince',
+    url: 'https://www.woolworths.com.au/shop/productdetails/577861',
+  },
+  {
+    product_name: 'Woolworths Rspca Chicken Breast Fillets',
+    url: 'https://www.woolworths.com.au/shop/productdetails/349091',
+  },
+  {
+    product_name: 'Musashi 100% Whey Protein Vanilla Milkshake Flavour',
+    url: 'https://www.woolworths.com.au/shop/productdetails/304171',
+  },
+  {
+    product_name: 'Superior Gold Salmon Smoked',
+    url: 'https://www.woolworths.com.au/shop/productdetails/846997',
+  },
+  {
+    product_name: 'Puregg Free Range Liquid Egg White',
+    url: 'https://www.woolworths.com.au/shop/productdetails/54278',
+  },
 ];
 
 export const ProductCarousel: React.FC = () => {
@@ -38,7 +50,9 @@ export const ProductCarousel: React.FC = () => {
     const fetchProducts = async () => {
       try {
         const fetchedProducts = await Promise.all(
-          productNames.map((name) => fetchProductByNameApi(name))
+          productIdentifiers.map(({ product_name, url }) =>
+            fetchProductByNameAndUrlApi(product_name, url)
+          )
         );
         setProducts(fetchedProducts);
       } catch (err) {

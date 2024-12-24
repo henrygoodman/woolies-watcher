@@ -1,8 +1,6 @@
 import { RequestHandler } from 'express';
-import {
-  findProductsByIdentifiers,
-  getProductFromDB,
-} from '@/db/productRepository';
+import { findProductByFields, getProductFromDB } from '@/db/productRepository';
+import { ProductIdentifier } from '@shared-types/api';
 
 export const handleProductGet: RequestHandler = async (req, res) => {
   const { id } = req.params;
@@ -20,35 +18,27 @@ export const handleProductGet: RequestHandler = async (req, res) => {
 };
 
 export const handleProductUpdates: RequestHandler = async (req, res) => {
-  const { productIdentifiers } = req.body;
-
-  if (
-    !productIdentifiers ||
-    !Array.isArray(productIdentifiers) ||
-    !productIdentifiers.every(
-      (p) =>
-        typeof p === 'object' &&
-        ('id' in p || ('barcode' in p && 'product_name' in p))
-    )
-  ) {
-    res.status(400).json({ error: 'Invalid product identifiers' });
-    return;
-  }
+  const productIdentifiers = req.body as ProductIdentifier[];
 
   try {
-    const ids = productIdentifiers.map((p) => p.id).filter((id) => id !== 0);
-    const barcodes = productIdentifiers
-      .map((p) => p.barcode)
-      .filter((barcode) => barcode);
-    const productNames = productIdentifiers
-      .map((p) => p.product_name)
-      .filter((name) => name);
+    const products = [];
 
-    const products = await findProductsByIdentifiers(
-      ids,
-      barcodes,
-      productNames
-    );
+    for (const identifier of productIdentifiers) {
+      const { product_name, url } = identifier;
+
+      try {
+        const product = await findProductByFields(product_name, url);
+        if (product) {
+          products.push(product);
+        }
+      } catch (error) {
+        console.error(
+          `Error fetching product with name "${product_name}" and URL "${url}":`,
+          error
+        );
+      }
+    }
+
     res.json(products);
   } catch (error) {
     console.error('Error fetching product updates:', error);

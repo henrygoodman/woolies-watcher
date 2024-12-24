@@ -2,9 +2,10 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import routes from '@/routes';
-import errorLogMiddleware from './middleware/errorLogMiddleware';
-import { scheduleDailyWatchlistEmails } from './jobs/cron';
-import { initMailer } from './services/email/index';
+import errorLogMiddleware from '@/middleware/errorLogMiddleware';
+import { scheduleDailyWatchlistEmails } from '@/jobs/cron';
+import { initMailer } from '@/services/email/index';
+import { rateLimitMiddleware } from '@/middleware/rateLimiter';
 
 dotenv.config();
 
@@ -17,6 +18,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(rateLimitMiddleware);
 
 app.use(express.json());
 

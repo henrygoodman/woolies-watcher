@@ -8,19 +8,7 @@ export interface ProductSearchRequest extends PaginationParams {
 
 export type ProductSearchResponse = PaginatedResponse<DBProduct>;
 
-export interface ProductUpdateRequest {
-  productIdentifiers: Array<{
-    id?: number;
-    barcode?: string;
-    product_name?: string;
-  }>;
-}
-
-export interface ProductUpdateResponse {
-  updatedProducts: DBProduct[];
-}
-
-export type ProductIdentifier = Pick<
-  DBProduct,
-  'id' | 'barcode' | 'product_name'
->;
+export type ProductIdentifier = {
+  product_name: string;
+  url: string;
+};

@@ -16,9 +16,10 @@ CREATE TABLE products (
     current_price DECIMAL(10, 2) NOT NULL,           -- Price cannot be NULL
     product_size VARCHAR(50),                        -- Optional size description
     url TEXT NOT NULL,                               -- URL must always be provided
-    image_url TEXT DEFAULT '/images/placeholder.jpeg', -- Default placeholder for missing images
+    image_url TEXT,
     watch_count INT DEFAULT 0,                       -- Count of users watching the product
-    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- Automatically set updated timestamp
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Automatically set updated timestamp
+    CONSTRAINT unique_product_name_url UNIQUE (product_name, url) -- Unique constraint
 );
 
 -- Create an index for faster searches on product names
