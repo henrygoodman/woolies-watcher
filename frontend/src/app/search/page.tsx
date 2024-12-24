@@ -3,7 +3,6 @@
 import { Pagination } from '@/components/Pagination';
 import { ProductCard } from '@/components/ProductCard';
 import { useFetchProducts } from '@/hooks/useFetchProducts';
-import { usePollingUpdates } from '@/hooks/usePollingUpdates';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
@@ -25,10 +24,6 @@ export default function SearchPage() {
 
   const [perPage, setPerPage] = useState(() => {
     return parseInt(searchParams.get('size') || '18', 10);
-  });
-
-  usePollingUpdates(products, (updatedProducts) => {
-    setProducts(updatedProducts);
   });
 
   useEffect(() => {
@@ -78,7 +73,7 @@ export default function SearchPage() {
             perPage={perPage}
             onNext={() => handlePagination(currentPage + 1)}
             onPrevious={() => handlePagination(currentPage - 1)}
-            onPerPageChange={handlePerPageChange} // Pass the handler
+            onPerPageChange={handlePerPageChange}
           />
         )}
       </div>

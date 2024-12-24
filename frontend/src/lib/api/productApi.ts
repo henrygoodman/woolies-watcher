@@ -50,31 +50,6 @@ export const fetchProductsApi = async (
 };
 
 /**
- * Fetch updates for a list of product identifiers.
- * @param productIdentifiers - Array of product identifiers (id, barcode, or product_name).
- * @returns A promise that resolves to the updated product list.
- * @throws Will throw an error if the fetch fails.
- */
-export const fetchProductUpdatesApi = async (
-  productIdentifiers: ProductIdentifier[]
-): Promise<DBProduct[]> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/product/update`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productIdentifiers }),
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(`Error: ${response.status} ${response.statusText}`);
-  }
-
-  return (await response.json()) as DBProduct[];
-};
-
-/**
  * Fetch a product by name and URL.
  * @param name - The exact product name to search for.
  * @param url - The product URL to disambiguate similar products.
