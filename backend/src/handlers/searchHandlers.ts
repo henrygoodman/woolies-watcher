@@ -86,9 +86,9 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
           last_updated: new Date().toISOString(),
         };
 
-        await saveProductToDB(productToSave);
+        const savedProduct = await saveProductToDB(productToSave);
 
-        return productToSave;
+        return savedProduct;
       })
     );
 

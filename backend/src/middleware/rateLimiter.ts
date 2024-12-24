@@ -6,7 +6,7 @@ import rateLimit from 'express-rate-limit';
  */
 export const rateLimitMiddleware = rateLimit({
   windowMs: 60 * 1000,
-  max: 50,
+  max: 150,
   message: {
     error: 'Too many requests, please try again later.',
   },

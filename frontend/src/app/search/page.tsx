@@ -12,15 +12,8 @@ export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const {
-    products,
-    setProducts,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    fetchProducts,
-  } = useFetchProducts();
+  const { products, loading, error, currentPage, totalPages, fetchProducts } =
+    useFetchProducts();
 
   const [perPage, setPerPage] = useState(() => {
     return parseInt(searchParams.get('size') || '18', 10);
