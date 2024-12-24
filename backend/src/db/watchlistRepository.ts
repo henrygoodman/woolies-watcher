@@ -1,6 +1,5 @@
 import { DBProduct } from '@shared-types/db';
 import pool from './pool';
-import { resourceLimits } from 'worker_threads';
 
 export const addToWatchlist = async (
   user_id: number,
@@ -100,6 +99,7 @@ interface UserWatchlist {
   watchlist: DBProduct[];
 }
 
+// TODO: Change from user email to the set email in user config
 export const getAllUserWatchlists = async (): Promise<UserWatchlist[]> => {
   const query = `
     SELECT u.email, p.*
@@ -141,5 +141,32 @@ export const getAllUserWatchlists = async (): Promise<UserWatchlist[]> => {
   } catch (error) {
     console.error('Error fetching all user watchlists:', error);
     throw new Error('Failed to fetch user watchlists.');
+  }
+};
+
+export const getWatchedProducts = async (): Promise<DBProduct[]> => {
+  const query = `
+    SELECT DISTINCT p.*
+    FROM products p
+    INNER JOIN watchlist w ON p.id = w.product_id
+    ORDER BY p.last_updated DESC;
+  `;
+
+  try {
+    const { rows } = await pool.query(query);
+    return rows.map((row) => ({
+      id: row.id,
+      barcode: row.barcode,
+      product_name: row.product_name,
+      product_brand: row.product_brand,
+      current_price: parseFloat(row.current_price),
+      product_size: row.product_size,
+      url: row.url,
+      image_url: row.image_url,
+      last_updated: row.last_updated,
+    }));
+  } catch (error) {
+    console.error('Error fetching watched products:', error);
+    throw new Error('Failed to fetch watched products.');
   }
 };

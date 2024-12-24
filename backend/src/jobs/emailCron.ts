@@ -43,4 +43,5 @@ export const scheduleDailyWatchlistEmails = () => {
       timezone: 'Australia/Sydney',
     }
   );
+  console.log('Initialized emailCron');
 };

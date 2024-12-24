@@ -3,9 +3,9 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import routes from '@/routes';
 import errorLogMiddleware from '@/middleware/errorLogMiddleware';
-import { scheduleDailyWatchlistEmails } from '@/jobs/cron';
 import { initMailer } from '@/services/email/index';
 import { rateLimitMiddleware } from '@/middleware/rateLimiter';
+import { initializeCronJobs } from './jobs';
 
 dotenv.config();
 
@@ -20,21 +20,12 @@ app.use(
 );
 
 app.use(rateLimitMiddleware);
-
 app.use(express.json());
-
 app.use(errorLogMiddleware);
-
 app.use('/api', routes);
 
-try {
-  initMailer();
-} catch (error) {
-  console.error('Failed to initialize mailer:', error);
-  process.exit(1);
-}
-
-scheduleDailyWatchlistEmails();
+initMailer();
+initializeCronJobs();
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Backend running on http://0.0.0.0:${PORT}`);
