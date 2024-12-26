@@ -106,7 +106,7 @@ export const getAllUserWatchlists = async (): Promise<UserWatchlist[]> => {
     FROM users u
     INNER JOIN watchlist w ON u.id = w.user_id
     INNER JOIN products p ON w.product_id = p.id
-    ORDER BY u.email, w.date_added DESC;
+    ORDER BY u.email, w.date_added ASC;
   `;
 
   try {
