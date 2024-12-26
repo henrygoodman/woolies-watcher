@@ -6,6 +6,7 @@ const DEFAULT_USER_CONFIG: UserConfig = {
   destinationEmail: '',
 };
 
+// TODO: Fix this so the default config saves the email address correctly
 export const findOrCreateUser = async (email: string, name?: string) => {
   const queryFind = `SELECT id FROM users WHERE email = $1 LIMIT 1`;
   const queryCreate = `

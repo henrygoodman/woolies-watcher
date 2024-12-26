@@ -9,6 +9,47 @@ import { initializeCronJobs } from './jobs';
 
 dotenv.config();
 
+const getCallerInfo = () => {
+  const error = new Error();
+  const stack = error.stack || '';
+  const stackLines = stack.split('\n');
+
+  // Extract the caller information (depends on stack format)
+  const callerLine = stackLines[3]; // 3rd line is the caller (can vary)
+  const match = callerLine?.match(/\((.*):(\d+):(\d+)\)/); // Extract file, line, column
+
+  if (match) {
+    const filePath = match[1];
+    const lineNumber = match[2];
+    const columnNumber = match[3];
+    return `${filePath}:${lineNumber}:${columnNumber}`;
+  }
+
+  return 'unknown location';
+};
+
+const originalConsoleLog = console.log;
+const originalConsoleError = console.error;
+const originalConsoleWarn = console.warn;
+
+console.log = (...args) => {
+  const timestamp = new Date().toISOString();
+  const callerInfo = getCallerInfo();
+  originalConsoleLog(`[INFO - ${timestamp}] [${callerInfo}]`, ...args);
+};
+
+console.error = (...args) => {
+  const timestamp = new Date().toISOString();
+  const callerInfo = getCallerInfo();
+  originalConsoleError(`[ERROR - ${timestamp}] [${callerInfo}]`, ...args);
+};
+
+console.warn = (...args) => {
+  const timestamp = new Date().toISOString();
+  const callerInfo = getCallerInfo();
+  originalConsoleWarn(`[WARN - ${timestamp}] [${callerInfo}]`, ...args);
+};
+
 const app = express();
 const PORT = parseInt(process.env.PORT || '5000', 10);
 
