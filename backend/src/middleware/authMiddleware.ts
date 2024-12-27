@@ -1,4 +1,4 @@
-import { findOrCreateUser } from '@/db/userRepository';
+import userRepository from '@/db/userRepository';
 import { RequestHandler } from 'express';
 
 export const handleAuth: RequestHandler = async (req, res, next) => {
@@ -47,7 +47,7 @@ export const handleAuth: RequestHandler = async (req, res, next) => {
     const userInfo = await userInfoResponse.json();
     const { name } = userInfo;
 
-    const user = await findOrCreateUser(email, name);
+    const user = await userRepository.findOrCreate(email, name);
 
     req.user = { id: user.id, email, name };
 

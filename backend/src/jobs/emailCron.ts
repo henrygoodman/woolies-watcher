@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { getAllUserWatchlists } from '@/db/watchlistRepository';
+import watchlistRepository from '@/db/watchlistRepository';
 import { getEmailService } from '@/services/email/index';
 
 export const scheduleDailyWatchlistEmails = () => {
@@ -12,7 +12,7 @@ export const scheduleDailyWatchlistEmails = () => {
       let errorsOccurred = 0;
 
       try {
-        const userWatchlists = await getAllUserWatchlists();
+        const userWatchlists = await watchlistRepository.getAllUserWatchlists();
 
         await Promise.all(
           userWatchlists.map(async ({ email, watchlist }) => {

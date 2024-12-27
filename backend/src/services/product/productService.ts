@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { findProductByFields, saveProductToDB } from '@/db/productRepository';
+import productRepository from '@/db/productRepository';
 import { DBProduct } from '@shared-types/db';
 import { isStaleProduct } from '@/utils/staleProductCheck';
 import { ProductSearchResponse } from '@shared-types/api';
@@ -50,7 +50,7 @@ export const fetchProducts = async (
         const product_name = product.product_name;
         const barcode = product.barcode ? String(product.barcode) : null;
 
-        let cachedProduct = await findProductByFields(
+        let cachedProduct = await productRepository.findByFields(
           product_name,
           product_url
         );
@@ -74,7 +74,7 @@ export const fetchProducts = async (
           last_updated: new Date(),
         };
 
-        return await saveProductToDB(productToSave);
+        return await productRepository.create(productToSave);
       })
     );
 
@@ -109,7 +109,7 @@ export const fetchProductsByNameAndUrl = async (
   }
 
   try {
-    let cachedProduct = await findProductByFields(product_name, url);
+    let cachedProduct = await productRepository.findByFields(product_name, url);
 
     if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
       return cachedProduct; // Return the cached product if it's not stale
@@ -155,7 +155,7 @@ export const fetchProductsByNameAndUrl = async (
       last_updated: new Date(),
     };
 
-    return await saveProductToDB(productToSave);
+    return await productRepository.create(productToSave);
   } catch (error) {
     console.error('Error fetching product by name and URL:', error);
     throw new Error('Failed to fetch or update product.');
@@ -180,7 +180,7 @@ export const fetchProductsByBarcode = async (
   }
 
   try {
-    let cachedProduct = await findProductByFields(
+    let cachedProduct = await productRepository.findByFields(
       product.product_name,
       product.url
     );
@@ -224,7 +224,7 @@ export const fetchProductsByBarcode = async (
       last_updated: new Date(),
     };
 
-    return await saveProductToDB(productToSave);
+    return await productRepository.create(productToSave);
   } catch (error) {
     console.error('Error fetching product by barcode:', error);
     throw new Error('Failed to fetch or update product.');

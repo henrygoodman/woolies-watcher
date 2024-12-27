@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { getPriceUpdatesByProduct } from '@/db/priceRepository';
+import priceRepository from '@/db/priceRepository';
 
 /**
  * Fetch price updates for a specific product by product ID.
@@ -13,7 +13,9 @@ export const handleGetPriceUpdates: RequestHandler = async (req, res) => {
   }
 
   try {
-    const priceUpdates = await getPriceUpdatesByProduct(Number(productId));
+    const priceUpdates = await priceRepository.getPriceUpdatesByProduct(
+      Number(productId)
+    );
     res.json(priceUpdates);
   } catch (error) {
     console.error('Error fetching price updates:', error);

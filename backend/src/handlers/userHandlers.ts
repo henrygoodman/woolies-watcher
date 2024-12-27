@@ -1,10 +1,5 @@
 import { RequestHandler } from 'express';
-import {
-  findOrCreateUser,
-  getUserDestinationEmail,
-  updateUserDestinationEmail,
-} from '@/db/userRepository';
-import pool from '@/db/pool';
+import userRepository from '@/db/userRepository';
 
 /**
  * Fetch the user's configuration, specifically their destination email.
@@ -21,8 +16,8 @@ export const handleGetUserDestinationEmail: RequestHandler = async (
   }
 
   try {
-    const user = await findOrCreateUser(email);
-    const destinationEmail = await getUserDestinationEmail(user.id);
+    const user = await userRepository.findByField('email', email);
+    const destinationEmail = await userRepository.getDestinationEmail(user!.id);
 
     res.status(200).json({ destinationEmail });
   } catch (error) {
@@ -47,8 +42,8 @@ export const handleUpdateUserDestinationEmail: RequestHandler = async (
   }
 
   try {
-    const user = await findOrCreateUser(email);
-    await updateUserDestinationEmail(user.id, destinationEmail);
+    const user = await userRepository.findByField('email', email);
+    await userRepository.updateDestinationEmail(user!.id, destinationEmail);
 
     res.status(200).json({ message: 'Destination email updated successfully' });
   } catch (error) {

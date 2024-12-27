@@ -1,9 +1,5 @@
 import { RequestHandler } from 'express';
-import {
-  addToWatchlist,
-  getWatchlist,
-  removeFromWatchlist,
-} from '@/db/watchlistRepository';
+import watchlistRepository from '@/db/watchlistRepository';
 import { WatchlistRequest } from '@shared-types/api';
 import { DBProduct } from '@shared-types/db';
 
@@ -24,7 +20,7 @@ export const handleWatchlistAdd: RequestHandler = async (req, res) => {
   }
 
   try {
-    await addToWatchlist(user_id, product_id);
+    await watchlistRepository.addToWatchlist(user_id, product_id);
     res.status(200).json({ message: 'Product added to watchlist', product_id });
   } catch (error) {
     console.error('Error adding to watchlist:', error);
@@ -48,7 +44,7 @@ export const handleWatchlistDelete: RequestHandler = async (req, res) => {
   }
 
   try {
-    const productInWatchlist = await removeFromWatchlist(
+    const productInWatchlist = await watchlistRepository.removeFromWatchlist(
       user.id,
       Number(productId)
     );
@@ -76,7 +72,9 @@ export const handleWatchlistGet: RequestHandler = async (req, res) => {
   }
 
   try {
-    const watchlist: DBProduct[] = await getWatchlist(user.id);
+    const watchlist: DBProduct[] = await watchlistRepository.getWatchlist(
+      user.id
+    );
     res.status(200).json(watchlist);
   } catch (error) {
     console.error('Error fetching watchlist:', error);

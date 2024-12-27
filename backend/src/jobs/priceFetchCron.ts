@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import { getWatchedProducts } from '@/db/watchlistRepository';
+import watchlistRepository from '@/db/watchlistRepository';
 import {
   fetchProductsByBarcode,
   fetchProductsByNameAndUrl,
@@ -15,7 +15,7 @@ export const scheduleDailyProductUpdates = () => {
       let errorsOccurred = 0;
 
       try {
-        const watchedProducts = await getWatchedProducts();
+        const watchedProducts = await watchlistRepository.getWatchedProducts();
 
         await Promise.all(
           watchedProducts.map(async (product) => {
