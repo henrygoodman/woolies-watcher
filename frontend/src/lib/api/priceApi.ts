@@ -1,4 +1,4 @@
-import { PriceUpdate } from '@shared-types/db';
+import { DBPriceUpdate } from '@shared-types/db';
 
 /**
  * Fetch price updates for a product by ID.
@@ -8,7 +8,7 @@ import { PriceUpdate } from '@shared-types/db';
  */
 export const fetchPriceUpdatesApi = async (
   productId: number
-): Promise<PriceUpdate[]> => {
+): Promise<DBPriceUpdate[]> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/price/${productId}`
   );
@@ -17,5 +17,5 @@ export const fetchPriceUpdatesApi = async (
     throw new Error(`Error: ${response.status} ${response.statusText}`);
   }
 
-  return (await response.json()) as PriceUpdate[];
+  return (await response.json()) as DBPriceUpdate[];
 };

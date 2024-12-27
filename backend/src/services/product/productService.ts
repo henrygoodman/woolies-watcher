@@ -71,7 +71,7 @@ export const fetchProducts = async (
           product_size: product.product_size,
           url: product_url,
           image_url,
-          last_updated: new Date().toISOString(),
+          last_updated: new Date(),
         };
 
         return await saveProductToDB(productToSave);
@@ -79,11 +79,9 @@ export const fetchProducts = async (
     );
 
     return {
-      query,
       page,
       size,
-      total_results: response.data.total_results,
-      total_pages: response.data.total_pages,
+      total: response.data.total_pages,
       results,
     };
   } catch (error) {
@@ -154,7 +152,7 @@ export const fetchProductsByNameAndUrl = async (
       product_size: apiProduct.product_size,
       url: apiProduct.url,
       image_url,
-      last_updated: new Date().toISOString(),
+      last_updated: new Date(),
     };
 
     return await saveProductToDB(productToSave);
@@ -223,7 +221,7 @@ export const fetchProductsByBarcode = async (
       product_size: apiProduct.product_size,
       url: apiProduct.url,
       image_url,
-      last_updated: new Date().toISOString(),
+      last_updated: new Date(),
     };
 
     return await saveProductToDB(productToSave);

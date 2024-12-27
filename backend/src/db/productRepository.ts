@@ -1,5 +1,5 @@
 import pool from './pool';
-import { DBProduct } from '@shared-types/db';
+import { DBProductSchema, DBProduct } from '@shared-types/db';
 import { addPriceUpdate } from '@/db/priceRepository';
 
 export async function findProductByFields(
@@ -18,18 +18,7 @@ export async function findProductByFields(
       return null;
     }
 
-    const dbProduct = result.rows[0];
-    return {
-      id: dbProduct.id,
-      barcode: dbProduct.barcode,
-      product_name: dbProduct.product_name,
-      product_brand: dbProduct.product_brand,
-      current_price: parseFloat(dbProduct.current_price),
-      product_size: dbProduct.product_size,
-      url: dbProduct.url,
-      image_url: dbProduct.image_url,
-      last_updated: dbProduct.last_updated,
-    };
+    return DBProductSchema.parse(result.rows[0]);
   } catch (error) {
     console.error('Error querying product by fields:', error);
     throw error;
@@ -40,8 +29,7 @@ export const getProductFromDB = async (
   productId: number
 ): Promise<DBProduct | null> => {
   const query = `
-    SELECT id, barcode, product_name, product_brand, current_price, 
-           product_size, url, image_url, last_updated
+    SELECT *
     FROM products
     WHERE id = $1
     LIMIT 1;
@@ -54,28 +42,13 @@ export const getProductFromDB = async (
       return null;
     }
 
-    const dbProduct = result.rows[0];
-
-    return {
-      id: dbProduct.id,
-      barcode: dbProduct.barcode,
-      product_name: dbProduct.product_name,
-      product_brand: dbProduct.product_brand,
-      current_price: parseFloat(dbProduct.current_price),
-      product_size: dbProduct.product_size,
-      url: dbProduct.url,
-      image_url: dbProduct.image_url,
-      last_updated: dbProduct.last_updated,
-    };
+    return DBProductSchema.parse(result.rows[0]);
   } catch (error) {
     console.error('Error fetching product from database:', error);
     throw new Error('Failed to fetch product from the database');
   }
 };
 
-/**
- * Save product to DB and track price updates
- */
 export async function saveProductToDB(product: DBProduct): Promise<DBProduct> {
   const existingProduct = await findProductByFields(
     product.product_name,
@@ -87,7 +60,6 @@ export async function saveProductToDB(product: DBProduct): Promise<DBProduct> {
       existingProduct.current_price !== product.current_price &&
       existingProduct.url === product.url
     ) {
-      // Track price update
       await addPriceUpdate(
         existingProduct.id!,
         existingProduct.current_price,
@@ -119,10 +91,7 @@ export async function saveProductToDB(product: DBProduct): Promise<DBProduct> {
       product.image_url,
     ]);
 
-    const updatedProduct = result.rows[0];
-    updatedProduct.current_price = parseFloat(updatedProduct.current_price);
-
-    return updatedProduct as DBProduct;
+    return DBProductSchema.parse(result.rows[0]);
   } catch (error) {
     console.error('Error saving to database:', error);
     throw error;

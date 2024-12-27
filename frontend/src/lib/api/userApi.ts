@@ -1,12 +1,11 @@
-import { UserConfig } from '@shared-types/api';
 import { getSession } from 'next-auth/react';
 
 /**
- * Fetch user configuration.
- * @returns A promise that resolves to the user's configuration object.
+ * Fetch the user's destination email.
+ * @returns A promise that resolves to the user's destination email as a string.
  * @throws Will throw an error if the fetch fails or the user is not authenticated.
  */
-export const fetchUserConfigApi = async (): Promise<UserConfig> => {
+export const fetchUserDestinationEmailApi = async (): Promise<string> => {
   const session = await getSession();
   if (!session) throw new Error('User is not authenticated');
 
@@ -24,19 +23,18 @@ export const fetchUserConfigApi = async (): Promise<UserConfig> => {
     throw new Error(`Error: ${response.status} ${response.statusText}`);
   }
 
-  return (await response.json()) as UserConfig;
+  const data = await response.json();
+  return data.destinationEmail as string;
 };
 
 /**
- * Update a specific user configuration key.
- * @param configKey - The key of the configuration to update.
- * @param configValue - The new value for the configuration key.
+ * Update the user's destination email.
+ * @param destinationEmail - The new destination email to set.
  * @returns A promise that resolves to a success message.
  * @throws Will throw an error if the fetch fails or the user is not authenticated.
  */
-export const updateUserConfigApi = async <K extends keyof UserConfig>(
-  configKey: K,
-  configValue: UserConfig[K]
+export const updateUserDestinationEmailApi = async (
+  destinationEmail: string
 ): Promise<{ message: string }> => {
   const session = await getSession();
   if (!session) throw new Error('User is not authenticated');
@@ -49,7 +47,7 @@ export const updateUserConfigApi = async <K extends keyof UserConfig>(
         'Content-Type': 'application/json',
         Authorization: `Bearer ${session.accessToken}`,
       },
-      body: JSON.stringify({ configKey, configValue }),
+      body: JSON.stringify({ destinationEmail }),
     }
   );
 

@@ -3,13 +3,14 @@ import {
   ProductSearchRequest,
   ProductSearchResponse,
 } from '@shared-types/api';
-import { DBProduct } from '@shared-types/db';
+import { DBProduct, DBProductSchema } from '@shared-types/db';
+import { z } from 'zod';
 
 /**
  * Fetch product details by ID.
  * @param id - The ID of the product.
  * @returns A promise that resolves to the product details.
- * @throws Will throw an error if the fetch fails.
+ * @throws Will throw an error if the fetch fails or validation fails.
  */
 export const fetchProductDetailsApi = async (
   id: number
@@ -22,7 +23,9 @@ export const fetchProductDetailsApi = async (
     throw new Error(`Error: ${response.status} ${response.statusText}`);
   }
 
-  return (await response.json()) as DBProduct;
+  const json = await response.json();
+
+  return DBProductSchema.parse(json);
 };
 
 /**
@@ -31,7 +34,7 @@ export const fetchProductDetailsApi = async (
  * @param page - Page number for pagination.
  * @param size - Number of results per page.
  * @returns A promise that resolves to the search response.
- * @throws Will throw an error if the fetch fails.
+ * @throws Will throw an error if the fetch fails or validation fails.
  */
 export const fetchProductsApi = async (
   query: ProductSearchRequest['query'],
@@ -46,7 +49,16 @@ export const fetchProductsApi = async (
     throw new Error(`Error: ${response.status} ${response.statusText}`);
   }
 
-  return (await response.json()) as ProductSearchResponse;
+  const json = await response.json();
+
+  // Validate with Zod (assuming ProductSearchResponseSchema exists)
+  const ProductSearchResponseSchema = z.object({
+    results: z.array(DBProductSchema),
+    total: z.number(),
+    page: z.number(),
+    size: z.number(),
+  });
+  return ProductSearchResponseSchema.parse(json);
 };
 
 /**
@@ -54,7 +66,7 @@ export const fetchProductsApi = async (
  * @param name - The exact product name to search for.
  * @param url - The product URL to disambiguate similar products.
  * @returns A promise that resolves to the fetched product details.
- * @throws Will throw an error if the fetch fails.
+ * @throws Will throw an error if the fetch fails or validation fails.
  */
 export const fetchProductByNameAndUrlApi = async (
   product_name: string,
@@ -75,5 +87,7 @@ export const fetchProductByNameAndUrlApi = async (
     throw new Error(`Error: ${response.status} ${response.statusText}`);
   }
 
-  return (await response.json()) as DBProduct;
+  const json = await response.json();
+
+  return DBProductSchema.parse(json);
 };

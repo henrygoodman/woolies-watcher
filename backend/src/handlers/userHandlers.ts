@@ -1,43 +1,58 @@
 import { RequestHandler } from 'express';
 import {
   findOrCreateUser,
-  getUserConfigFromDB,
-  updateUserConfigInDB,
+  getUserDestinationEmail,
+  updateUserDestinationEmail,
 } from '@/db/userRepository';
+import pool from '@/db/pool';
 
-export const handleGetUserConfig: RequestHandler = async (req, res) => {
+/**
+ * Fetch the user's configuration, specifically their destination email.
+ */
+export const handleGetUserDestinationEmail: RequestHandler = async (
+  req,
+  res
+) => {
   const { email } = req.user!;
 
   if (!email) {
     res.status(400).json({ error: 'Missing user email' });
+    return;
   }
 
   try {
-    const userId = await findOrCreateUser(email);
+    const user = await findOrCreateUser(email);
+    const destinationEmail = await getUserDestinationEmail(user.id);
 
-    const config = await getUserConfigFromDB(userId);
-    res.status(200).json(config);
+    res.status(200).json({ destinationEmail });
   } catch (error) {
-    console.error('Error fetching user config:', error);
-    res.status(500).json({ error: 'Failed to fetch configuration' });
+    console.error('Error fetching destination email:', error);
+    res.status(500).json({ error: 'Failed to fetch destination email' });
   }
 };
 
-export const handleUpdateUserConfig: RequestHandler = async (req, res) => {
+/**
+ * Update the user's destination email.
+ */
+export const handleUpdateUserDestinationEmail: RequestHandler = async (
+  req,
+  res
+) => {
   const { email } = req.user!;
-  const { configKey, configValue } = req.body;
+  const { destinationEmail } = req.body;
 
-  if (!email || !configKey || configValue === undefined) {
+  if (!email || !destinationEmail) {
     res.status(400).json({ error: 'Missing required fields' });
+    return;
   }
 
   try {
-    const userId = await findOrCreateUser(email);
+    const user = await findOrCreateUser(email);
+    await updateUserDestinationEmail(user.id, destinationEmail);
 
-    await updateUserConfigInDB(userId, configKey, configValue);
-    res.status(200).json({ message: 'Configuration updated successfully' });
+    res.status(200).json({ message: 'Destination email updated successfully' });
   } catch (error) {
-    console.error('Error updating user config:', error);
-    res.status(500).json({ error: 'Failed to update configuration' });
+    console.error('Error updating destination email:', error);
+    res.status(500).json({ error: 'Failed to update destination email' });
   }
 };

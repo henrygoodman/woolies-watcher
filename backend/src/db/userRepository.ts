@@ -1,80 +1,107 @@
-import { UserConfig } from '@shared-types/api';
+import { DBUser, DBUserSchema } from '@shared-types/db';
 import pool from './pool';
 
-const DEFAULT_USER_CONFIG: UserConfig = {
-  notificationTime: '8am AEST',
-  destinationEmail: '',
-};
-
-export const findOrCreateUser = async (email: string, name?: string) => {
-  const queryFind = `SELECT id FROM users WHERE email = $1 LIMIT 1`;
+/**
+ * Find or create a user in the database.
+ * @param email - The user's email.
+ * @param name - The user's name (optional).
+ * @returns The user object.
+ */
+export const findOrCreateUser = async (
+  email: string,
+  name?: string
+): Promise<DBUser> => {
+  const queryFind = `SELECT id, name, email, destination_email FROM users WHERE email = $1 LIMIT 1`;
   const queryCreate = `
-    INSERT INTO users (email, name)
-    VALUES ($1, $2)
-    RETURNING id
+    INSERT INTO users (email, name, destination_email)
+    VALUES ($1, $2, $3)
+    RETURNING id, name, email, destination_email
   `;
 
   try {
     const result = await pool.query(queryFind, [email]);
-    let userId: number;
 
     if (result.rows.length > 0) {
-      userId = result.rows[0].id;
-
-      const existingConfigQuery = `
-        SELECT COUNT(*) FROM user_config WHERE user_id = $1
-      `;
-      const configResult = await pool.query(existingConfigQuery, [userId]);
-
-      if (parseInt(configResult.rows[0].count, 10) === 0) {
-        await Promise.all(
-          Object.entries({
-            ...DEFAULT_USER_CONFIG,
-            destinationEmail: email,
-          }).map(([key, value]) => updateUserConfigInDB(userId, key, value!))
-        );
-      }
-    } else {
-      const insertResult = await pool.query(queryCreate, [email, name]);
-      userId = insertResult.rows[0].id;
-
-      await Promise.all(
-        Object.entries({
-          ...DEFAULT_USER_CONFIG,
-          destinationEmail: email,
-        }).map(([key, value]) => updateUserConfigInDB(userId, key, value!))
-      );
+      return DBUserSchema.parse(result.rows[0]);
     }
 
-    return userId;
+    const insertResult = await pool.query(queryCreate, [email, name, email]);
+    return DBUserSchema.parse(insertResult.rows[0]);
   } catch (error) {
     console.error('Error finding or creating user:', error);
     throw error;
   }
 };
 
-export async function updateUserConfigInDB(
+/**
+ * Fetch the user's destination email.
+ * @param userId - The user's ID.
+ * @returns The destination email.
+ */
+export const getUserDestinationEmail = async (
+  userId: number
+): Promise<string> => {
+  const query = `SELECT destination_email FROM users WHERE id = $1`;
+
+  try {
+    const result = await pool.query(query, [userId]);
+
+    if (result.rows.length === 0) {
+      throw new Error(`User with ID ${userId} not found`);
+    }
+
+    return result.rows[0].destination_email;
+  } catch (error) {
+    console.error('Error fetching destination email:', error);
+    throw error;
+  }
+};
+
+/**
+ * Update the user's destination email.
+ * @param userId - The user's ID.
+ * @param destinationEmail - The new destination email.
+ */
+export const updateUserDestinationEmail = async (
   userId: number,
-  configKey: string,
-  configValue: string
-): Promise<void> {
+  destinationEmail: string
+): Promise<void> => {
+  const query = `UPDATE users SET destination_email = $1 WHERE id = $2`;
+
+  try {
+    await pool.query(query, [destinationEmail, userId]);
+  } catch (error) {
+    console.error('Error updating destination email:', error);
+    throw error;
+  }
+};
+
+/**
+ * Save or update a user in the database.
+ * @param user - The user object to save.
+ * @returns The saved user object.
+ */
+export const saveUserToDB = async (user: Partial<DBUser>): Promise<DBUser> => {
   const query = `
-    INSERT INTO user_config (user_id, config_key, config_value)
+    INSERT INTO users (email, name, destination_email)
     VALUES ($1, $2, $3)
-    ON CONFLICT (user_id, config_key)
-    DO UPDATE SET config_value = EXCLUDED.config_value
+    ON CONFLICT (email)
+    DO UPDATE SET
+      name = EXCLUDED.name,
+      destination_email = EXCLUDED.destination_email
+    RETURNING id, email, name, destination_email;
   `;
-  await pool.query(query, [userId, configKey, configValue]);
-}
 
-export async function getUserConfigFromDB(userId: number): Promise<UserConfig> {
-  const query = `
-    SELECT config_key, config_value FROM user_config WHERE user_id = $1
-  `;
-  const result = await pool.query(query, [userId]);
+  try {
+    const result = await pool.query(query, [
+      user.email,
+      user.name || null,
+      user.destination_email || user.email,
+    ]);
 
-  return result.rows.reduce<UserConfig>((acc, row) => {
-    acc[row.config_key] = row.config_value;
-    return acc;
-  }, {});
-}
+    return DBUserSchema.parse(result.rows[0]);
+  } catch (error) {
+    console.error('Error saving user to database:', error);
+    throw error;
+  }
+};

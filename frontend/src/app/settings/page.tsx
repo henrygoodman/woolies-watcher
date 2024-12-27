@@ -6,7 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
-import { fetchUserConfigApi, updateUserConfigApi } from '@/lib/api/userApi';
+import {
+  fetchUserDestinationEmailApi,
+  updateUserDestinationEmailApi,
+} from '@/lib/api/userApi';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 
 export default function SettingsPage() {
@@ -20,11 +23,11 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!user?.email) return;
 
-    const loadUserConfig = async () => {
+    const loadDestinationEmail = async () => {
       setLoading(true);
       try {
-        const config = await fetchUserConfigApi();
-        setEmail(config.destinationEmail || user.email || '');
+        const destinationEmail = await fetchUserDestinationEmailApi();
+        setEmail(destinationEmail || user.email || '');
       } catch (error) {
         toast({
           title: 'Error',
@@ -36,7 +39,7 @@ export default function SettingsPage() {
       }
     };
 
-    loadUserConfig();
+    loadDestinationEmail();
   }, [user?.email]);
 
   const handleSave = async () => {
@@ -50,7 +53,7 @@ export default function SettingsPage() {
     }
 
     try {
-      await updateUserConfigApi('destinationEmail', email);
+      await updateUserDestinationEmailApi(email);
 
       toast({
         title: 'Settings Saved',

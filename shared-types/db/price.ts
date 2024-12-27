@@ -1,4 +1,4 @@
-export interface PriceUpdate {
+export interface DBPriceUpdate {
   id: number;
   product_id: number;
   old_price: number;

@@ -11,31 +11,49 @@ export const handleAuth: RequestHandler = async (req, res, next) => {
   }
 
   try {
-    const response = await fetch(
+    const tokenInfoResponse = await fetch(
       `https://oauth2.googleapis.com/tokeninfo?access_token=${token}`
     );
-    if (!response.ok) {
+    if (!tokenInfoResponse.ok) {
       throw new Error(
-        `Token verification failed: ${response.status} ${response.statusText}`
+        `Token verification failed: ${tokenInfoResponse.status} ${tokenInfoResponse.statusText}`
       );
     }
 
-    const payload = await response.json();
+    const tokenInfo = await tokenInfoResponse.json();
 
-    if (!payload.email) {
+    if (!tokenInfo.email) {
       res.status(403).json({ error: 'Forbidden: Invalid token payload' });
       return;
     }
 
-    const { email, name } = payload;
+    const { email } = tokenInfo;
 
-    const userId = await findOrCreateUser(email, name);
+    const userInfoResponse = await fetch(
+      'https://www.googleapis.com/oauth2/v2/userinfo',
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-    req.user = { id: userId, email, name };
+    if (!userInfoResponse.ok) {
+      throw new Error(
+        `Failed to fetch user info: ${userInfoResponse.status} ${userInfoResponse.statusText}`
+      );
+    }
+
+    const userInfo = await userInfoResponse.json();
+    const { name } = userInfo;
+
+    const user = await findOrCreateUser(email, name);
+
+    req.user = { id: user.id, email, name };
 
     next();
   } catch (err) {
-    console.error('Token Verification Error:', err);
+    console.error('Authentication Error:', err);
     res.status(403).json({ error: 'Forbidden: Invalid token or user' });
   }
 };

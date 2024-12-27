@@ -12,7 +12,7 @@
  * const lastUpdated = "2023-12-24T16:00:00Z";
  * const isStale = isStaleProduct(lastUpdated); // true if the current time is after 5 PM UTC on the same day
  */
-export const isStaleProduct = (lastUpdated: string): boolean => {
+export const isStaleProduct = (lastUpdated: Date): boolean => {
   // Create a Date object for the current time in UTC
   const now = new Date();
 

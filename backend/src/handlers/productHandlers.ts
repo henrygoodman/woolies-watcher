@@ -1,6 +1,5 @@
 import { RequestHandler } from 'express';
-import { findProductByFields, getProductFromDB } from '@/db/productRepository';
-import { ProductIdentifier } from '@shared-types/api';
+import { getProductFromDB } from '@/db/productRepository';
 
 export const handleProductGet: RequestHandler = async (req, res) => {
   const { id } = req.params;

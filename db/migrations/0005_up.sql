@@ -1,2 +1,0 @@
-ALTER TABLE watchlist
-DROP COLUMN IF EXISTS added_at;
