@@ -15,8 +15,5 @@ export interface UserResponse {
 }
 
 export type UserConfig = {
-  daily_notification_time?: string;
-  notification_email?: string;
-  timezone?: string;
   [key: string]: string | undefined;
 };

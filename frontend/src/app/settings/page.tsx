@@ -14,7 +14,7 @@ export default function SettingsPage() {
   const user = session?.user;
 
   const [email, setEmail] = useState('');
-  const [notificationTime, setNotificationTime] = useState('');
+  const [notificationTime, setNotificationTime] = useState('8am AEST'); // Default to 8am AEST
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -25,7 +25,6 @@ export default function SettingsPage() {
       try {
         const config = await fetchUserConfigApi();
         setEmail(config.destinationEmail || user.email || '');
-        setNotificationTime(config.notificationTime || '7am AEST');
       } catch (error) {
         toast({
           title: 'Error',
@@ -51,10 +50,7 @@ export default function SettingsPage() {
     }
 
     try {
-      await Promise.all([
-        updateUserConfigApi('destinationEmail', email),
-        updateUserConfigApi('notificationTime', notificationTime),
-      ]);
+      await updateUserConfigApi('destinationEmail', email);
 
       toast({
         title: 'Settings Saved',
@@ -106,13 +102,11 @@ export default function SettingsPage() {
               id="notification-time"
               type="text"
               value={notificationTime}
-              onChange={(e) => setNotificationTime(e.target.value)}
-              placeholder="e.g., 7am AEST"
-              className="w-full"
+              disabled // Make the field non-editable
+              className="w-full bg-gray-100 cursor-not-allowed"
             />
             <p className="text-sm text-muted-foreground mt-2">
-              Specify when you want to be notified about watched items. Default
-              is 7am AEST on the day of price changes.
+              Notifications are currently set to 8am AEST.
             </p>
           </div>
 

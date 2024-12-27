@@ -16,6 +16,7 @@ export const scheduleDailyWatchlistEmails = () => {
 
         await Promise.all(
           userWatchlists.map(async ({ email, watchlist }) => {
+            console.log('Sending', email, watchlist);
             if (watchlist.length > 0) {
               try {
                 await getEmailService().sendWatchlistEmail(email, watchlist);

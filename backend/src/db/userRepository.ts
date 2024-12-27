@@ -6,7 +6,6 @@ const DEFAULT_USER_CONFIG: UserConfig = {
   destinationEmail: '',
 };
 
-// TODO: Fix this so the default config saves the email address correctly
 export const findOrCreateUser = async (email: string, name?: string) => {
   const queryFind = `SELECT id FROM users WHERE email = $1 LIMIT 1`;
   const queryCreate = `
@@ -17,10 +16,11 @@ export const findOrCreateUser = async (email: string, name?: string) => {
 
   try {
     const result = await pool.query(queryFind, [email]);
-    if (result.rows.length > 0) {
-      const userId = result.rows[0].id;
+    let userId: number;
 
-      // Ensure default config exists
+    if (result.rows.length > 0) {
+      userId = result.rows[0].id;
+
       const existingConfigQuery = `
         SELECT COUNT(*) FROM user_config WHERE user_id = $1
       `;
@@ -28,24 +28,23 @@ export const findOrCreateUser = async (email: string, name?: string) => {
 
       if (parseInt(configResult.rows[0].count, 10) === 0) {
         await Promise.all(
-          Object.entries(DEFAULT_USER_CONFIG).map(([key, value]) =>
-            updateUserConfigInDB(userId, key, value!)
-          )
+          Object.entries({
+            ...DEFAULT_USER_CONFIG,
+            destinationEmail: email,
+          }).map(([key, value]) => updateUserConfigInDB(userId, key, value!))
         );
       }
+    } else {
+      const insertResult = await pool.query(queryCreate, [email, name]);
+      userId = insertResult.rows[0].id;
 
-      return userId;
+      await Promise.all(
+        Object.entries({
+          ...DEFAULT_USER_CONFIG,
+          destinationEmail: email,
+        }).map(([key, value]) => updateUserConfigInDB(userId, key, value!))
+      );
     }
-
-    const insertResult = await pool.query(queryCreate, [email, name]);
-    const userId = insertResult.rows[0].id;
-
-    // Initialize default config for the new user
-    await Promise.all(
-      Object.entries(DEFAULT_USER_CONFIG).map(([key, value]) =>
-        updateUserConfigInDB(userId, key, value!)
-      )
-    );
 
     return userId;
   } catch (error) {
@@ -53,26 +52,6 @@ export const findOrCreateUser = async (email: string, name?: string) => {
     throw error;
   }
 };
-
-async function initializeUserConfig(userId: number, email: string) {
-  const queries = Object.entries(DEFAULT_USER_CONFIG).map(([key, value]) => {
-    const query = `
-      INSERT INTO user_config (user_id, config_key, config_value)
-      VALUES ($1, $2, $3)
-      ON CONFLICT (user_id, config_key)
-      DO NOTHING
-    `;
-    const configValue = key === 'destinationEmail' ? email : value;
-    return pool.query(query, [userId, key, configValue]);
-  });
-
-  try {
-    await Promise.all(queries);
-  } catch (error) {
-    console.error('Error initializing user config:', error);
-    throw error;
-  }
-}
 
 export async function updateUserConfigInDB(
   userId: number,

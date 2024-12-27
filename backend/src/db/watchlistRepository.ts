@@ -99,14 +99,16 @@ interface UserWatchlist {
   watchlist: DBProduct[];
 }
 
-// TODO: Change from user email to the set email in user config
 export const getAllUserWatchlists = async (): Promise<UserWatchlist[]> => {
   const query = `
-    SELECT u.email, p.*
+    SELECT 
+      COALESCE(uc.config_value, u.email) AS email, 
+      p.*
     FROM users u
     INNER JOIN watchlist w ON u.id = w.user_id
     INNER JOIN products p ON w.product_id = p.id
-    ORDER BY u.email, w.date_added ASC;
+    LEFT JOIN user_config uc ON u.id = uc.user_id AND uc.config_key = 'destinationEmail'
+    ORDER BY email, w.date_added ASC;
   `;
 
   try {
