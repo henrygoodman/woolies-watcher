@@ -4,7 +4,7 @@ import { DBPriceUpdate, DBPriceUpdateSchema } from '@shared-types/db';
 
 class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
   constructor() {
-    super('price_updates'); // Pass table name and schema for validation
+    super('price_updates', DBPriceUpdateSchema);
   }
 
   /**

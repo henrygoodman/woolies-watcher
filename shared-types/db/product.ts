@@ -8,16 +8,14 @@ export const DBProductSchema = z.object({
   current_price: z.preprocess(
     (value) => (typeof value === 'string' ? parseFloat(value) : value),
     z.number()
-  ),
+  ) as z.ZodType<number, z.ZodTypeDef, number>,
   product_size: z.string(),
   url: z.string(),
   image_url: z.string().nullable(),
-  last_updated: z.preprocess((value) => {
-    if (typeof value === 'string') {
-      return new Date(value);
-    }
-    return value;
-  }, z.date()),
+  last_updated: z.preprocess(
+    (value) => (typeof value === 'string' ? new Date(value) : value),
+    z.date()
+  ) as z.ZodType<Date, z.ZodTypeDef, Date>,
 });
 
 export type DBProduct = z.infer<typeof DBProductSchema>;

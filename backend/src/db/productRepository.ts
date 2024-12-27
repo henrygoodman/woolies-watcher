@@ -5,7 +5,7 @@ import priceRepository from '@/db/priceRepository';
 
 class ProductRepository extends GenericRepository<DBProduct> {
   constructor() {
-    super('products');
+    super('products', DBProductSchema);
   }
 
   /**

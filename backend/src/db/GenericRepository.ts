@@ -1,6 +1,6 @@
 import { BaseRepository } from './BaseRepository';
 import pool from './pool';
-import { z, ZodSchema } from 'zod';
+import { ZodSchema } from 'zod';
 
 export class GenericRepository<T> implements BaseRepository<T> {
   private tableName: string;
@@ -57,10 +57,6 @@ export class GenericRepository<T> implements BaseRepository<T> {
   }
 
   async update(id: number, data: Partial<T>): Promise<T> {
-    if (this.schema) {
-      data = this.schema.parse(data);
-    }
-
     const keys = Object.keys(data);
     const values = Object.values(data);
 

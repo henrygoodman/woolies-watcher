@@ -3,7 +3,7 @@ import { GenericRepository } from './GenericRepository';
 
 class UserRepository extends GenericRepository<DBUser> {
   constructor() {
-    super('users');
+    super('users', DBUserSchema);
   }
 
   /**
