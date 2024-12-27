@@ -5,13 +5,14 @@ export const DBProductSchema = z.object({
   barcode: z.string().nullable(),
   product_name: z.string(),
   product_brand: z.string(),
+  watch_count: z.number().optional(),
+  product_size: z.string(),
+  url: z.string(),
+  image_url: z.string().nullable(),
   current_price: z.preprocess(
     (value) => (typeof value === 'string' ? parseFloat(value) : value),
     z.number()
   ) as z.ZodType<number, z.ZodTypeDef, number>,
-  product_size: z.string(),
-  url: z.string(),
-  image_url: z.string().nullable(),
   last_updated: z.preprocess(
     (value) => (typeof value === 'string' ? new Date(value) : value),
     z.date()

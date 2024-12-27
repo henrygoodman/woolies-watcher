@@ -1,5 +1,3 @@
-'use client';
-
 import { useState } from 'react';
 import { Heart } from 'lucide-react';
 import { useWatchlist } from '@/hooks/useWatchlist';
@@ -18,21 +16,32 @@ import {
 
 interface HeartIconProps {
   product: DBProduct;
+  onToggle?: (isInWatchlist: boolean) => void;
 }
 
-export const HeartIcon: React.FC<HeartIconProps> = ({ product }) => {
+export const HeartIcon: React.FC<HeartIconProps> = ({ product, onToggle }) => {
   const { isInWatchlist, toggleWatchlist } = useWatchlist(product);
   const { data: session } = useSession();
   const isLoggedIn = !!session?.user;
 
   const [showAlert, setShowAlert] = useState(false);
 
-  const handleClick = () => {
+  const handleClick = async () => {
     if (!isLoggedIn) {
       setShowAlert(true);
       return;
     }
-    toggleWatchlist();
+
+    const previousState = isInWatchlist;
+
+    try {
+      await toggleWatchlist();
+      if (onToggle) {
+        onToggle(!previousState);
+      }
+    } catch (error) {
+      console.error('Error toggling watchlist:', error);
+    }
   };
 
   return (

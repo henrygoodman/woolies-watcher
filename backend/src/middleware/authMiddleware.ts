@@ -49,7 +49,7 @@ export const handleAuth: RequestHandler = async (req, res, next) => {
 
     const user = await userRepository.findOrCreate(email, name);
 
-    req.user = { id: user.id, email, name };
+    req.user = { id: user.id!, email, name };
 
     next();
   } catch (err) {

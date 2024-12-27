@@ -17,7 +17,9 @@ export const handleGetUserDestinationEmail: RequestHandler = async (
 
   try {
     const user = await userRepository.findByField('email', email);
-    const destinationEmail = await userRepository.getDestinationEmail(user!.id);
+    const destinationEmail = await userRepository.getDestinationEmail(
+      user!.id!
+    );
 
     res.status(200).json({ destinationEmail });
   } catch (error) {
@@ -43,7 +45,7 @@ export const handleUpdateUserDestinationEmail: RequestHandler = async (
 
   try {
     const user = await userRepository.findByField('email', email);
-    await userRepository.updateDestinationEmail(user!.id, destinationEmail);
+    await userRepository.updateDestinationEmail(user!.id!, destinationEmail);
 
     res.status(200).json({ message: 'Destination email updated successfully' });
   } catch (error) {

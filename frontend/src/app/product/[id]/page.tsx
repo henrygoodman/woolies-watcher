@@ -1,27 +1,34 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { fetchProductDetailsApi } from '@/lib/api/productApi';
 import { DBProduct } from '@shared-types/db';
 import { useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { HeartIcon } from '@/components/HeartIcon';
 import { PriceChart } from '@/components/PriceChart';
+import { Eye } from 'lucide-react';
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
   const [product, setProduct] = useState<DBProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [watchCount, setWatchCount] = useState<number>(0);
+
+  const handleWatchCountToggle = (isInWatchlist: boolean) => {
+    setWatchCount((prevCount) => prevCount + (isInWatchlist ? 1 : -1));
+  };
 
   useEffect(() => {
     const loadProductDetails = async () => {
       try {
         const productData = await fetchProductDetailsApi(Number(id));
         setProduct(productData);
+        setWatchCount(productData.watch_count || 0); // Initialize watchCount after fetching product
       } catch (err) {
         setError('Error loading product details');
       } finally {
@@ -46,8 +53,8 @@ export default function ProductDetailsPage() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Product Image */}
         <div className="relative w-full lg:w-1/3 bg-white p-4 rounded-xl shadow-md">
-          {/* Heart Icon Positioned on Top of Image */}
-          <HeartIcon product={product} />
+          {/* Pass the toggle handler to the HeartIcon */}
+          <HeartIcon product={product} onToggle={handleWatchCountToggle} />
 
           <div className="relative w-full h-80 flex items-center justify-center">
             <Image
@@ -75,6 +82,14 @@ export default function ProductDetailsPage() {
             ${product.current_price.toFixed(2)}
           </p>
 
+          {/* Watcher Info */}
+          <div className="mt-6 mb-6 flex items-center gap-2">
+            <Eye className="h-5 w-5 text-primary" />
+            <span className="text-primary font-semibold text-lg">
+              {watchCount}
+            </span>
+          </div>
+
           {/* External Product Link */}
           <Link
             href={product.url}
@@ -86,15 +101,9 @@ export default function ProductDetailsPage() {
         </div>
       </div>
 
-      {/* Placeholder Sections */}
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      {/* Price Chart */}
+      <div className="mt-8">
         <PriceChart productId={product.id!} />
-        <div className="p-4 border rounded-md shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Number of Watchers</h3>
-          <div className="h-32 bg-muted flex items-center justify-center">
-            <span className="text-muted-foreground">Coming Soon</span>
-          </div>
-        </div>
       </div>
     </div>
   );
