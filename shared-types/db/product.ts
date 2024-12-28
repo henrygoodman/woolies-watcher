@@ -4,9 +4,9 @@ export const DBProductSchema = z.object({
   id: z.number().optional(),
   barcode: z.string().nullable(),
   product_name: z.string(),
-  product_brand: z.string(),
+  product_brand: z.string().nullable(),
   watch_count: z.number().optional(),
-  product_size: z.string(),
+  product_size: z.string().nullable(),
   url: z.string(),
   image_url: z.string().nullable(),
   current_price: z.preprocess(

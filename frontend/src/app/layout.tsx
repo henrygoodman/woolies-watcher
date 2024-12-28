@@ -20,6 +20,26 @@ const geistMono = localFont({
 export const metadata = {
   title: 'Woolies Watcher',
   description: 'Track price updates of Woolworths Items',
+  icons: {
+    icon: '/images/favicon.ico',
+    apple: '/images/apple-touch-icon.png',
+    shortcut: '/images/favicon-32x32.png',
+    other: [
+      { rel: 'manifest', url: '/images/site.webmanifest' },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '192x192',
+        url: '/images/android-chrome-192x192.png',
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        sizes: '512x512',
+        url: '/images/android-chrome-512x512.png',
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

@@ -44,7 +44,7 @@ export const columns = (
         <div className="truncate w-36">
           {' '}
           {/* Set width and truncate */}
-          {row.getValue('product_brand')}
+          {row.getValue('product_brand') || '-'}
         </div>
       ),
     },
