@@ -73,7 +73,7 @@ export const generateWatchlistEmail = (
             .map(
               (product) => `
               <li>
-                <strong>${product.product_name}</strong> (${product.product_brand})<br />
+                <strong>${product.product_name}</strong> (${product.product_brand || '-'})<br />
                 Price: $${Number(product.current_price).toFixed(2)}<br />
                 <a href="${product.url}" target="_blank">View Product</a>
               </li>

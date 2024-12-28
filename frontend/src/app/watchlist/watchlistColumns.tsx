@@ -30,7 +30,7 @@ export const columns = (
         return (
           <Link
             href={`/product/${id}`}
-            className="text-primary hover:underline"
+            className="text-primary hover:underline truncate block w-96" // Tailwind classes for ellipsis
           >
             {product_name}
           </Link>
@@ -40,16 +40,29 @@ export const columns = (
     {
       accessorKey: 'product_brand',
       header: 'Brand',
+      cell: ({ row }) => (
+        <div className="truncate w-36">
+          {' '}
+          {/* Set width and truncate */}
+          {row.getValue('product_brand')}
+        </div>
+      ),
     },
     {
       accessorKey: 'current_price',
       header: 'Price',
       cell: ({ row }) => {
-        const price = parseFloat(row.getValue('current_price'));
-        return new Intl.NumberFormat('en-US', {
-          style: 'currency',
-          currency: 'AUD',
-        }).format(price);
+        const price = parseFloat(row.getValue('current_price') || '0');
+        return (
+          <div className="truncate w-28">
+            {' '}
+            {/* Set width and truncate */}
+            {new Intl.NumberFormat('en-US', {
+              style: 'currency',
+              currency: 'AUD',
+            }).format(price)}
+          </div>
+        );
       },
     },
     {
