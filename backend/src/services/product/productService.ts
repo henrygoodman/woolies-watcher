@@ -112,7 +112,8 @@ export const fetchProductsByNameAndUrl = async (
     let cachedProduct = await productRepository.findByFields(product_name, url);
 
     if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
-      return cachedProduct; // Return the cached product if it's not stale
+      console.log('Using cache for product:', cachedProduct.id);
+      return cachedProduct;
     }
 
     const response = await axios.get(
@@ -186,6 +187,7 @@ export const fetchProductsByBarcode = async (
     );
 
     if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
+      console.log('Using cache for product:', cachedProduct.id);
       return cachedProduct;
     }
 

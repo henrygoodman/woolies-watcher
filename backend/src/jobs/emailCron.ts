@@ -4,7 +4,7 @@ import { getEmailService } from '@/services/email/index';
 
 export const scheduleDailyWatchlistEmails = () => {
   cron.schedule(
-    '0 8 * * *',
+    '0 11 * * *',
     async () => {
       console.log('Starting daily watchlist email job...');
 
@@ -16,7 +16,7 @@ export const scheduleDailyWatchlistEmails = () => {
 
         await Promise.all(
           userWatchlists.map(async ({ email, watchlist }) => {
-            console.log('Sending', email, watchlist);
+            console.log('Sending', email, watchlist.length);
             if (watchlist.length > 0) {
               try {
                 await getEmailService().sendWatchlistEmail(email, watchlist);

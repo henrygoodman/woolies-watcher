@@ -116,15 +116,14 @@ class WatchlistRepository extends GenericRepository<DBWatchlist> {
     { email: string; watchlist: DBProduct[] }[]
   > {
     const query = `
-      SELECT 
-        COALESCE(uc.config_value, u.email) AS email, 
-        p.*
-      FROM users u
-      INNER JOIN watchlist w ON u.id = w.user_id
-      INNER JOIN products p ON w.product_id = p.id
-      LEFT JOIN user_config uc ON u.id = uc.user_id AND uc.config_key = 'destinationEmail'
-      ORDER BY email, w.date_added ASC;
-    `;
+    SELECT 
+      COALESCE(u.destination_email, u.email) AS email, 
+      p.*
+    FROM users u
+    INNER JOIN watchlist w ON u.id = w.user_id
+    INNER JOIN products p ON w.product_id = p.id
+    ORDER BY email, w.date_added ASC;
+  `;
     try {
       const { rows } = await pool.query(query);
       const userWatchlists: Record<string, DBProduct[]> = {};

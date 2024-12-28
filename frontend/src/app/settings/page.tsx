@@ -17,7 +17,8 @@ export default function SettingsPage() {
   const user = session?.user;
 
   const [email, setEmail] = useState('');
-  const [notificationTime, setNotificationTime] = useState('8am AEST'); // Default to 8am AEST
+  const [emailError, setEmailError] = useState('');
+  const [notificationTime, setNotificationTime] = useState('8am AEST');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -52,6 +53,15 @@ export default function SettingsPage() {
       return;
     }
 
+    if (emailError) {
+      toast({
+        title: 'Error',
+        description: 'Please correct the email address before saving.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       await updateUserDestinationEmailApi(email);
 
@@ -66,6 +76,21 @@ export default function SettingsPage() {
         variant: 'destructive',
       });
     }
+  };
+
+  const validateEmail = (value: string) => {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Please enter a valid email address.');
+    } else {
+      setEmailError('');
+    }
+  };
+
+  const handleEmailChange = (e: any) => {
+    const value = e.target.value;
+    setEmail(value);
+    validateEmail(value);
   };
 
   if (loading) return <LoadingIndicator />;
@@ -87,10 +112,13 @@ export default function SettingsPage() {
               id="email"
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={handleEmailChange}
               placeholder="Enter your email address"
-              className="w-full"
+              className={`w-full ${emailError ? 'border-red-500' : ''}`}
             />
+            {emailError && (
+              <p className="text-sm text-red-500 mt-2">{emailError}</p>
+            )}
           </div>
 
           {/* Notification Preferences Field */}
@@ -106,16 +134,20 @@ export default function SettingsPage() {
               type="text"
               value={notificationTime}
               disabled // Make the field non-editable
-              className="w-full bg-gray-100 cursor-not-allowed"
+              className="w-full bg-muted cursor-not-allowed"
             />
             <p className="text-sm text-muted-foreground mt-2">
-              Notifications are currently set to 8am AEST.
+              Notifications are currently locked to 8am AEST.
             </p>
           </div>
 
           {/* Save Button */}
           <div className="mt-4">
-            <Button onClick={handleSave} className="w-full">
+            <Button
+              onClick={handleSave}
+              className="w-full"
+              disabled={!!emailError} // Disable save button if email is invalid
+            >
               Save Changes
             </Button>
           </div>
