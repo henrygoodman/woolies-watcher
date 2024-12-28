@@ -4,7 +4,7 @@ import { getEmailService } from '@/services/email/index';
 
 export const scheduleDailyWatchlistEmails = () => {
   cron.schedule(
-    '0 11 * * *',
+    '0 8 * * *',
     async () => {
       console.log('Starting daily watchlist email job...');
 
