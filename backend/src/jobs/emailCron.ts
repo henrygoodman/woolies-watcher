@@ -1,10 +1,12 @@
 import cron from 'node-cron';
 import watchlistRepository from '@/db/watchlistRepository';
 import { getEmailService } from '@/services/email/index';
+import { reservedEmail } from '@/utils/seedWatchlist';
+import { WATCHLIST_EMAIL_CRON } from '@/constants/sync';
 
 export const scheduleDailyWatchlistEmails = () => {
   cron.schedule(
-    '0 8 * * *',
+    WATCHLIST_EMAIL_CRON,
     async () => {
       console.log('Starting daily watchlist email job...');
 
@@ -16,8 +18,8 @@ export const scheduleDailyWatchlistEmails = () => {
 
         await Promise.all(
           userWatchlists.map(async ({ email, watchlist }) => {
-            console.log('Sending', email, watchlist.length);
-            if (watchlist.length > 0) {
+            console.log('Processing:', email, watchlist.length);
+            if (email !== reservedEmail && watchlist.length > 0) {
               try {
                 await getEmailService().sendWatchlistEmail(email, watchlist);
                 emailsSent++;

@@ -63,11 +63,12 @@ class ProductRepository extends GenericRepository<DBProduct> {
 
     const query = `
       INSERT INTO products 
-        (product_name, product_brand, current_price, product_size, url, image_url, last_updated)
+        (product_name, barcode, product_brand, current_price, product_size, url, image_url, last_updated)
       VALUES 
-        ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP)
+        ($1, $2, $3, $4, $5, $6, $7, CURRENT_TIMESTAMP)
       ON CONFLICT (product_name, url)
       DO UPDATE SET
+        barcode = EXCLUDED.barcode,
         product_brand = EXCLUDED.product_brand,
         current_price = EXCLUDED.current_price,
         product_size = EXCLUDED.product_size,
@@ -79,6 +80,7 @@ class ProductRepository extends GenericRepository<DBProduct> {
     try {
       const result = await pool.query(query, [
         product.product_name,
+        product.barcode,
         product.product_brand,
         product.current_price,
         product.product_size,

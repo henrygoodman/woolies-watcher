@@ -6,7 +6,7 @@ import { scheduleDailyProductUpdates } from './priceFetchCron';
  */
 export const initializeCronJobs = () => {
   console.log('Initializing cron jobs...');
-  scheduleDailyWatchlistEmails();
   scheduleDailyProductUpdates();
+  scheduleDailyWatchlistEmails();
   console.log('All cron jobs initialized successfully.');
 };

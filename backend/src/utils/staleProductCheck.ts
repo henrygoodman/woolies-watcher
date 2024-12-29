@@ -1,35 +1,27 @@
+import { CUTOFF_HOUR_UTC } from '@/constants/sync';
+
 /**
  * Determines whether a product is considered stale based on its last updated timestamp.
  *
- * A product is considered stale if its last updated time is earlier than 5 PM UTC
- * of the most recent applicable day. If the current time is before 5 PM UTC,
- * the cutoff time is set to 5 PM UTC of the previous day. Otherwise, it is set to 5 PM UTC of the current day.
+ * A product is stale if it was last updated before UTC cutoff of the most recent applicable day.
+ * If the current time is before cutoff, the cutoff is from the previous day.
  *
- * @param lastUpdated - A string representing the last updated timestamp of the product (ISO 8601 format).
+ * (for reference, the priceFetch cron job runs at )
+ *
+ * @param lastUpdated - A string or Date representing the last updated timestamp of the product.
  * @returns A boolean value: `true` if the product is stale, `false` otherwise.
- *
- * @example
- * const lastUpdated = "2023-12-24T16:00:00Z";
- * const isStale = isStaleProduct(lastUpdated); // true if the current time is after 5 PM UTC on the same day
  */
-export const isStaleProduct = (lastUpdated: Date): boolean => {
-  // Create a Date object for the current time in UTC
+export const isStaleProduct = (lastUpdated: string | Date): boolean => {
   const now = new Date();
 
-  // Set cutoff time to 5 PM UTC of the current day
   const cutoff = new Date(
     Date.UTC(
       now.getUTCFullYear(),
       now.getUTCMonth(),
       now.getUTCDate(),
-      17,
-      0,
-      0,
-      0
+      CUTOFF_HOUR_UTC
     )
   );
-
-  // If the current time is earlier than 5 PM UTC, use yesterday's 5 PM UTC as the cutoff
   if (now < cutoff) {
     cutoff.setUTCDate(cutoff.getUTCDate() - 1);
   }

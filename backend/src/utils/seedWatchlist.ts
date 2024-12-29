@@ -6,8 +6,9 @@ import { fetchProducts } from '@/services/product/productService';
  * Initialize the seeding process for watched products.
  * Ensures no duplicate seeding if already seeded.
  */
+export const reservedEmail = 'anonymous@watcher.com';
+
 export async function initSeeding() {
-  const reservedEmail = 'anonymous@watcher.com';
   const reservedName = 'Anonymous User';
 
   try {

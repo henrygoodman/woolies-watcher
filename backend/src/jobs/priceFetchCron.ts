@@ -4,10 +4,18 @@ import {
   fetchProductsByBarcode,
   fetchProductsByNameAndUrl,
 } from '@/services/product/productService';
+import { PRODUCT_UPDATE_CRON } from '@/constants/sync';
 
+/**
+ * Schedules a daily job to update product information in the watchlist.
+ *
+ * The job runs at 2:00 AM Australia/Sydney time (4pm UTC), which aligns with the
+ * cutoff time of 5 PM UTC for stale product data. It updates products
+ * using either their barcode or name and URL, logging the results.
+ */
 export const scheduleDailyProductUpdates = () => {
   cron.schedule(
-    '0 2 * * *',
+    PRODUCT_UPDATE_CRON,
     async () => {
       console.log('Starting daily product update job...');
 
