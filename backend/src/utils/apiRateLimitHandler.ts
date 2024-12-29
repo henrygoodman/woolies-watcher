@@ -14,7 +14,8 @@ export const handleApiRateLimit = (headers: any) => {
 
   const resetTime = parseInt(headers['x-ratelimit-requests-reset'], 10);
 
-  if (remainingRequests === 0) {
+  // Requests in transit could eat up, use a buffer to avoid the race condition
+  if (remainingRequests <= 100) {
     apiUsageExceeded = true;
 
     if (resetTimeout) clearTimeout(resetTimeout);
