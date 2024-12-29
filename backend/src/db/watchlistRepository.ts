@@ -9,22 +9,24 @@ class WatchlistRepository extends GenericRepository<DBWatchlist> {
 
   /**
    * Add a product to a user's watchlist.
-   * Leverages the generic `create` method to insert the record.
+   * Idempotent: Ensures no duplicate entries.
    * @param userId - The user's ID.
    * @param productId - The product's ID.
    */
   async addToWatchlist(userId: number, productId: number): Promise<void> {
     try {
-      // Use `create` to insert into the watchlist table
-      await this.create({ user_id: userId, product_id: productId });
-
-      // Update the watch count in the `products` table
       const query = `
-        UPDATE products
-        SET watch_count = watch_count + 1
-        WHERE id = $1
-      `;
-      await pool.query(query, [productId]);
+      WITH insert_watchlist AS (
+        INSERT INTO watchlist (user_id, product_id, date_added)
+        VALUES ($1, $2, CURRENT_TIMESTAMP)
+        ON CONFLICT (user_id, product_id) DO NOTHING
+        RETURNING user_id
+      )
+      UPDATE products
+      SET watch_count = watch_count + 1
+      WHERE id = $2 AND EXISTS (SELECT 1 FROM insert_watchlist);
+    `;
+      await pool.query(query, [userId, productId]);
     } catch (error) {
       console.error('Error adding product to watchlist:', error);
       throw new Error('Failed to add product to watchlist.');

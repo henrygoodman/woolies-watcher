@@ -6,6 +6,7 @@ import errorLogMiddleware from '@/middleware/errorLogMiddleware';
 import { initMailer } from '@/services/email/index';
 import { rateLimitMiddleware } from '@/middleware/rateLimiter';
 import { initializeCronJobs } from './jobs';
+import { initSeeding } from '@/utils/seedWatchlist';
 
 dotenv.config();
 
@@ -14,9 +15,8 @@ const getCallerInfo = () => {
   const stack = error.stack || '';
   const stackLines = stack.split('\n');
 
-  // Extract the caller information (depends on stack format)
-  const callerLine = stackLines[3]; // 3rd line is the caller (can vary)
-  const match = callerLine?.match(/\((.*):(\d+):(\d+)\)/); // Extract file, line, column
+  const callerLine = stackLines[3];
+  const match = callerLine?.match(/\((.*):(\d+):(\d+)\)/);
 
   if (match) {
     const filePath = match[1];
@@ -67,6 +67,14 @@ app.use('/api', routes);
 
 initMailer();
 initializeCronJobs();
+
+(async () => {
+  try {
+    await initSeeding();
+  } catch (error) {
+    console.error('Error during seeding initialization:', error);
+  }
+})();
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Backend running on http://0.0.0.0:${PORT}`);

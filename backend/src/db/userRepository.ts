@@ -21,7 +21,7 @@ class UserRepository extends GenericRepository<DBUser> {
     const newUser = await this.create({
       email,
       name,
-      destination_email: email, // Default destination email
+      destination_email: email,
     });
     return DBUserSchema.parse(newUser);
   }
