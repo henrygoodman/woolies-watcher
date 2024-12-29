@@ -9,9 +9,8 @@ import { PRODUCT_UPDATE_CRON } from '@/constants/sync';
 /**
  * Schedules a daily job to update product information in the watchlist.
  *
- * The job runs at 2:00 AM Australia/Sydney time (4pm UTC), which aligns with the
- * cutoff time of 5 PM UTC for stale product data. It updates products
- * using either their barcode or name and URL, logging the results.
+ * The job runs 30 minutes after the cutoff, which aligns with the cutoff time of 5 AM UTC for stale product data.
+ * It updates products using either their barcode or name and URL, logging the results.
  */
 export const scheduleDailyProductUpdates = () => {
   cron.schedule(
@@ -60,7 +59,6 @@ export const scheduleDailyProductUpdates = () => {
     },
     {
       scheduled: true,
-      timezone: 'Australia/Sydney',
     }
   );
   console.log('Initialized priceFetchCron');
