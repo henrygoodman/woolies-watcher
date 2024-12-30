@@ -5,6 +5,8 @@ import { Navbar } from '@/components/Navbar';
 import { Toaster } from '@/components/ui/toaster';
 import { PageContainer } from '@/components/PageContainer';
 import { Footer } from '@/components/Footer';
+import { LoadingIndicator } from '@/components/LoadingIndicator';
+import { Suspense } from 'react';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -53,12 +55,14 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          <Navbar />
-          <PageContainer>
-            {children}
-            <Toaster />
-            <Footer />
-          </PageContainer>
+          <Suspense fallback={<LoadingIndicator />}>
+            <Navbar />
+            <PageContainer>
+              {children}
+              <Toaster />
+              <Footer />
+            </PageContainer>
+          </Suspense>
         </Providers>
       </body>
     </html>
