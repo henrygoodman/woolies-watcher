@@ -48,4 +48,5 @@ jobs:
         run: |
           cd backend
           npm ci
+          tree src/
           npm run test
