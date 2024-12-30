@@ -54,15 +54,6 @@ Thumbs.db
 *.swp
 *.swo
 
-# Testing
-coverage/
-*.test.js
-*.test.ts
-*.test.tsx
-*.spec.js
-*.spec.ts
-*.spec.tsx
-
 # Temporary files
 *.tmp
 *.temp
