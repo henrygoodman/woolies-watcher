@@ -15,32 +15,36 @@ export default function SearchPage() {
   const { products, loading, error, currentPage, totalPages, fetchProducts } =
     useFetchProducts();
 
+  // Default value for perPage to avoid null issues
   const [perPage, setPerPage] = useState(() => {
-    return parseInt(searchParams.get('size') || '18', 10);
+    const size = searchParams?.get('size');
+    return size ? parseInt(size, 10) : 18; // Default to 18
   });
 
   useEffect(() => {
-    const searchQuery = searchParams.get('search') || '';
-    const page = parseInt(searchParams.get('page') || '1', 10);
-    const perPageFromQuery = parseInt(searchParams.get('size') || '18', 10);
+    if (searchParams) {
+      const searchQuery = searchParams.get('search') || '';
+      const page = parseInt(searchParams.get('page') || '1', 10);
+      const perPageFromQuery = parseInt(searchParams.get('size') || '18', 10);
 
-    setPerPage(perPageFromQuery);
-    fetchProducts(searchQuery, page, perPageFromQuery);
+      setPerPage(perPageFromQuery);
+      fetchProducts(searchQuery, page, perPageFromQuery);
 
-    if (searchQuery.trim()) {
-      document.title = `${searchQuery} - Woolies Watcher`;
+      if (searchQuery.trim()) {
+        document.title = `${searchQuery} - Woolies Watcher`;
+      }
     }
   }, [searchParams]);
 
   const handlePagination = (page: number) => {
-    const query = searchParams.get('search') || '';
+    const query = searchParams?.get('search') || '';
     router.push(`/search?search=${query}&page=${page}&size=${perPage}`);
     fetchProducts(query, page, perPage);
   };
 
   const handlePerPageChange = (newPerPage: number) => {
     setPerPage(newPerPage);
-    const query = searchParams.get('search') || '';
+    const query = searchParams?.get('search') || '';
     router.push(`/search?search=${query}&page=1&size=${newPerPage}`);
     fetchProducts(query, 1, newPerPage);
   };
