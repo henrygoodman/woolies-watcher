@@ -7,7 +7,7 @@ const config: Config = {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@shared-types/(.*)$': '<rootDir>/../shared-types/$1',
   },
-  testMatch: ['**/*.test.ts'],
+  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.ts$',
   setupFilesAfterEnv: [],
 };
 

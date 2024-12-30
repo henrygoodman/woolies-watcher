@@ -6,7 +6,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
     "build": "tsc",
-    "test": "jest --passWithNoTests --verbose --listTests"
+    "test": "jest --passWithNoTests"
   },
   "dependencies": {
     "axios": "^1.7.7",
