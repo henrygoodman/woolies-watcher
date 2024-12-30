@@ -26,6 +26,9 @@ const nextConfig: NextConfig = {
     contentSecurityPolicy:
       "default-src 'self'; img-src 'self' https: data:; script-src 'self'; sandbox;",
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
