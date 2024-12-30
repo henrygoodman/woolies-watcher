@@ -43,3 +43,9 @@ jobs:
           cd backend
           npm ci
           npm run build
+      
+      - name: Test Backend
+        run: |
+          cd backend
+          npm ci
+          npm run test

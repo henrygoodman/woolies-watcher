@@ -9,10 +9,12 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["src/*"],
       "@shared-types/*": ["../shared-types/*", "./shared-types/*"]
     },
-    "typeRoots": ["./types", "./node_modules/@types"]
+    "typeRoots": ["./types", "./node_modules/@types"],
+    "allowSyntheticDefaultImports": true
   },
-  "include": ["src/**/*", "../shared-types/**/*"]
+  "include": ["src/**/*", "../shared-types/**/*"],
+  "exclude": ["node_modules", "dist"]
 }
