@@ -4,6 +4,7 @@
  * This is set to align just before the daily product update job runs.
  */
 export const CUTOFF_HOUR_UTC = 17;
+
 /**
  * Cron expression for the daily product update job.
  * Scheduled to run at 5:30 PM UTC, shortly after the 3rd party API updates prices.

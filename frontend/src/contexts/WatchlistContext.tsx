@@ -15,7 +15,6 @@ interface WatchlistContextProps {
   isLoading: boolean;
   addToWatchlist: (product: DBProduct) => Promise<void>;
   removeFromWatchlist: (product: DBProduct) => Promise<void>;
-  refreshWatchlist: () => Promise<void>;
 }
 
 const WatchlistContext = createContext<WatchlistContextProps | undefined>(
@@ -75,8 +74,7 @@ export const WatchlistProvider = ({
         watchlist,
         isLoading,
         addToWatchlist,
-        removeFromWatchlist,
-        refreshWatchlist: fetchWatchlist,
+        removeFromWatchlist
       }}
     >
       {children}
