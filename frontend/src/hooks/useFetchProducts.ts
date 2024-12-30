@@ -16,7 +16,7 @@ export const useFetchProducts = () => {
       const data = await fetchProductsApi(query, page, size);
       setProducts(data.results);
       setCurrentPage(data.page);
-      setTotalPages(data.total_pages);
+      setTotalPages(data.total);
     } catch (err) {
       console.error('Error in fetchProducts:', err);
       if (query !== '') {
