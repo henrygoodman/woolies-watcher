@@ -74,7 +74,7 @@ export const WatchlistProvider = ({
         watchlist,
         isLoading,
         addToWatchlist,
-        removeFromWatchlist
+        removeFromWatchlist,
       }}
     >
       {children}
