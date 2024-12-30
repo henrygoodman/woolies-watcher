@@ -25,9 +25,16 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
 
     const searchResults = await fetchProducts(query, page, size);
     res.status(200).json(searchResults);
-  } catch (error) {
-    console.error('Error occurred during product search:', error);
-    res.status(500).json({ error: 'Failed to fetch data' });
+  } catch (error: any) {
+    if (error.message === 'API_RATE_LIMIT_EXCEEDED') {
+      console.error('Rate limit reached:', error);
+      res.status(429).json({
+        error: 'Rate limit reached. Please try again later.',
+      });
+    } else {
+      console.error('Error occurred during product search:', error);
+      res.status(500).json({ error: 'Failed to fetch data' });
+    }
   }
 };
 
@@ -43,18 +50,25 @@ export const handleSearchProductByNameAndUrl: RequestHandler = async (
   }
 
   try {
-    const updatedProduct = await fetchProductsByNameAndUrl(product_name, url);
+    const product = await fetchProductsByNameAndUrl(product_name, url);
 
-    if (!updatedProduct) {
+    if (!product) {
       res
         .status(404)
         .json({ error: 'Product not found or could not be updated' });
       return;
     }
 
-    res.json(updatedProduct);
-  } catch (error) {
-    console.error('Error fetching product by name and URL:', error);
-    res.status(500).json({ error: 'Failed to fetch or update product' });
+    res.json(product);
+  } catch (error: any) {
+    if (error.message === 'API_RATE_LIMIT_EXCEEDED') {
+      console.error('Rate limit reached:', error);
+      res.status(429).json({
+        error: 'Rate limit reached. Please try again later.',
+      });
+    } else {
+      console.error('Error fetching product by name and URL:', error);
+      res.status(500).json({ error: 'Failed to fetch or update product' });
+    }
   }
 };

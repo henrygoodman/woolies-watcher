@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 let apiUsageExceeded = false;
 let resetTimeout: NodeJS.Timeout | null = null;
 
@@ -32,4 +34,58 @@ export const handleApiRateLimit = (headers: any) => {
  */
 export const isApiUsageExceeded = (): boolean => {
   return apiUsageExceeded;
+};
+
+const MAX_REQUESTS_PER_SECOND = 20;
+const MAX_RETRIES = 1;
+let requestQueue: (() => void)[] = [];
+let isProcessingQueue = false;
+
+/**
+ * Processes the request queue at a controlled rate.
+ */
+const processQueue = () => {
+  if (isProcessingQueue) return;
+  isProcessingQueue = true;
+
+  const interval = setInterval(() => {
+    if (requestQueue.length === 0) {
+      clearInterval(interval);
+      isProcessingQueue = false;
+      return;
+    }
+
+    const nextRequest = requestQueue.shift();
+    if (nextRequest) nextRequest();
+  }, 1000 / MAX_REQUESTS_PER_SECOND);
+};
+
+/**
+ * A wrapper around Axios to handle rate-limiting and retries.
+ * @param config Axios request configuration.
+ * @returns A promise resolving to the Axios response.
+ */
+export const rateLimitedAxios = (config: any): Promise<any> => {
+  return new Promise((resolve, reject) => {
+    const executeRequest = async (retryCount: number) => {
+      try {
+        const response = await axios(config);
+        resolve(response);
+      } catch (error) {
+        if (retryCount < MAX_RETRIES) {
+          console.warn(
+            `Retrying request... (${retryCount + 1}/${MAX_RETRIES})`
+          );
+          requestQueue.push(() => executeRequest(retryCount + 1));
+          processQueue();
+        } else {
+          console.error('Request failed after retries:', error);
+          reject(error);
+        }
+      }
+    };
+
+    requestQueue.push(() => executeRequest(0));
+    processQueue();
+  });
 };

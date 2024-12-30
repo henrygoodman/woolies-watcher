@@ -14,7 +14,7 @@ export const fetchPriceUpdatesApi = async (
   );
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.status} ${response.statusText}`);
+    throw new Error(`${response.status} ${response.statusText}`);
   }
 
   return (await response.json()) as DBPriceUpdate[];

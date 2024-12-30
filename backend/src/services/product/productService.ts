@@ -1,4 +1,3 @@
-import axios from 'axios';
 import productRepository from '@/db/productRepository';
 import { DBProduct } from '@shared-types/db';
 import { isStaleProduct } from '@/utils/staleProductCheck';
@@ -6,6 +5,7 @@ import { ProductSearchResponse } from '@shared-types/api';
 import {
   isApiUsageExceeded,
   handleApiRateLimit,
+  rateLimitedAxios,
 } from '@/utils/apiRateLimitHandler';
 
 /**
@@ -21,8 +21,8 @@ export const fetchProducts = async (
   size: number
 ): Promise<ProductSearchResponse> => {
   if (isApiUsageExceeded()) {
-    console.warn('API usage limit reached. Skipping product fetch.');
-    throw new Error('API usage limit exceeded');
+    console.warn('API usage limit reached. Throwing rate limit exception.');
+    throw new Error('API_RATE_LIMIT_EXCEEDED');
   }
 
   if (!query) {
@@ -31,16 +31,15 @@ export const fetchProducts = async (
   }
 
   try {
-    const response = await axios.get(
-      'https://woolworths-products-api.p.rapidapi.com/woolworths/product-search/',
-      {
-        headers: {
-          'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
-          'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
-        },
-        params: { query, page, size },
-      }
-    );
+    const response = await rateLimitedAxios({
+      method: 'GET',
+      url: 'https://woolworths-products-api.p.rapidapi.com/woolworths/product-search/',
+      headers: {
+        'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
+        'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
+      },
+      params: { query, page, size },
+    });
 
     handleApiRateLimit(response.headers);
 
@@ -98,11 +97,6 @@ export const fetchProductsByNameAndUrl = async (
   product_name: string,
   url: string
 ): Promise<DBProduct | null> => {
-  if (isApiUsageExceeded()) {
-    console.warn('API usage limit reached. Skipping search.');
-    return null;
-  }
-
   if (!product_name || !url) {
     console.warn('Product name or URL is missing. Skipping search.');
     return null;
@@ -116,16 +110,20 @@ export const fetchProductsByNameAndUrl = async (
       return cachedProduct;
     }
 
-    const response = await axios.get(
-      'https://woolworths-products-api.p.rapidapi.com/woolworths/product-search/',
-      {
-        headers: {
-          'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
-          'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
-        },
-        params: { query: product_name, page: 1, size: 18 },
-      }
-    );
+    if (isApiUsageExceeded()) {
+      console.warn('API usage limit reached. Throwing rate limit exception.');
+      throw new Error('API_RATE_LIMIT_EXCEEDED');
+    }
+
+    const response = await rateLimitedAxios({
+      method: 'GET',
+      url: 'https://woolworths-products-api.p.rapidapi.com/woolworths/product-search/',
+      headers: {
+        'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
+        'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
+      },
+      params: { query: product_name, page: 1, size: 18 },
+    });
 
     handleApiRateLimit(response.headers);
 
@@ -170,11 +168,6 @@ export const fetchProductsByNameAndUrl = async (
 export const fetchProductsByBarcode = async (
   product: DBProduct
 ): Promise<DBProduct | null> => {
-  if (isApiUsageExceeded()) {
-    console.warn('API usage limit reached. Skipping search.');
-    return null;
-  }
-
   if (!product.barcode) {
     console.warn('Product barcode is missing. Skipping search.');
     return null;
@@ -191,16 +184,20 @@ export const fetchProductsByBarcode = async (
       return cachedProduct;
     }
 
-    const response = await axios.get(
-      `https://woolworths-products-api.p.rapidapi.com/woolworths/product-search/`,
-      {
-        headers: {
-          'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
-          'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
-        },
-        params: { barcode: product.barcode, page: 1, size: 1 },
-      }
-    );
+    if (isApiUsageExceeded()) {
+      console.warn('API usage limit reached. Throwing rate limit exception.');
+      throw new Error('API_RATE_LIMIT_EXCEEDED');
+    }
+
+    const response = await rateLimitedAxios({
+      method: 'GET',
+      url: 'https://woolworths-products-api.p.rapidapi.com/woolworths/product-search/',
+      headers: {
+        'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
+        'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
+      },
+      params: { barcode: product.barcode, page: 1, size: 1 },
+    });
 
     handleApiRateLimit(response.headers);
 

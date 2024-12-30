@@ -28,7 +28,7 @@ export const addToWatchlist = async (
   });
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.status} ${response.statusText}`);
+    throw new Error(`${response.status} ${response.statusText}`);
   }
 
   return (await response.json()) as DBProduct[];
@@ -59,7 +59,7 @@ export const removeFromWatchlist = async (
   );
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.status} ${response.statusText}`);
+    throw new Error(`${response.status} ${response.statusText}`);
   }
 
   return (await response.json()) as DBProduct[];
@@ -82,7 +82,7 @@ export const getWatchlist = async (): Promise<DBProduct[]> => {
   });
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.status} ${response.statusText}`);
+    throw new Error(`${response.status} ${response.statusText}`);
   }
 
   return (await response.json()) as DBProduct[];

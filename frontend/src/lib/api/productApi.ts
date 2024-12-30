@@ -46,7 +46,7 @@ export const fetchProductsApi = async (
   );
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.status} ${response.statusText}`);
+    throw new Error(`${response.status} ${response.statusText}`);
   }
 
   const json = await response.json();
@@ -84,7 +84,7 @@ export const fetchProductByNameAndUrlApi = async (
   );
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.status} ${response.statusText}`);
+    throw new Error(`${response.status} ${response.statusText}`);
   }
 
   const json = await response.json();

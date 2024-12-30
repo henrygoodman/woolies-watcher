@@ -20,7 +20,7 @@ export const fetchUserDestinationEmailApi = async (): Promise<string> => {
   );
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.status} ${response.statusText}`);
+    throw new Error(`${response.status} ${response.statusText}`);
   }
 
   const data = await response.json();
@@ -52,7 +52,7 @@ export const updateUserDestinationEmailApi = async (
   );
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.status} ${response.statusText}`);
+    throw new Error(`${response.status} ${response.statusText}`);
   }
 
   return (await response.json()) as { message: string };
