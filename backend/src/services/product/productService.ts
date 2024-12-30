@@ -54,6 +54,7 @@ export const fetchProducts = async (
           product_url
         );
 
+        // Only attempt to update product if it is out of date
         if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
           return cachedProduct;
         }

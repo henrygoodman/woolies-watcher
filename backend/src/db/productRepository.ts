@@ -48,7 +48,7 @@ class ProductRepository extends GenericRepository<DBProduct> {
       if (existingProduct.current_price !== product.current_price) {
         console.log(
           'Adding price update:',
-          product.id!,
+          product.product_name,
           existingProduct.current_price,
           product.current_price
         );
@@ -58,6 +58,13 @@ class ProductRepository extends GenericRepository<DBProduct> {
           new_price: product.current_price,
           updated_at: new Date().toISOString(),
         });
+      } else {
+        console.log(
+          'No price update:',
+          product.product_name,
+          existingProduct.current_price,
+          product.current_price
+        );
       }
     }
 
