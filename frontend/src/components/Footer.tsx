@@ -1,15 +1,19 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 export const Footer: React.FC = () => {
+  const [currentYear, setCurrentYear] = useState<number | null>(null);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
+
   return (
     <footer className="w-full bg-background text-foreground p-4 mt-8">
       <div className="max-w-7xl mx-auto flex flex-col items-center space-y-2">
-        <p className="text-sm">
-          &copy; {new Date().getFullYear()} Woolies Watcher
-        </p>
+        <p className="text-sm">&copy; {currentYear ?? '...'} Woolies Watcher</p>
         <div className="flex space-x-4">
           <Link href="/terms" className="text-sm hover:underline">
             Terms of Service
