@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
-import { fetchProductDetailsApi } from '@/lib/api/productApi';
+import { fetchProductApi } from '@/lib/api/productApi';
 import { DBProduct } from '@shared-types/db';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
@@ -26,9 +26,9 @@ export default function ProductDetailsPage() {
   useEffect(() => {
     const loadProductDetails = async () => {
       try {
-        const productData = await fetchProductDetailsApi(Number(id));
+        const productData = await fetchProductApi(Number(id));
         setProduct(productData);
-        setWatchCount(productData.watch_count || 0); // Initialize watchCount after fetching product
+        setWatchCount(productData.watch_count || 0);
       } catch (err) {
         setError('Error loading product details');
       } finally {

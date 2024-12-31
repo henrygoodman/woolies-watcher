@@ -1,13 +1,10 @@
 import express from 'express';
-import {
-  handleGetUserDestinationEmail,
-  handleUpdateUserDestinationEmail,
-} from '@/handlers/userHandlers';
+import { handleGetUser, handleUpdateUser } from '@/handlers/userHandlers';
 import { handleAuth } from '@/middleware/authMiddleware';
 
 const router = express.Router();
 
-router.get('/config', handleAuth, handleGetUserDestinationEmail);
-router.patch('/config', handleAuth, handleUpdateUserDestinationEmail);
+router.get('/', handleAuth, handleGetUser);
+router.patch('/', handleAuth, handleUpdateUser);
 
 export default router;

@@ -4,12 +4,7 @@ import { WatchlistRequest } from '@shared-types/api';
 import { DBProduct } from '@shared-types/db';
 
 export const handleWatchlistAdd: RequestHandler = async (req, res) => {
-  const user = req.user;
-
-  if (!user) {
-    res.status(401).json({ error: 'Unauthorized: User not authenticated' });
-    return;
-  }
+  const user = req.user!;
 
   const { id: user_id } = user;
   const { product_id }: WatchlistRequest = req.body;
@@ -29,12 +24,7 @@ export const handleWatchlistAdd: RequestHandler = async (req, res) => {
 };
 
 export const handleWatchlistDelete: RequestHandler = async (req, res) => {
-  const user = req.user;
-
-  if (!user) {
-    res.status(401).json({ error: 'Unauthorized: User not authenticated' });
-    return;
-  }
+  const user = req.user!;
 
   const productId = req.query.product_id;
 
@@ -64,12 +54,7 @@ export const handleWatchlistDelete: RequestHandler = async (req, res) => {
 };
 
 export const handleWatchlistGet: RequestHandler = async (req, res) => {
-  const user = req.user;
-
-  if (!user) {
-    res.status(401).json({ error: 'Unauthorized: User not authenticated' });
-    return;
-  }
+  const user = req.user!;
 
   try {
     const watchlist: DBProduct[] = await watchlistRepository.getWatchlist(

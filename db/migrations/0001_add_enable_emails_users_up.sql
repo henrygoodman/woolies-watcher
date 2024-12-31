@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN enable_emails BOOLEAN DEFAULT TRUE;

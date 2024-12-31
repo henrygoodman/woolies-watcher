@@ -111,8 +111,8 @@ class WatchlistRepository extends GenericRepository<DBWatchlist> {
   }
 
   /**
-   * Get all user watchlists.
-   * @returns A list of all user watchlists.
+   * Get all user watchlists for users with enabled emails.
+   * @returns A list of all user watchlists for users whose enable_emails flag is true.
    */
   async getAllUserWatchlists(): Promise<
     { email: string; watchlist: DBProduct[] }[]
@@ -124,6 +124,7 @@ class WatchlistRepository extends GenericRepository<DBWatchlist> {
     FROM users u
     INNER JOIN watchlist w ON u.id = w.user_id
     INNER JOIN products p ON w.product_id = p.id
+    WHERE u.enable_emails = true
     ORDER BY email, w.date_added ASC;
   `;
     try {

@@ -1,10 +1,10 @@
-import { DBPriceUpdate } from '@shared-types/db';
+import { DBPriceUpdate, DBPriceUpdateSchema } from '@shared-types/db';
 
 /**
  * Fetch price updates for a product by ID.
  * @param productId - The ID of the product.
  * @returns A promise that resolves to an array of price updates.
- * @throws Will throw an error if the fetch fails.
+ * @throws Will throw an error if the fetch fails or if the data is invalid.
  */
 export const fetchPriceUpdatesApi = async (
   productId: number
@@ -17,5 +17,7 @@ export const fetchPriceUpdatesApi = async (
     throw new Error(`${response.status} ${response.statusText}`);
   }
 
-  return (await response.json()) as DBPriceUpdate[];
+  const data = await response.json();
+
+  return data.map((item: unknown) => DBPriceUpdateSchema.parse(item));
 };

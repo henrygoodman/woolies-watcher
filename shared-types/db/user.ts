@@ -5,6 +5,9 @@ export const DBUserSchema = z.object({
   name: z.string().nullable(),
   email: z.string().email(),
   destination_email: z.string().nullable(),
+  enable_emails: z.boolean(),
 });
+
+export const PartialDBUserSchema = DBUserSchema.partial();
 
 export type DBUser = z.infer<typeof DBUserSchema>;

@@ -22,33 +22,9 @@ class UserRepository extends GenericRepository<DBUser> {
       email,
       name,
       destination_email: email,
+      enable_emails: true,
     });
     return DBUserSchema.parse(newUser);
-  }
-
-  /**
-   * Fetch the user's destination email.
-   * @param userId - The user's ID.
-   * @returns The destination email.
-   */
-  async getDestinationEmail(userId: number): Promise<string | null> {
-    const user = await this.findById(userId);
-    if (!user) {
-      throw new Error(`User with ID ${userId} not found`);
-    }
-    return user.destination_email;
-  }
-
-  /**
-   * Update the user's destination email.
-   * @param userId - The user's ID.
-   * @param destinationEmail - The new destination email.
-   */
-  async updateDestinationEmail(
-    userId: number,
-    destinationEmail: string
-  ): Promise<void> {
-    await this.update(userId, { destination_email: destinationEmail });
   }
 }
 

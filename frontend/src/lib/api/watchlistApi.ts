@@ -1,6 +1,6 @@
 import { getSession } from 'next-auth/react';
 import { WatchlistRequest } from '@shared-types/api';
-import { DBProduct } from '@shared-types/db';
+import { DBProduct, DBProductSchema } from '@shared-types/db';
 
 /**
  * Add a product to the user's watchlist.
@@ -85,5 +85,7 @@ export const getWatchlist = async (): Promise<DBProduct[]> => {
     throw new Error(`${response.status} ${response.statusText}`);
   }
 
-  return (await response.json()) as DBProduct[];
+  const data = await response.json();
+
+  return data.map((item: unknown) => DBProductSchema.parse(item));
 };

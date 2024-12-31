@@ -12,9 +12,7 @@ import { z } from 'zod';
  * @returns A promise that resolves to the product details.
  * @throws Will throw an error if the fetch fails or validation fails.
  */
-export const fetchProductDetailsApi = async (
-  id: number
-): Promise<DBProduct> => {
+export const fetchProductApi = async (id: number): Promise<DBProduct> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/product/${id}`
   );

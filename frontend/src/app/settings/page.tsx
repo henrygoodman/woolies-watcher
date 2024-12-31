@@ -5,43 +5,55 @@ import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
-import {
-  fetchUserDestinationEmailApi,
-  updateUserDestinationEmailApi,
-} from '@/lib/api/userApi';
+import { fetchUserApi, updateUserApi } from '@/lib/api/userApi';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
   const user = session?.user;
 
+  const [initialEmail, setInitialEmail] = useState('');
+  const [initialEnableEmails, setInitialEnableEmails] = useState(false);
+
   const [email, setEmail] = useState('');
-  const [emailError, setEmailError] = useState('');
-  const [notificationTime, setNotificationTime] = useState('8am AEST');
+  const [enableEmails, setEnableEmails] = useState(false);
+
   const [loading, setLoading] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
     if (!user?.email) return;
 
-    const loadDestinationEmail = async () => {
+    const loadSettings = async () => {
       setLoading(true);
       try {
-        const destinationEmail = await fetchUserDestinationEmailApi();
-        setEmail(destinationEmail || user.email || '');
+        const fetchedUser = await fetchUserApi();
+        setInitialEmail(fetchedUser.email);
+        setInitialEnableEmails(fetchedUser.enable_emails);
+
+        setEmail(fetchedUser.email);
+        setEnableEmails(fetchedUser.enable_emails);
       } catch (error) {
         toast({
           title: 'Error',
           description: 'Failed to load settings',
           variant: 'destructive',
         });
+        console.log(error);
       } finally {
         setLoading(false);
       }
     };
 
-    loadDestinationEmail();
+    loadSettings();
   }, [user?.email]);
+
+  // Check if settings have been modified
+  useEffect(() => {
+    setIsDirty(email !== initialEmail || enableEmails !== initialEnableEmails);
+  }, [email, enableEmails, initialEmail, initialEnableEmails]);
 
   const handleSave = async () => {
     if (!user?.email) {
@@ -53,22 +65,18 @@ export default function SettingsPage() {
       return;
     }
 
-    if (emailError) {
-      toast({
-        title: 'Error',
-        description: 'Please correct the email address before saving.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     try {
-      await updateUserDestinationEmailApi(email);
+      await updateUserApi({ enable_emails: enableEmails });
 
       toast({
         title: 'Settings Saved',
         description: 'Your settings have been successfully updated.',
       });
+
+      // Update initial state after successful save
+      setInitialEmail(email);
+      setInitialEnableEmails(enableEmails);
+      setIsDirty(false);
     } catch (error) {
       toast({
         title: 'Error',
@@ -76,21 +84,6 @@ export default function SettingsPage() {
         variant: 'destructive',
       });
     }
-  };
-
-  const validateEmail = (value: string) => {
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(value)) {
-      setEmailError('Please enter a valid email address.');
-    } else {
-      setEmailError('');
-    }
-  };
-
-  const handleEmailChange = (e: any) => {
-    const value = e.target.value;
-    setEmail(value);
-    validateEmail(value);
   };
 
   if (loading) return <LoadingIndicator />;
@@ -112,42 +105,36 @@ export default function SettingsPage() {
               id="email"
               type="email"
               value={email}
-              onChange={handleEmailChange}
-              placeholder="Enter your email address"
-              className={`w-full ${emailError ? 'border-red-500' : ''}`}
-            />
-            {emailError && (
-              <p className="text-sm text-red-500 mt-2">{emailError}</p>
-            )}
-          </div>
-
-          {/* Notification Preferences Field */}
-          <div className="mb-6">
-            <Label
-              htmlFor="notification-time"
-              className="block text-sm font-medium mb-2"
-            >
-              Notification Time
-            </Label>
-            <Input
-              id="notification-time"
-              type="text"
-              value={notificationTime}
-              disabled // Make the field non-editable
+              disabled
               className="w-full bg-muted cursor-not-allowed"
             />
             <p className="text-sm text-muted-foreground mt-2">
-              Notifications are currently locked to 8am AEST.
+              Currently, we can only send emails to your authenticated email
+              address.
             </p>
+          </div>
+
+          {/* Toggle Email Updates */}
+          <div className="mb-6">
+            <Label
+              htmlFor="enable-emails"
+              className="block text-sm font-medium mb-2"
+            >
+              Enable Update Emails
+            </Label>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="enable-emails"
+                checked={enableEmails}
+                onCheckedChange={setEnableEmails}
+                aria-label="Toggle email updates"
+              />
+            </div>
           </div>
 
           {/* Save Button */}
           <div className="mt-4">
-            <Button
-              onClick={handleSave}
-              className="w-full"
-              disabled={!!emailError} // Disable save button if email is invalid
-            >
+            <Button onClick={handleSave} className="w-full" disabled={!isDirty}>
               Save Changes
             </Button>
           </div>
