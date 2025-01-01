@@ -10,129 +10,129 @@ body {
 @layer base {
   :root {
     /* Light Neutral Palette */
-    --background: 210 20% 98%; /* Soft off-white */
-    --foreground: 210 10% 15%; /* Dark charcoal */
-    --card: 210 20% 95%; /* Light grayish */
-    --card-foreground: 210 10% 10%; /* Very dark charcoal */
-    --popover: 210 20% 95%;
-    --popover-foreground: 210 10% 10%;
+    --background: 220 15% 95%; /* Cooler Soft Off-White */
+    --foreground: 220 10% 15%; /* Dark Charcoal */
+    --card: 220 15% 92%; /* Light Grayish */
+    --card-foreground: 220 10% 10%; /* Very Dark Charcoal */
+    --popover: 220 15% 92%;
+    --popover-foreground: 220 10% 10%;
 
     /* Primary color shifted to Teal */
-    --primary: 180 50% 40%; /* Teal */
-    --primary-foreground: 210 10% 95%; /* Near white */
+    --primary: 180 40% 35%; /* Softer Teal */
+    --primary-foreground: 220 10% 95%; /* Near White */
 
     /* Secondary and Accent Colors */
-    --secondary: 30 20% 90%; /* Warm Beige */
-    --secondary-foreground: 210 10% 20%; /* Darker text */
-    --muted: 210 10% 90%; /* Light Gray */
-    --muted-foreground: 210 10% 50%; /* Medium Gray */
-    --accent: 60 20% 90%; /* Soft Yellow */
-    --accent-foreground: 210 10% 20%; /* Dark text */
+    --secondary: 210 20% 85%; /* Cool Gray-Blue */
+    --secondary-foreground: 220 10% 20%; /* Darker Text */
+    --muted: 220 10% 85%; /* Light Gray */
+    --muted-foreground: 220 10% 50%; /* Medium Gray */
+    --accent: 60 15% 85%; /* Soft Cool Yellow */
+    --accent-foreground: 220 10% 20%; /* Dark Text */
 
     /* Destructive (Error) Colors */
-    --destructive: 0 70% 50%; /* Vibrant Red */
-    --destructive-foreground: 0 0% 98%; /* Near white */
+    --destructive: 0 60% 45%; /* Muted Red */
+    --destructive-foreground: 0 0% 98%; /* Near White */
 
     /* Miscellaneous */
-    --border: 210 10% 85%; /* Light Gray Border */
-    --input: 210 10% 85%; /* Consistent with border */
-    --ring: 210 10% 15%; /* Dark ring for focus */
+    --border: 220 10% 80%; /* Light Gray Border */
+    --input: 220 10% 80%; /* Consistent with Border */
+    --ring: 220 10% 15%; /* Dark Ring for Focus */
 
     /* Chart Colors (Teal-based) */
-    --chart-1: 180 50% 50%;
-    --chart-2: 180 45% 40%;
-    --chart-3: 180 40% 35%;
-    --chart-4: 180 35% 30%;
-    --chart-5: 180 30% 25%;
+    --chart-1: 180 40% 45%;
+    --chart-2: 180 35% 35%;
+    --chart-3: 180 30% 30%;
+    --chart-4: 180 25% 25%;
+    --chart-5: 180 20% 20%;
   }
 
   /* Updated Dark Theme */
   [data-theme='dark'] {
     /* Dark Neutral Palette */
-    --background: 210 10% 15%; /* Dark Charcoal */
-    --foreground: 210 10% 95%; /* Near White */
-    --card: 210 10% 20%; /* Darker Card Background */
-    --card-foreground: 210 10% 90%; /* Light Text on Card */
-    --popover: 210 10% 20%;
-    --popover-foreground: 210 10% 90%;
+    --background: 220 10% 15%; /* Dark Charcoal */
+    --foreground: 220 10% 95%; /* Near White */
+    --card: 220 10% 18%; /* Darker Card Background */
+    --card-foreground: 220 10% 90%; /* Light Text on Card */
+    --popover: 220 10% 18%;
+    --popover-foreground: 220 10% 90%;
 
     /* Primary color shifted to Teal */
-    --primary: 180 50% 60%; /* Brighter Teal */
-    --primary-foreground: 210 10% 95%; /* Near white */
+    --primary: 180 40% 55%; /* Brighter Teal */
+    --primary-foreground: 220 10% 95%; /* Near White */
 
     /* Secondary and Accent Colors */
-    --secondary: 30 20% 30%; /* Dark Beige */
-    --secondary-foreground: 210 10% 85%; /* Light text */
-    --muted: 210 10% 30%; /* Dark Gray */
-    --muted-foreground: 210 10% 70%; /* Lighter Gray */
-    --accent: 60 20% 30%; /* Dark Soft Yellow */
-    --accent-foreground: 210 10% 85%; /* Light text */
+    --secondary: 210 20% 35%; /* Dark Gray-Blue */
+    --secondary-foreground: 220 10% 85%; /* Light Text */
+    --muted: 220 10% 35%; /* Dark Gray */
+    --muted-foreground: 220 10% 70%; /* Lighter Gray */
+    --accent: 60 15% 35%; /* Dark Soft Yellow */
+    --accent-foreground: 220 10% 85%; /* Light Text */
 
     /* Destructive (Error) Colors */
-    --destructive: 0 70% 60%; /* Brighter Red */
-    --destructive-foreground: 0 0% 95%; /* Near white */
+    --destructive: 0 60% 55%; /* Brighter Red */
+    --destructive-foreground: 0 0% 95%; /* Near White */
 
     /* Miscellaneous */
-    --border: 210 10% 25%; /* Dark Gray Border */
-    --input: 210 10% 25%; /* Consistent with border */
-    --ring: 210 10% 50%; /* Moderate ring for focus */
+    --border: 220 10% 25%; /* Dark Gray Border */
+    --input: 220 10% 25%; /* Consistent with Border */
+    --ring: 220 10% 40%; /* Moderate Ring for Focus */
 
     /* Chart Colors (Teal-based) */
-    --chart-1: 180 50% 65%;
-    --chart-2: 180 45% 55%;
-    --chart-3: 180 40% 45%;
-    --chart-4: 180 35% 35%;
-    --chart-5: 180 30% 25%;
+    --chart-1: 180 40% 60%;
+    --chart-2: 180 35% 50%;
+    --chart-3: 180 30% 40%;
+    --chart-4: 180 25% 30%;
+    --chart-5: 180 20% 25%;
   }
 
   /* Green Theme */
   [data-theme='green'] {
-    --background: 140 40% 95%; /* Light green */
-    --foreground: 140 20% 20%; /* Dark green text */
-    --card: 140 40% 90%;
+    --background: 140 30% 90%; /* Cooler Light Green */
+    --foreground: 140 20% 20%; /* Dark Green Text */
+    --card: 140 30% 85%;
     --card-foreground: 140 20% 10%;
-    --popover: 140 40% 90%;
+    --popover: 140 30% 85%;
     --popover-foreground: 140 20% 10%;
-    --primary: 140 50% 50%; /* Base green */
-    --primary-foreground: 140 40% 95%;
-    --secondary: 140 20% 80%;
-    --secondary-foreground: 140 40% 20%;
-    --muted: 140 20% 80%; /* Slightly darker muted green */
-    --muted-foreground: 140 40% 30%;
-    --accent: 140 60% 50%;
+    --primary: 140 40% 45%; /* Softer Base Green */
+    --primary-foreground: 140 35% 95%;
+    --secondary: 140 20% 75%;
+    --secondary-foreground: 140 35% 20%;
+    --muted: 140 20% 75%; /* Slightly Darker Muted Green */
+    --muted-foreground: 140 35% 30%;
+    --accent: 140 50% 45%;
     --accent-foreground: 140 20% 95%;
-    --destructive: 0 60% 50%;
+    --destructive: 0 55% 45%;
     --destructive-foreground: 0 40% 95%;
-    --border: 140 20% 85%;
-    --input: 140 20% 85%;
-    --ring: 140 50% 50%;
-    --chart-1: 140 50% 60%;
-    --chart-2: 140 40% 50%;
-    --chart-3: 140 30% 40%;
-    --chart-4: 140 20% 30%;
+    --border: 140 20% 80%;
+    --input: 140 20% 80%;
+    --ring: 140 40% 45%;
+    --chart-1: 140 40% 55%;
+    --chart-2: 140 35% 45%;
+    --chart-3: 140 25% 35%;
+    --chart-4: 140 15% 25%;
     --chart-5: 140 10% 20%;
   }
 
   /* Dark Green Theme */
   [data-theme='dark-green'] {
-    --background: 140 20% 10%; /* Very dark green */
-    --foreground: 140 40% 85%; /* Light green text */
-    --card: 140 20% 15%; /* Slightly lighter dark green for cards */
+    --background: 140 20% 12%; /* Very Dark Green */
+    --foreground: 140 40% 85%; /* Light Green Text */
+    --card: 140 20% 18%; /* Slightly Lighter Dark Green for Cards */
     --card-foreground: 140 40% 85%;
-    --popover: 140 20% 15%; /* Popover matches card color */
+    --popover: 140 20% 18%; /* Popover Matches Card Color */
     --popover-foreground: 140 40% 85%;
-    --primary: 140 50% 40%; /* Muted base green */
-    --primary-foreground: 140 80% 95%; /* Bright green text */
-    --secondary: 140 30% 20%; /* Dark muted green */
-    --secondary-foreground: 140 50% 80%; /* Softer green text */
-    --muted: 140 25% 20%; /* Lighter muted green */
+    --primary: 140 40% 40%; /* Muted Base Green */
+    --primary-foreground: 140 70% 95%; /* Bright Green Text */
+    --secondary: 140 25% 22%; /* Dark Muted Green */
+    --secondary-foreground: 140 45% 80%; /* Softer Green Text */
+    --muted: 140 25% 22%; /* Lighter Muted Green */
     --muted-foreground: 140 60% 70%;
-    --accent: 140 50% 30%; /* Accent is more vibrant */
-    --accent-foreground: 140 70% 90%; /* Contrasting accent text */
-    --destructive: 0 65% 40%; /* Brightened red for better visibility */
+    --accent: 140 40% 25%; /* Accent is More Vibrant */
+    --accent-foreground: 140 70% 90%; /* Contrasting Accent Text */
+    --destructive: 0 60% 35%; /* Brightened Red for Better Visibility */
     --destructive-foreground: 0 90% 95%;
-    --border: 140 20% 12%;
-    --input: 140 20% 15%;
+    --border: 140 20% 15%;
+    --input: 140 20% 18%;
     --ring: 140 40% 25%;
     --chart-1: 140 30% 30%;
     --chart-2: 140 40% 40%;
