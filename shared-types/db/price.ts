@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const DBPriceUpdateSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   product_id: z.number(),
   old_price: z.number(),
   new_price: z.number(),

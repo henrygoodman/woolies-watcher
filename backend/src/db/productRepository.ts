@@ -58,13 +58,6 @@ class ProductRepository extends GenericRepository<DBProduct> {
           new_price: product.current_price,
           updated_at: new Date().toISOString(),
         });
-      } else {
-        console.log(
-          'No price update:',
-          product.product_name,
-          existingProduct.current_price,
-          product.current_price
-        );
       }
     }
 

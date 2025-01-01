@@ -8,8 +8,10 @@ import { rateLimitMiddleware } from '@/middleware/rateLimiter';
 import { initializeCronJobs } from './jobs';
 import { initSeeding } from '@/utils/seedWatchlist';
 
+// TODO: Assert some dotenv values exist (we dont want graceful fallback)
 dotenv.config();
 
+// TODO: Move logging config to separate file
 const getCallerInfo = () => {
   const error = new Error();
   const stack = error.stack || '';

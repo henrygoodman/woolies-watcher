@@ -192,12 +192,11 @@ export const fetchProductsByBarcode = async (
 
     const response = await rateLimitedAxios({
       method: 'GET',
-      url: 'https://woolworths-products-api.p.rapidapi.com/woolworths/barcode-search/',
+      url: `https://woolworths-products-api.p.rapidapi.com/woolworths/barcode-search/${product.barcode}`,
       headers: {
         'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
         'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
       },
-      params: { barcode: product.barcode, page: 1, size: 1 },
     });
 
     handleApiRateLimit(response.headers);
