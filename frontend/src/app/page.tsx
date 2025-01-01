@@ -18,6 +18,18 @@ export default function Home() {
           <ProductCarousel />
         </div>
       </div>
+
+      <div className="flex flex-col items-center p-8">
+        <h1 className="text-4xl font-bold mb-8 text-primary">
+          Price Decreases
+        </h1>
+      </div>
+
+      <div className="flex flex-col items-center p-8">
+        <h1 className="text-4xl font-bold mb-8 text-primary">
+          Price Increases
+        </h1>
+      </div>
     </div>
   );
 }

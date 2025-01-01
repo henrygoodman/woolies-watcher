@@ -78,7 +78,7 @@ export default function ProductDetailsPage() {
           <p className="text-muted-foreground mb-2">
             Size: <strong>{product.product_size || '-'}</strong>
           </p>
-          <p className="text-accent text-2xl font-semibold mb-4">
+          <p className="text-primary text-2xl font-semibold mb-4">
             ${product.current_price.toFixed(2)}
           </p>
 

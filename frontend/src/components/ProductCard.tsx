@@ -49,7 +49,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
         {/* Price and Footer */}
         <CardContent className="flex-1 flex flex-col justify-end p-0 mt-2">
-          <p className="text-accent font-bold text-lg mb-2">
+          <p className="text-primary font-bold text-lg mb-2">
             ${product.current_price.toFixed(2)}
           </p>
           <CardFooter className="p-0">

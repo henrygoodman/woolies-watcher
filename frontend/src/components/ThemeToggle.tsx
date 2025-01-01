@@ -27,9 +27,9 @@ export const ThemeToggle: React.FC = () => {
   return (
     <div className="flex items-center space-x-2">
       {!isDarkTheme ? (
-        <SunIcon className="w-5 h-5 text-accent" />
+        <SunIcon className="w-5 h-5 text-primary" />
       ) : (
-        <MoonIcon className="w-5 h-5 text-accent" />
+        <MoonIcon className="w-5 h-5 text-primary" />
       )}
       <Switch
         checked={isDarkTheme}
