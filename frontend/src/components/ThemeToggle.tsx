@@ -14,7 +14,7 @@ export const ThemeToggle: React.FC = () => {
   }, []);
 
   const handleThemeToggle = (checked: boolean) => {
-    const theme = checked ? 'dark-green' : 'green';
+    const theme = checked ? 'dark' : 'light';
     setIsGreenTheme(!checked);
     document.documentElement.setAttribute('data-theme', theme);
     sessionStorage.setItem('theme', theme);

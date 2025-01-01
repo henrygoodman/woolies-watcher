@@ -9,58 +9,80 @@ body {
 /* Default Light Theme */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 220 90% 56%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
-    --chart-1: 220 90% 60%;
-    --chart-2: 220 80% 50%;
-    --chart-3: 220 70% 40%;
-    --chart-4: 220 60% 30%;
-    --chart-5: 220 50% 20%;
+    /* Light Neutral Palette */
+    --background: 210 20% 98%; /* Soft off-white */
+    --foreground: 210 10% 15%; /* Dark charcoal */
+    --card: 210 20% 95%; /* Light grayish */
+    --card-foreground: 210 10% 10%; /* Very dark charcoal */
+    --popover: 210 20% 95%;
+    --popover-foreground: 210 10% 10%;
+
+    /* Primary color shifted to Teal */
+    --primary: 180 50% 40%; /* Teal */
+    --primary-foreground: 210 10% 95%; /* Near white */
+
+    /* Secondary and Accent Colors */
+    --secondary: 30 20% 90%; /* Warm Beige */
+    --secondary-foreground: 210 10% 20%; /* Darker text */
+    --muted: 210 10% 90%; /* Light Gray */
+    --muted-foreground: 210 10% 50%; /* Medium Gray */
+    --accent: 60 20% 90%; /* Soft Yellow */
+    --accent-foreground: 210 10% 20%; /* Dark text */
+
+    /* Destructive (Error) Colors */
+    --destructive: 0 70% 50%; /* Vibrant Red */
+    --destructive-foreground: 0 0% 98%; /* Near white */
+
+    /* Miscellaneous */
+    --border: 210 10% 85%; /* Light Gray Border */
+    --input: 210 10% 85%; /* Consistent with border */
+    --ring: 210 10% 15%; /* Dark ring for focus */
+
+    /* Chart Colors (Teal-based) */
+    --chart-1: 180 50% 50%;
+    --chart-2: 180 45% 40%;
+    --chart-3: 180 40% 35%;
+    --chart-4: 180 35% 30%;
+    --chart-5: 180 30% 25%;
   }
 
-  /* Dark Theme */
+  /* Updated Dark Theme */
   [data-theme='dark'] {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 14%;
-    --card-foreground: 0 0% 90%;
-    --popover: 0 0% 14%;
-    --popover-foreground: 0 0% 90%;
-    --primary: 220 60% 50%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 20%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 220 50% 40%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 60% 40%;
-    --destructive-foreground: 0 0% 90%;
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
-    --ring: 0 0% 80%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 220 60% 40%;
-    --chart-3: 220 50% 30%;
-    --chart-4: 220 40% 20%;
-    --chart-5: 220 30% 10%;
+    /* Dark Neutral Palette */
+    --background: 210 10% 15%; /* Dark Charcoal */
+    --foreground: 210 10% 95%; /* Near White */
+    --card: 210 10% 20%; /* Darker Card Background */
+    --card-foreground: 210 10% 90%; /* Light Text on Card */
+    --popover: 210 10% 20%;
+    --popover-foreground: 210 10% 90%;
+
+    /* Primary color shifted to Teal */
+    --primary: 180 50% 60%; /* Brighter Teal */
+    --primary-foreground: 210 10% 95%; /* Near white */
+
+    /* Secondary and Accent Colors */
+    --secondary: 30 20% 30%; /* Dark Beige */
+    --secondary-foreground: 210 10% 85%; /* Light text */
+    --muted: 210 10% 30%; /* Dark Gray */
+    --muted-foreground: 210 10% 70%; /* Lighter Gray */
+    --accent: 60 20% 30%; /* Dark Soft Yellow */
+    --accent-foreground: 210 10% 85%; /* Light text */
+
+    /* Destructive (Error) Colors */
+    --destructive: 0 70% 60%; /* Brighter Red */
+    --destructive-foreground: 0 0% 95%; /* Near white */
+
+    /* Miscellaneous */
+    --border: 210 10% 25%; /* Dark Gray Border */
+    --input: 210 10% 25%; /* Consistent with border */
+    --ring: 210 10% 50%; /* Moderate ring for focus */
+
+    /* Chart Colors (Teal-based) */
+    --chart-1: 180 50% 65%;
+    --chart-2: 180 45% 55%;
+    --chart-3: 180 40% 45%;
+    --chart-4: 180 35% 35%;
+    --chart-5: 180 30% 25%;
   }
 
   /* Green Theme */
