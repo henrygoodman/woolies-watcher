@@ -80,8 +80,8 @@ export const fetchProducts = async (
     ) {
       return { page, size: 0, total: 0, results: [] };
     }
-    console.error('Error fetching and processing products:', error);
-    throw new Error('Failed to fetch and process products');
+    console.error('Error fetching products', error.response?.status);
+    throw new Error('Failed to fetch products ' + error.response?.status);
   }
 };
 
@@ -136,15 +136,27 @@ export const fetchProductsByNameAndUrl = async (
       id: cachedProduct?.id,
       image_url,
     });
-  } catch (error) {
-    console.error('Error fetching product by name and URL:', error);
-    throw new Error('Failed to fetch or update product.');
+  } catch (error: any) {
+    if (
+      error.response?.status === 500 &&
+      error.response?.data?.detail === '404: No products found'
+    ) {
+      return null;
+    }
+    console.error(
+      'Error fetching product by name and URL ',
+      error.response?.status
+    );
+    throw new Error(
+      'Failed to fetch product by name and URL ' + error.response?.status
+    );
   }
 };
 
 /**
  * Searches for a product by its barcode, updates its price if stale,
  * and saves it to the database.
+ * NOTE: This is unreliable, the 3rd party API does not have proper unique mapping
  */
 export const fetchProductsByBarcode = async (
   product: DBProduct
@@ -187,9 +199,17 @@ export const fetchProductsByBarcode = async (
       id: cachedProduct?.id,
       image_url,
     });
-  } catch (error) {
-    console.error('Error fetching product by barcode:', error);
-    throw new Error('Failed to fetch or update product.');
+  } catch (error: any) {
+    if (
+      error.response?.status === 500 &&
+      error.response?.data?.detail === '404: No products found'
+    ) {
+      return null;
+    }
+    console.error('Error fetching product by barcode', error.response?.status);
+    throw new Error(
+      'Failed to fetch or update product ' + error.response?.status
+    );
   }
 };
 

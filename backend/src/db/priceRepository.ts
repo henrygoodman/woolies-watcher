@@ -7,6 +7,52 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
     super('price_updates', DBPriceUpdateSchema);
   }
 
+  // Creates price update only if one does not already exist lately
+  // (preventative measure for some race conditions that were occurring)
+  async create(priceUpdate: DBPriceUpdate): Promise<DBPriceUpdate> {
+    const recentUpdateQuery = `
+      SELECT id
+      FROM price_updates
+      WHERE product_id = $1
+        AND updated_at >= NOW() - INTERVAL '1 minute';
+    `;
+    try {
+      const recentUpdate = await pool.query(recentUpdateQuery, [
+        priceUpdate.product_id,
+      ]);
+
+      if (recentUpdate.rows.length > 0) {
+        console.log(
+          `Skipping insert for product_id ${priceUpdate.product_id} as a recent update exists.`
+        );
+        return DBPriceUpdateSchema.parse(recentUpdate.rows[0]);
+      }
+
+      console.log(
+        'Adding price update:',
+        priceUpdate.product_id,
+        priceUpdate.old_price,
+        priceUpdate.new_price
+      );
+
+      const insertQuery = `
+        INSERT INTO price_updates (product_id, old_price, new_price, updated_at)
+        VALUES ($1, $2, $3, NOW())
+        RETURNING *;
+      `;
+      const result = await pool.query(insertQuery, [
+        priceUpdate.product_id,
+        priceUpdate.old_price,
+        priceUpdate.new_price,
+      ]);
+
+      return DBPriceUpdateSchema.parse(result.rows[0]);
+    } catch (error) {
+      console.error('Error creating price update:', error);
+      throw new Error('Failed to create price update');
+    }
+  }
+
   /**
    * Fetch all price updates for a specific product, ordered by update time.
    * @param productId - The ID of the product.

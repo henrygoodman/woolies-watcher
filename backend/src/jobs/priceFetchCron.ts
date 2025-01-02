@@ -27,16 +27,11 @@ export const scheduleDailyProductUpdates = () => {
         await Promise.all(
           watchedProducts.map(async (product) => {
             try {
-              if (product.barcode) {
-                const updatedProduct = await fetchProductsByBarcode(product);
-                if (updatedProduct) productsUpdated++;
-              } else {
-                const updatedProduct = await fetchProductsByNameAndUrl(
-                  product.product_name,
-                  product.url!
-                );
-                if (updatedProduct) productsUpdated++;
-              }
+              const updatedProduct = await fetchProductsByNameAndUrl(
+                product.product_name,
+                product.url!
+              );
+              if (updatedProduct) productsUpdated++;
             } catch (error) {
               errorsOccurred++;
               console.error(

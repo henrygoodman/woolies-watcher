@@ -46,12 +46,6 @@ class ProductRepository extends GenericRepository<DBProduct> {
 
     if (existingProduct) {
       if (existingProduct.current_price !== product.current_price) {
-        console.log(
-          'Adding price update:',
-          product.product_name,
-          existingProduct.current_price,
-          product.current_price
-        );
         await priceRepository.create({
           product_id: existingProduct.id!,
           old_price: existingProduct.current_price,
