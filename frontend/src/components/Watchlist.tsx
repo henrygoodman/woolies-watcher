@@ -21,7 +21,7 @@ export const Watchlist: React.FC = () => {
         const data = await getWatchlist();
         setWatchlist(data);
       } catch (err) {
-        setError('Failed to load watchlist.');
+        setError('Failed to load watchlist: ' + err);
         console.error(err);
       } finally {
         setLoading(false);

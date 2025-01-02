@@ -1,3 +1,4 @@
+import { PRICE_CHANGE_CUTOFF_TIME_UTC } from '@/constants/sync';
 import { GenericRepository } from '@/db/GenericRepository';
 import pool from '@/db/pool';
 import { DBPriceUpdate, DBPriceUpdateSchema } from '@shared-types/db';
@@ -7,8 +8,12 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
     super('price_updates', DBPriceUpdateSchema);
   }
 
-  // Creates price update only if one does not already exist lately
-  // (preventative measure for some race conditions that were occurring)
+  /**
+   * Creates price update only if one does not already exist recently (1 minute)
+   * (preventative measure for some race conditions that were occurring)
+   * @param DBPriceUpdate - price update object
+   * @returns The saved price update
+   */
   async create(priceUpdate: DBPriceUpdate): Promise<DBPriceUpdate> {
     const recentUpdateQuery = `
       SELECT id
@@ -71,6 +76,58 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
     } catch (error) {
       console.error('Error fetching price updates:', error);
       throw new Error('Failed to fetch price updates');
+    }
+  }
+
+  /**
+   * Fetch the top N largest discounts for the current day.
+   * Only considers price updates after the daily cutoff time.
+   * @param limit - Number of records to return.
+   * @returns A list of price updates with the largest percentage discounts for the current day.
+   */
+  async getTopDailyDiscounts(limit: number): Promise<DBPriceUpdate[]> {
+    const query = `
+      SELECT *, 
+             ((old_price - new_price) / old_price) * 100 AS percentage_change
+      FROM price_updates
+      WHERE old_price > 0
+        AND new_price < old_price
+        AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') + INTERVAL '${PRICE_CHANGE_CUTOFF_TIME_UTC}'
+      ORDER BY percentage_change DESC
+      LIMIT $1;
+    `;
+    try {
+      const result = await pool.query(query, [limit]);
+      return result.rows.map((row) => DBPriceUpdateSchema.parse(row));
+    } catch (error) {
+      console.error('Error fetching top daily discounts:', error);
+      throw new Error('Failed to fetch top daily discounts');
+    }
+  }
+
+  /**
+   * Fetch the top N largest price increases for the current day.
+   * Only considers price updates after the daily cutoff time.
+   * @param limit - Number of records to return.
+   * @returns A list of price updates with the largest percentage price increases for the current day.
+   */
+  async getTopDailyPriceIncreases(limit: number): Promise<DBPriceUpdate[]> {
+    const query = `
+      SELECT *, 
+             ((new_price - old_price) / old_price) * 100 AS percentage_change
+      FROM price_updates
+      WHERE old_price > 0
+        AND new_price > old_price
+        AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') + INTERVAL '${PRICE_CHANGE_CUTOFF_TIME_UTC}'
+      ORDER BY percentage_change DESC
+      LIMIT $1;
+    `;
+    try {
+      const result = await pool.query(query, [limit]);
+      return result.rows.map((row) => DBPriceUpdateSchema.parse(row));
+    } catch (error) {
+      console.error('Error fetching top daily price increases:', error);
+      throw new Error('Failed to fetch top daily price increases');
     }
   }
 }

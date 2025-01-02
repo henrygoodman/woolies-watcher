@@ -57,7 +57,7 @@ export const ProductCarousel: React.FC = () => {
         setProducts(fetchedProducts);
       } catch (err) {
         console.error('Error fetching products:', err);
-        setError('Failed to load products');
+        setError('Failed to load products: ' + err);
       } finally {
         setLoading(false);
       }

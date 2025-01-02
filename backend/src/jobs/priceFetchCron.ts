@@ -1,10 +1,7 @@
 import cron from 'node-cron';
 import watchlistRepository from '@/db/watchlistRepository';
-import {
-  fetchProductsByBarcode,
-  fetchProductsByNameAndUrl,
-} from '@/services/product/productService';
-import { PRODUCT_UPDATE_CRON } from '@/constants/sync';
+import { fetchProductsByNameAndUrl } from '@/services/product/productService';
+import { PRODUCT_UPDATE_CRON_UTC } from '@/constants/sync';
 
 /**
  * Schedules a daily job to update product information in the watchlist.
@@ -14,7 +11,7 @@ import { PRODUCT_UPDATE_CRON } from '@/constants/sync';
  */
 export const scheduleDailyProductUpdates = () => {
   cron.schedule(
-    PRODUCT_UPDATE_CRON,
+    PRODUCT_UPDATE_CRON_UTC,
     async () => {
       console.log('Starting daily product update job...');
 

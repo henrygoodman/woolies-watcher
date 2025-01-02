@@ -35,7 +35,7 @@ export const PriceChart = ({ productId }: { productId: number }) => {
         setChartData(data);
       } catch (err) {
         console.log('Failed to load price updates', err);
-        setError('Failed to load price updates');
+        setError('Failed to load price updates: ' + err);
       } finally {
         setLoading(false);
       }

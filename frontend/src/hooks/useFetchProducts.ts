@@ -20,9 +20,9 @@ export const useFetchProducts = () => {
       setTotalPages(data.total);
       setResultSize(data.size);
     } catch (err) {
-      console.error('Error in fetchProducts:', err);
+      console.error('Failed to fetch products:', err);
       if (query !== '') {
-        setError('Failed to fetch products. Please try again later.');
+        setError('Failed to fetch products: ' + err);
       }
     } finally {
       setLoading(false);

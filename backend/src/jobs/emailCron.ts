@@ -2,11 +2,11 @@ import cron from 'node-cron';
 import watchlistRepository from '@/db/watchlistRepository';
 import { getEmailService } from '@/services/email/index';
 import { reservedEmail } from '@/utils/seedWatchlist';
-import { WATCHLIST_EMAIL_CRON } from '@/constants/sync';
+import { WATCHLIST_EMAIL_CRON_UTC } from '@/constants/sync';
 
 export const scheduleDailyWatchlistEmails = () => {
   cron.schedule(
-    WATCHLIST_EMAIL_CRON,
+    WATCHLIST_EMAIL_CRON_UTC,
     async () => {
       console.log('Starting daily watchlist email job...');
 
@@ -43,7 +43,6 @@ export const scheduleDailyWatchlistEmails = () => {
     },
     {
       scheduled: true,
-      timezone: 'Australia/Sydney',
     }
   );
   console.log('Initialized emailCron');
