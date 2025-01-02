@@ -24,7 +24,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <header className="w-full bg-background text-foreground p-4 drop-shadow-xl">
-      <div className="flex justify-between items-center max-w-7xl mx-auto">
+      <div className="flex justify-between items-center max-w-5xl mx-auto">
         {/* Logo */}
         <h1
           className="text-lg font-bold text-primary cursor-pointer"
