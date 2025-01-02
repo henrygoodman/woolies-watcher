@@ -31,7 +31,7 @@ const steps = [
     icon: <Heart className="mt-1 mr-4 text-primary" size={20} />,
   },
   {
-    label: 'Wait for price updates via email',
+    label: 'Get notified when prices change',
     icon: <Mail className="mt-1 mr-4 text-primary" size={20} />,
   },
 ];

@@ -1,91 +1,109 @@
 import axios from 'axios';
 
-let apiUsageExceeded = false;
-let resetTimeout: NodeJS.Timeout | null = null;
+class RateLimiter {
+  private apiUsageExceeded: boolean;
+  private resetTimeout: NodeJS.Timeout | null;
+  private maxRequestsPerSecond: number;
+  private maxRetries: number;
+  private requestQueue: (() => void)[];
+  private isProcessingQueue: boolean;
 
-/**
- * Handles rate limit headers from the third-party API.
- */
-export const handleApiRateLimit = (headers: any) => {
-  const remainingRequests = parseInt(
-    headers['x-ratelimit-requests-remaining'],
-    10
-  );
-
-  console.log('Performing API call. Remaining requests:', remainingRequests);
-
-  const resetTime = parseInt(headers['x-ratelimit-requests-reset'], 10);
-
-  // Requests in transit could eat up, use a buffer to avoid the race condition
-  if (remainingRequests <= 100) {
-    apiUsageExceeded = true;
-
-    if (resetTimeout) clearTimeout(resetTimeout);
-    resetTimeout = setTimeout(() => {
-      apiUsageExceeded = false;
-      console.log('API quota reset. Resuming requests.');
-    }, resetTime * 1000);
+  constructor(maxRequestsPerSecond = 20, maxRetries = 1) {
+    this.apiUsageExceeded = false;
+    this.resetTimeout = null;
+    this.maxRequestsPerSecond = maxRequestsPerSecond;
+    this.maxRetries = maxRetries;
+    this.requestQueue = [];
+    this.isProcessingQueue = false;
   }
-};
 
-/**
- * Checks if the API usage limit has been exceeded.
- * @returns Boolean indicating if API usage is currently blocked.
- */
-export const isApiUsageExceeded = (): boolean => {
-  return apiUsageExceeded;
-};
+  /**
+   * Handles rate limit headers from the third-party API.
+   */
+  private handleApiRateLimit(headers: any) {
+    const remainingRequests = parseInt(
+      headers['x-ratelimit-requests-remaining'],
+      10
+    );
 
-const MAX_REQUESTS_PER_SECOND = 20;
-const MAX_RETRIES = 1;
-let requestQueue: (() => void)[] = [];
-let isProcessingQueue = false;
+    console.log('Performed API call. Remaining requests:', remainingRequests);
 
-/**
- * Processes the request queue at a controlled rate.
- */
-const processQueue = () => {
-  if (isProcessingQueue) return;
-  isProcessingQueue = true;
+    const resetTime = parseInt(headers['x-ratelimit-requests-reset'], 10);
 
-  const interval = setInterval(() => {
-    if (requestQueue.length === 0) {
-      clearInterval(interval);
-      isProcessingQueue = false;
-      return;
+    if (remainingRequests <= 100) {
+      this.apiUsageExceeded = true;
+
+      if (this.resetTimeout) clearTimeout(this.resetTimeout);
+      this.resetTimeout = setTimeout(() => {
+        this.apiUsageExceeded = false;
+        console.log('API quota reset. Resuming requests.');
+      }, resetTime * 1000);
     }
+  }
 
-    const nextRequest = requestQueue.shift();
-    if (nextRequest) nextRequest();
-  }, 1000 / MAX_REQUESTS_PER_SECOND);
-};
+  /**
+   * Checks if the API usage limit has been exceeded.
+   */
+  isApiUsageExceeded(): boolean {
+    return this.apiUsageExceeded;
+  }
 
-/**
- * A wrapper around Axios to handle rate-limiting and retries.
- * @param config Axios request configuration.
- * @returns A promise resolving to the Axios response.
- */
-export const rateLimitedAxios = (config: any): Promise<any> => {
-  return new Promise((resolve, reject) => {
-    const executeRequest = async (retryCount: number) => {
-      try {
-        const response = await axios(config);
-        resolve(response);
-      } catch (error) {
-        if (retryCount < MAX_RETRIES) {
-          console.warn(
-            `Retrying request... (${retryCount + 1}/${MAX_RETRIES})`
-          );
-          requestQueue.push(() => executeRequest(retryCount + 1));
-          processQueue();
-        } else {
-          console.error('Request failed after retries:', error);
-          reject(error);
-        }
+  /**
+   * Processes the request queue at a controlled rate.
+   */
+  private processQueue() {
+    if (this.isProcessingQueue) return;
+    this.isProcessingQueue = true;
+
+    const interval = setInterval(() => {
+      if (this.requestQueue.length === 0) {
+        clearInterval(interval);
+        this.isProcessingQueue = false;
+        return;
       }
-    };
 
-    requestQueue.push(() => executeRequest(0));
-    processQueue();
-  });
-};
+      const nextRequest = this.requestQueue.shift();
+      if (nextRequest) nextRequest();
+    }, 1000 / this.maxRequestsPerSecond);
+  }
+
+  /**
+   * A wrapper around Axios to handle rate-limiting and retries.
+   */
+  async fetch(config: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const executeRequest = async (retryCount: number) => {
+        if (this.apiUsageExceeded) {
+          console.warn('API usage limit exceeded. Blocking request.');
+          return reject(new Error('API_RATE_LIMIT_EXCEEDED'));
+        }
+
+        try {
+          const response = await axios(config);
+
+          if (response.headers) {
+            this.handleApiRateLimit(response.headers);
+          }
+
+          resolve(response);
+        } catch (error) {
+          if (retryCount < this.maxRetries) {
+            console.warn(
+              `Retrying request... (${retryCount + 1}/${this.maxRetries})`
+            );
+            this.requestQueue.push(() => executeRequest(retryCount + 1));
+            this.processQueue();
+          } else {
+            console.error('Request failed after retries:', error);
+            reject(error);
+          }
+        }
+      };
+
+      this.requestQueue.push(() => executeRequest(0));
+      this.processQueue();
+    });
+  }
+}
+
+export const rateLimiter = new RateLimiter();

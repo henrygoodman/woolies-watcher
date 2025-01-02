@@ -2,11 +2,7 @@ import productRepository from '@/db/productRepository';
 import { DBProduct } from '@shared-types/db';
 import { isStaleProduct } from '@/utils/staleProductCheck';
 import { ProductSearchResponse } from '@shared-types/api';
-import {
-  isApiUsageExceeded,
-  handleApiRateLimit,
-  rateLimitedAxios,
-} from '@/utils/apiRateLimitHandler';
+import { rateLimiter } from '@/utils/apiRateLimitHandler';
 
 /**
  * Fetch products from the third-party API, perform caching, and handle stale updates.
@@ -20,18 +16,13 @@ export const fetchProducts = async (
   page: number,
   size: number
 ): Promise<ProductSearchResponse> => {
-  if (isApiUsageExceeded()) {
-    console.warn('API usage limit reached. Throwing rate limit exception.');
-    throw new Error('API_RATE_LIMIT_EXCEEDED');
-  }
-
   if (!query) {
     console.warn('Query parameter is missing.');
     throw new Error('Query parameter is required');
   }
 
   try {
-    const response = await rateLimitedAxios({
+    const response = await rateLimiter.fetch({
       method: 'GET',
       url: 'https://woolworths-products-api.p.rapidapi.com/woolworths/product-search/',
       headers: {
@@ -40,8 +31,6 @@ export const fetchProducts = async (
       },
       params: { query, page, size },
     });
-
-    handleApiRateLimit(response.headers);
 
     const results = await Promise.all(
       response.data.results.map(async (product: any) => {
@@ -107,16 +96,10 @@ export const fetchProductsByNameAndUrl = async (
     let cachedProduct = await productRepository.findByFields(product_name, url);
 
     if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
-      console.log('Using cache for product:', cachedProduct.id);
       return cachedProduct;
     }
 
-    if (isApiUsageExceeded()) {
-      console.warn('API usage limit reached. Throwing rate limit exception.');
-      throw new Error('API_RATE_LIMIT_EXCEEDED');
-    }
-
-    const response = await rateLimitedAxios({
+    const response = await rateLimiter.fetch({
       method: 'GET',
       url: 'https://woolworths-products-api.p.rapidapi.com/woolworths/product-search/',
       headers: {
@@ -125,8 +108,6 @@ export const fetchProductsByNameAndUrl = async (
       },
       params: { query: product_name, page: 1, size: 18 },
     });
-
-    handleApiRateLimit(response.headers);
 
     const results = response.data.results;
     if (!results || results.length === 0) {
@@ -181,16 +162,10 @@ export const fetchProductsByBarcode = async (
     );
 
     if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
-      console.log('Using cache for product:', cachedProduct.id);
       return cachedProduct;
     }
 
-    if (isApiUsageExceeded()) {
-      console.warn('API usage limit reached. Throwing rate limit exception.');
-      throw new Error('API_RATE_LIMIT_EXCEEDED');
-    }
-
-    const response = await rateLimitedAxios({
+    const response = await rateLimiter.fetch({
       method: 'GET',
       url: `https://woolworths-products-api.p.rapidapi.com/woolworths/barcode-search/${product.barcode}`,
       headers: {
@@ -198,8 +173,6 @@ export const fetchProductsByBarcode = async (
         'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
       },
     });
-
-    handleApiRateLimit(response.headers);
 
     const results = response.data.results;
     if (!results || results.length === 0) {
