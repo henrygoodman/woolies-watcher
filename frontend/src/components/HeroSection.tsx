@@ -1,5 +1,3 @@
-// /components/HeroSection.jsx
-
 'use client';
 
 import React, { useState } from 'react';
@@ -13,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search } from 'lucide-react';
+import { Search, Mail, Heart } from 'lucide-react';
 
 const categories = [
   { label: 'Beef Mince', value: 'beef-mince' },
@@ -21,6 +19,21 @@ const categories = [
   { label: 'Almond Milk', value: 'almond-milk' },
   { label: 'Organic Eggs', value: 'organic-eggs' },
   { label: 'Whole Grain Bread', value: 'whole-grain-bread' },
+];
+
+const steps = [
+  {
+    label: 'Search for products',
+    icon: <Search className="mt-1 mr-4 text-primary" size={20} />,
+  },
+  {
+    label: 'Add to your watchlist',
+    icon: <Heart className="mt-1 mr-4 text-primary" size={20} />,
+  },
+  {
+    label: 'Wait for price updates via email',
+    icon: <Mail className="mt-1 mr-4 text-primary" size={20} />,
+  },
 ];
 
 export const HeroSection = () => {
@@ -38,16 +51,28 @@ export const HeroSection = () => {
   };
 
   return (
-    <section className="w-full bg-background py-16">
-      <div className="container mx-auto px-4 text-center">
-        <div className="max-w-3xl mx-auto p-8 bg-card rounded-lg shadow-lg">
-          <h2 className="text-2xl md:text-5xl font-extrabold text-primary mb-6">
+    <section className="w-full bg-background py-8">
+      <div className="container mx-auto px-4">
+        <div className="max-w-5xl mx-auto p-8 bg-card rounded-xl shadow-xl">
+          {/* Hero Title */}
+          <h2 className="text-2xl md:text-5xl font-extrabold text-primary mb-4 text-center">
             Woolworths Product Tracker
           </h2>
-          <p className="text-lg md:text-2xl text-foreground mb-8">
-            Find products, add to your watchlist, and receive daily price
-            updates. Never miss a deal!
-          </p>
+
+          {/* Divider */}
+          <hr className="border-t-2 border-primary my-8 w-96 mx-auto" />
+
+          {/* Instructional Steps */}
+          <ol className="list-decimal list-outside text-left mb-8 space-y-4 pl-6">
+            {steps.map((step, index) => (
+              <li key={index} className="flex items-start">
+                {step.icon}
+                <span className="text-lg md:text-2xl text-foreground">
+                  <strong>{step.label}</strong>
+                </span>
+              </li>
+            ))}
+          </ol>
 
           {/* Dropdown and Button Container */}
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
