@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { fetchUserApi, updateUserApi } from '@/lib/api/userApi';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -96,33 +97,32 @@ export default function SettingsPage() {
         <p className="text-muted-foreground">Loading settings...</p>
       ) : (
         <>
-          {/* Email Field */}
+          {/* Email Section */}
           <div className="mb-6">
-            <Label htmlFor="email" className="block text-sm font-medium mb-2">
-              Email Address
-            </Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              disabled
-              className="w-full bg-muted cursor-not-allowed"
-            />
-            <p className="text-sm text-muted-foreground mt-2">
-              Currently, we can only send emails to your authenticated email
-              address.
-            </p>
-          </div>
-
-          {/* Toggle Email Updates */}
-          <div className="mb-6">
-            <Label
-              htmlFor="enable-emails"
-              className="block text-sm font-medium mb-2"
-            >
-              Enable Update Emails
-            </Label>
-            <div className="flex items-center space-x-2">
+            <h2 className="text-xl font-semibold mb-4">Email</h2>
+            <div className="mb-4">
+              <Label htmlFor="email" className="block text-sm font-medium mb-2">
+                Email Address
+              </Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                disabled
+                className="w-full bg-muted cursor-not-allowed"
+              />
+              <p className="text-sm text-muted-foreground mt-2">
+                Currently, we can only send emails to your authenticated email
+                address.
+              </p>
+            </div>
+            <div className="flex items-center justify-between mb-4">
+              <Label
+                htmlFor="enable-emails"
+                className="block text-sm font-medium"
+              >
+                Enable Update Emails
+              </Label>
               <Switch
                 id="enable-emails"
                 checked={enableEmails}
@@ -132,8 +132,25 @@ export default function SettingsPage() {
             </div>
           </div>
 
+          {/* Divider */}
+          <hr className="border-t border-muted my-6" />
+
+          {/* Appearance Section */}
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold mb-4">Appearance</h2>
+            <div className="flex items-center justify-between">
+              <Label
+                htmlFor="theme-toggle"
+                className="block text-sm font-medium"
+              >
+                Theme
+              </Label>
+              <ThemeToggle />
+            </div>
+          </div>
+
           {/* Save Button */}
-          <div className="mt-4">
+          <div className="mt-6">
             <Button onClick={handleSave} className="w-full" disabled={!isDirty}>
               Save Changes
             </Button>

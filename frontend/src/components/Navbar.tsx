@@ -11,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ThemeToggle } from '@/components/ThemeToggle';
 import { SearchBar } from '@/components/ui/search-bar';
 
 export const Navbar: React.FC = () => {
@@ -45,8 +44,6 @@ export const Navbar: React.FC = () => {
 
         {/* Right Section */}
         <div className="flex items-center space-x-4">
-          <ThemeToggle />
-
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
