@@ -8,6 +8,7 @@ export const useFetchProducts = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [resultSize, setResultSize] = useState(0);
 
   const fetchProducts = async (query: string, page: number, size: number) => {
     setLoading(true);
@@ -17,6 +18,7 @@ export const useFetchProducts = () => {
       setProducts(data.results);
       setCurrentPage(data.page);
       setTotalPages(data.total);
+      setResultSize(data.size);
     } catch (err) {
       console.error('Error in fetchProducts:', err);
       if (query !== '') {
@@ -35,5 +37,6 @@ export const useFetchProducts = () => {
     currentPage,
     totalPages,
     fetchProducts,
+    resultSize,
   };
 };

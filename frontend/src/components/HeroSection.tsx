@@ -14,11 +14,11 @@ import {
 import { Search, Mail, Heart } from 'lucide-react';
 
 const categories = [
-  { label: 'Beef Mince', value: 'beef-mince' },
-  { label: 'Whey Protein', value: 'whey-protein' },
-  { label: 'Almond Milk', value: 'almond-milk' },
-  { label: 'Organic Eggs', value: 'organic-eggs' },
-  { label: 'Whole Grain Bread', value: 'whole-grain-bread' },
+  { label: 'Beef Mince', value: 'Beef Mince' },
+  { label: 'Whey Protein', value: 'Whey Protein' },
+  { label: 'Almond Milk', value: 'Almond Milk' },
+  { label: 'Organic Eggs', value: 'Organic Eggs' },
+  { label: 'Whole Grain Bread', value: 'Whole Grain Bread' },
 ];
 
 const steps = [
@@ -42,7 +42,7 @@ export const HeroSection = () => {
 
   const handleSearch = (query: string) => {
     if (query) {
-      router.push(`/search?search=${encodeURIComponent(query)}`);
+      router.push(`/search?q=${encodeURIComponent(query)}`);
     }
   };
 

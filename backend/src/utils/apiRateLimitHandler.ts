@@ -1,5 +1,12 @@
 import axios from 'axios';
 
+export class ApiRateLimitExceededError extends Error {
+  constructor(message = 'API rate limit exceeded') {
+    super(message);
+    this.name = 'ApiRateLimitExceededError';
+  }
+}
+
 class RateLimiter {
   private apiUsageExceeded: boolean;
   private resetTimeout: NodeJS.Timeout | null;
@@ -26,6 +33,8 @@ class RateLimiter {
       10
     );
 
+    // TODO: Remove this? Do we care about knowing the limit at a given time
+    // (as opposed to just knowing if its used?)
     console.log('Performed API call. Remaining requests:', remainingRequests);
 
     const resetTime = parseInt(headers['x-ratelimit-requests-reset'], 10);
@@ -75,7 +84,7 @@ class RateLimiter {
       const executeRequest = async (retryCount: number) => {
         if (this.apiUsageExceeded) {
           console.warn('API usage limit exceeded. Blocking request.');
-          return reject(new Error('API_RATE_LIMIT_EXCEEDED'));
+          return reject(new ApiRateLimitExceededError());
         }
 
         try {
@@ -86,15 +95,20 @@ class RateLimiter {
           }
 
           resolve(response);
-        } catch (error) {
+        } catch (error: any) {
           if (retryCount < this.maxRetries) {
             console.warn(
-              `Retrying request... (${retryCount + 1}/${this.maxRetries})`
+              `Retrying request (${retryCount + 1}/${this.maxRetries})`
             );
             this.requestQueue.push(() => executeRequest(retryCount + 1));
             this.processQueue();
           } else {
-            console.error('Request failed after retries:', error);
+            console.error(`Request failed after ${this.maxRetries} retries`, {
+              method: config.method,
+              url: config.url,
+              params: config.params,
+              headers: config.headers,
+            });
             reject(error);
           }
         }

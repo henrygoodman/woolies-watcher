@@ -8,7 +8,7 @@ export const DBProductSchema = z.object({
   watch_count: z.number().optional(),
   product_size: z.string().nullable(),
   url: z.string(),
-  image_url: z.string().nullable(),
+  image_url: z.string().optional().nullable(),
   current_price: z.number(),
   last_updated: z.preprocess(
     (value) => (typeof value === 'string' ? new Date(value) : value),

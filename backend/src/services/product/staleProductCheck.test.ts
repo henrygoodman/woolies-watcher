@@ -1,4 +1,4 @@
-import { isStaleProduct } from '@/utils/staleProductCheck';
+import { isStaleProduct } from '@/services/product/staleProductCheck';
 import { CUTOFF_HOUR_UTC } from '@/constants/sync';
 
 describe('isStaleProduct', () => {

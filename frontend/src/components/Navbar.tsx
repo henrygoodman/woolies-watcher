@@ -19,7 +19,7 @@ export const Navbar: React.FC = () => {
   const router = useRouter();
 
   const handleSearch = (query: string) => {
-    router.push(`/search?search=${encodeURIComponent(query)}`);
+    router.push(`/search?q=${encodeURIComponent(query)}`);
   };
 
   return (

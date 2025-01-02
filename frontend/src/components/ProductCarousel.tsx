@@ -66,14 +66,6 @@ export const ProductCarousel: React.FC = () => {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    if (!api) return;
-
-    api.on('select', () => {
-      console.log('Slide selected:', api.selectedScrollSnap());
-    });
-  }, [api]);
-
   if (loading) return <LoadingIndicator />;
   if (error) return <ErrorMessage message={error} />;
 

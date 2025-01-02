@@ -1,8 +1,15 @@
 import productRepository from '@/db/productRepository';
-import { DBProduct } from '@shared-types/db';
-import { isStaleProduct } from '@/utils/staleProductCheck';
+import { DBProduct, DBProductSchema } from '@shared-types/db';
+import { isStaleProduct } from '@/services/product/staleProductCheck';
 import { ProductSearchResponse } from '@shared-types/api';
 import { rateLimiter } from '@/utils/apiRateLimitHandler';
+
+export class NoProductsFoundError extends Error {
+  constructor(message = 'No products found for the given query') {
+    super(message);
+    this.name = 'NoProductsFoundError';
+  }
+}
 
 /**
  * Fetch products from the third-party API, perform caching, and handle stale updates.
@@ -32,48 +39,47 @@ export const fetchProducts = async (
       params: { query, page, size },
     });
 
-    const results = await Promise.all(
-      response.data.results.map(async (product: any) => {
-        const product_url = product.url;
-        const product_name = product.product_name;
-        const barcode = product.barcode ? String(product.barcode) : null;
+    if (!Array.isArray(response.data.results)) {
+      throw new Error('Invalid API response');
+    }
 
-        let cachedProduct = await productRepository.findByFields(
-          product_name,
-          product_url
+    const results: DBProduct[] = await Promise.all(
+      response.data.results.map(async (apiProduct: unknown) => {
+        const validatedProduct = preprocessAndValidateProduct(apiProduct);
+
+        const cachedProduct = await productRepository.findByFields(
+          validatedProduct.product_name,
+          validatedProduct.url
         );
 
-        // Only attempt to update product if it is out of date
         if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
           return cachedProduct;
         }
 
-        const productId = product_url.split('/').pop();
-        const image_url = `https://assets.woolworths.com.au/images/1005/${productId}.jpg?impolicy=wowsmkqiema&w=600&h=600`;
+        const image_url = generateImageUrl(validatedProduct.url);
 
-        const productToSave: DBProduct = {
+        return await productRepository.create({
+          ...validatedProduct,
           id: cachedProduct?.id,
-          barcode: barcode,
-          product_name,
-          product_brand: product.product_brand,
-          current_price: parseFloat(product.current_price),
-          product_size: product.product_size,
-          url: product_url,
           image_url,
-          last_updated: new Date(),
-        };
-
-        return await productRepository.create(productToSave);
+        });
       })
     );
 
     return {
       page,
-      size,
+      size: response.data.total_results,
       total: response.data.total_pages,
       results,
     };
-  } catch (error) {
+  } catch (error: any) {
+    // 3rd party API throws a 500 for no results instead of 200
+    if (
+      error.response?.status === 500 &&
+      error.response?.data?.detail === '404: No products found'
+    ) {
+      return { page, size: 0, total: 0, results: [] };
+    }
     console.error('Error fetching and processing products:', error);
     throw new Error('Failed to fetch and process products');
   }
@@ -93,7 +99,10 @@ export const fetchProductsByNameAndUrl = async (
   }
 
   try {
-    let cachedProduct = await productRepository.findByFields(product_name, url);
+    const cachedProduct = await productRepository.findByFields(
+      product_name,
+      url
+    );
 
     if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
       return cachedProduct;
@@ -109,34 +118,24 @@ export const fetchProductsByNameAndUrl = async (
       params: { query: product_name, page: 1, size: 18 },
     });
 
-    const results = response.data.results;
-    if (!results || results.length === 0) {
-      console.warn('No results found for product:', product_name);
+    if (!Array.isArray(response.data.results)) {
       return null;
     }
 
-    const apiProduct = results.find((p: any) => p.url === url);
+    const apiProduct = response.data.results.find((p: any) => p.url === url);
     if (!apiProduct) {
-      console.warn('No matching product found for URL:', url);
       return null;
     }
 
-    const productId = url.split('/').pop();
-    const image_url = `https://assets.woolworths.com.au/images/1005/${productId}.jpg?impolicy=wowsmkqiema&w=600&h=600`;
+    const validatedProduct = preprocessAndValidateProduct(apiProduct);
 
-    const productToSave: DBProduct = {
+    const image_url = generateImageUrl(validatedProduct.url);
+
+    return await productRepository.create({
+      ...validatedProduct,
       id: cachedProduct?.id,
-      barcode: apiProduct.barcode ? String(apiProduct.barcode) : null,
-      product_name: apiProduct.product_name,
-      product_brand: apiProduct.product_brand,
-      current_price: parseFloat(apiProduct.current_price),
-      product_size: apiProduct.product_size,
-      url: apiProduct.url,
       image_url,
-      last_updated: new Date(),
-    };
-
-    return await productRepository.create(productToSave);
+    });
   } catch (error) {
     console.error('Error fetching product by name and URL:', error);
     throw new Error('Failed to fetch or update product.');
@@ -156,7 +155,7 @@ export const fetchProductsByBarcode = async (
   }
 
   try {
-    let cachedProduct = await productRepository.findByFields(
+    const cachedProduct = await productRepository.findByFields(
       product.product_name,
       product.url
     );
@@ -174,31 +173,53 @@ export const fetchProductsByBarcode = async (
       },
     });
 
-    const results = response.data.results;
-    if (!results || results.length === 0) {
-      console.warn('No results found for barcode:', product.barcode);
+    if (!response.data?.results || response.data.results.length === 0) {
       return null;
     }
 
-    const apiProduct = results[0];
-    const productId = apiProduct.url.split('/').pop();
-    const image_url = `https://assets.woolworths.com.au/images/1005/${productId}.jpg?impolicy=wowsmkqiema&w=600&h=600`;
+    const apiProduct = response.data.results[0];
+    const validatedProduct = preprocessAndValidateProduct(apiProduct);
 
-    const productToSave: DBProduct = {
+    const image_url = generateImageUrl(validatedProduct.url);
+
+    return await productRepository.create({
+      ...validatedProduct,
       id: cachedProduct?.id,
-      barcode: product.barcode,
-      product_name: apiProduct.product_name,
-      product_brand: apiProduct.product_brand,
-      current_price: parseFloat(apiProduct.current_price),
-      product_size: apiProduct.product_size,
-      url: apiProduct.url,
       image_url,
-      last_updated: new Date(),
-    };
-
-    return await productRepository.create(productToSave);
+    });
   } catch (error) {
     console.error('Error fetching product by barcode:', error);
     throw new Error('Failed to fetch or update product.');
   }
+};
+
+/**
+ * Preprocesses and validates an API product object.
+ * @param apiProduct - The raw product object from the API.
+ * @returns A validated and preprocessed DBProduct.
+ */
+const preprocessAndValidateProduct = (apiProduct: unknown): DBProduct => {
+  if (typeof apiProduct !== 'object' || apiProduct === null) {
+    throw new Error('Invalid API product format');
+  }
+
+  const preprocessedProduct = {
+    ...apiProduct,
+    barcode: (apiProduct as any).barcode
+      ? String((apiProduct as any).barcode)
+      : null,
+    last_updated: new Date(),
+  };
+
+  return DBProductSchema.parse(preprocessedProduct);
+};
+
+/**
+ * Generates an image URL for the product.
+ * @param url - The product URL.
+ * @returns The generated image URL.
+ */
+const generateImageUrl = (url: string): string => {
+  const productId = url.split('/').pop();
+  return `https://assets.woolworths.com.au/images/1005/${productId}.jpg?impolicy=wowsmkqiema&w=600&h=600`;
 };

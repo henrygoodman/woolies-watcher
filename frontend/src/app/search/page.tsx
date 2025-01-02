@@ -12,18 +12,24 @@ export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { products, loading, error, currentPage, totalPages, fetchProducts } =
-    useFetchProducts();
+  const {
+    products,
+    loading,
+    error,
+    currentPage,
+    totalPages,
+    resultSize,
+    fetchProducts,
+  } = useFetchProducts();
 
-  // Default value for perPage to avoid null issues
   const [perPage, setPerPage] = useState(() => {
     const size = searchParams?.get('size');
-    return size ? parseInt(size, 10) : 18; // Default to 18
+    return size ? parseInt(size, 10) : 18;
   });
 
   useEffect(() => {
     if (searchParams) {
-      const searchQuery = searchParams.get('search') || '';
+      const searchQuery = searchParams.get('q') || '';
       const page = parseInt(searchParams.get('page') || '1', 10);
       const perPageFromQuery = parseInt(searchParams.get('size') || '18', 10);
 
@@ -37,30 +43,60 @@ export default function SearchPage() {
   }, [searchParams]);
 
   const handlePagination = (page: number) => {
-    const query = searchParams?.get('search') || '';
-    router.push(`/search?search=${query}&page=${page}&size=${perPage}`);
+    const query = searchParams?.get('q') || '';
+    router.push(`/search?q=${query}&page=${page}&size=${perPage}`);
     fetchProducts(query, page, perPage);
   };
 
   const handlePerPageChange = (newPerPage: number) => {
     setPerPage(newPerPage);
-    const query = searchParams?.get('search') || '';
-    router.push(`/search?search=${query}&page=1&size=${newPerPage}`);
+    const query = searchParams?.get('q') || '';
+    router.push(`/search?q=${query}&page=1&size=${newPerPage}`);
     fetchProducts(query, 1, newPerPage);
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="flex flex-col items-center p-8">
+      <div className="flex flex-col items-center">
         {loading && <LoadingIndicator />}
         {error && <ErrorMessage message={error} />}
 
         {!loading && !error && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
-            {products.map((product, index) => (
-              <ProductCard key={index} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="w-full text-center mt-4">
+              {resultSize > 0 ? (
+                <p className="text-lg font-semibold">
+                  Found <span className="text-primary">{resultSize}</span>{' '}
+                  result
+                  {resultSize > 1 ? 's' : ''} for{' '}
+                  <span className="italic">
+                    "{searchParams?.get('q') || ''}"
+                  </span>
+                </p>
+              ) : (
+                <div className="text-center mt-8">
+                  <p className="text-lg font-semibold text-gray-500">
+                    No results found for{' '}
+                    <span className="italic">
+                      "{searchParams?.get('q') || 'your query'}"
+                    </span>
+                    .
+                  </p>
+                  <p className="mt-2 text-sm text-gray-400">
+                    Try adjusting your search or using different keywords.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {resultSize > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
+                {products.map((product, index) => (
+                  <ProductCard key={index} product={product} />
+                ))}
+              </div>
+            )}
+          </>
         )}
 
         {products.length > 0 && (

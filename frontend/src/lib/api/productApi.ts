@@ -49,12 +49,11 @@ export const fetchProductsApi = async (
 
   const json = await response.json();
 
-  // Validate with Zod (assuming ProductSearchResponseSchema exists)
   const ProductSearchResponseSchema = z.object({
     results: z.array(DBProductSchema),
     total: z.number(),
     page: z.number(),
-    size: z.number(),
+    size: z.number(), // the count of results
   });
   return ProductSearchResponseSchema.parse(json);
 };

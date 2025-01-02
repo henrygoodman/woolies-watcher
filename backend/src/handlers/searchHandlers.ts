@@ -4,6 +4,7 @@ import {
   fetchProductsByNameAndUrl,
 } from '@/services/product/productService';
 import { parseQueryParams } from '@/utils/parseQueryParams';
+import { ApiRateLimitExceededError } from '@/utils/apiRateLimitHandler';
 
 /**
  * Handles product search requests with pagination.
@@ -26,14 +27,12 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
     const searchResults = await fetchProducts(query, page, size);
     res.status(200).json(searchResults);
   } catch (error: any) {
-    if (error.message === 'API_RATE_LIMIT_EXCEEDED') {
-      console.error('Rate limit reached:', error);
-      res.status(429).json({
-        error: 'Rate limit reached. Please try again later.',
-      });
+    if (error instanceof ApiRateLimitExceededError) {
+      console.error('429:', error.message);
+      res.status(429).json({ error: error.message });
     } else {
-      console.error('Error occurred during product search:', error);
-      res.status(500).json({ error: 'Failed to fetch data' });
+      console.error('500:', error.message);
+      res.status(500).json({ error: 'Failed to fetch data.' });
     }
   }
 };
@@ -51,23 +50,13 @@ export const handleSearchProductByNameAndUrl: RequestHandler = async (
 
   try {
     const product = await fetchProductsByNameAndUrl(product_name, url);
-
-    if (!product) {
-      res
-        .status(404)
-        .json({ error: 'Product not found or could not be updated' });
-      return;
-    }
-
-    res.json(product);
+    res.status(200).json(product);
   } catch (error: any) {
-    if (error.message === 'API_RATE_LIMIT_EXCEEDED') {
-      console.error('Rate limit reached:', error);
-      res.status(429).json({
-        error: 'Rate limit reached. Please try again later.',
-      });
+    if (error instanceof ApiRateLimitExceededError) {
+      console.error('429:', error.message);
+      res.status(429).json({ error: error.message });
     } else {
-      console.error('Error fetching product by name and URL:', error);
+      console.error('500:', error);
       res.status(500).json({ error: 'Failed to fetch or update product' });
     }
   }

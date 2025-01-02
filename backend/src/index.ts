@@ -7,50 +7,13 @@ import { initMailer } from '@/services/email/index';
 import { rateLimitMiddleware } from '@/middleware/rateLimiter';
 import { initializeCronJobs } from './jobs';
 import { initSeeding } from '@/utils/seedWatchlist';
+import setupLogging from './utils/loggingConfig';
 
-// TODO: Assert some dotenv values exist (we dont want graceful fallback)
+// Setup environment variables
 dotenv.config();
 
-// TODO: Move logging config to separate file
-const getCallerInfo = () => {
-  const error = new Error();
-  const stack = error.stack || '';
-  const stackLines = stack.split('\n');
-
-  const callerLine = stackLines[3];
-  const match = callerLine?.match(/\((.*):(\d+):(\d+)\)/);
-
-  if (match) {
-    const filePath = match[1];
-    const lineNumber = match[2];
-    const columnNumber = match[3];
-    return `${filePath}:${lineNumber}:${columnNumber}`;
-  }
-
-  return 'unknown location';
-};
-
-const originalConsoleLog = console.log;
-const originalConsoleError = console.error;
-const originalConsoleWarn = console.warn;
-
-console.log = (...args) => {
-  const timestamp = new Date().toISOString();
-  const callerInfo = getCallerInfo();
-  originalConsoleLog(`[INFO - ${timestamp}] [${callerInfo}]`, ...args);
-};
-
-console.error = (...args) => {
-  const timestamp = new Date().toISOString();
-  const callerInfo = getCallerInfo();
-  originalConsoleError(`[ERROR - ${timestamp}] [${callerInfo}]`, ...args);
-};
-
-console.warn = (...args) => {
-  const timestamp = new Date().toISOString();
-  const callerInfo = getCallerInfo();
-  originalConsoleWarn(`[WARN - ${timestamp}] [${callerInfo}]`, ...args);
-};
+// Setup logging
+setupLogging();
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '5000', 10);
