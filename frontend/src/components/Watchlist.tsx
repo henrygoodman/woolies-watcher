@@ -35,7 +35,7 @@ export const Watchlist: React.FC = () => {
   if (error) return <ErrorMessage message={error} />;
 
   return (
-    <div className="container mx-auto">
+    <div className="container mx-auto max-w-5xl">
       <h2 className="text-2xl font-bold mb-4">Your Watchlist</h2>
       <DataTable
         columns={columns(setWatchlist, removeFromWatchlist)}
