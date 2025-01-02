@@ -56,7 +56,7 @@ class ProductRepository extends GenericRepository<DBProduct> {
           product_id: existingProduct.id!,
           old_price: existingProduct.current_price,
           new_price: product.current_price,
-          updated_at: new Date().toISOString(),
+          updated_at: new Date(),
         });
       }
     }

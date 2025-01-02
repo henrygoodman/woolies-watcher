@@ -9,10 +9,7 @@ export const DBProductSchema = z.object({
   product_size: z.string().nullable(),
   url: z.string(),
   image_url: z.string().nullable(),
-  current_price: z.preprocess(
-    (value) => (typeof value === 'string' ? parseFloat(value) : value),
-    z.number()
-  ) as z.ZodType<number, z.ZodTypeDef, number>,
+  current_price: z.number(),
   last_updated: z.preprocess(
     (value) => (typeof value === 'string' ? new Date(value) : value),
     z.date()
