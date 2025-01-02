@@ -33,9 +33,15 @@ class RateLimiter {
       10
     );
 
-    // TODO: Remove this? Do we care about knowing the limit at a given time
-    // (as opposed to just knowing if its used?)
-    console.log('Performed API call. Remaining requests:', remainingRequests);
+    const dailyLimit = parseInt(headers['x-ratelimit-requests-limit'], 10);
+
+    if (remainingRequests <= dailyLimit / 10) {
+      console.warn(
+        'Reaching RapidAPI request limit:',
+        remainingRequests,
+        ' remaining'
+      );
+    }
 
     const resetTime = parseInt(headers['x-ratelimit-requests-reset'], 10);
 
