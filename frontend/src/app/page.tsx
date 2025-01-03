@@ -52,7 +52,7 @@ export default function Home() {
         <>
           <div className="flex flex-col items-center p-8">
             <h1 className="text-4xl font-bold mb-8 text-primary">
-              Price Decreases
+              Recent Discounts
             </h1>
             {/* Carousel for price decreases */}
             <div className="w-full max-w-5xl">
@@ -62,7 +62,7 @@ export default function Home() {
 
           <div className="flex flex-col items-center p-8">
             <h1 className="text-4xl font-bold mb-8 text-primary">
-              Price Increases
+              Recent Markups
             </h1>
             {/* Carousel for price increases */}
             <div className="w-full max-w-5xl">

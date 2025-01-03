@@ -1,4 +1,3 @@
-import { PRICE_CHANGE_CUTOFF_TIME_UTC } from '@/constants/sync';
 import { GenericRepository } from '@/db/GenericRepository';
 import pool from '@/db/pool';
 import { DBPriceUpdate, DBPriceUpdateSchema } from '@shared-types/db';
@@ -80,52 +79,86 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
   }
 
   /**
-   * Fetch the top N largest discounts for the past `days` days.
-   * Only considers price updates after the daily cutoff time.
-   * Ensures one entry per product with the largest percentage change.
+   * Fetch the top N largest price increases for the past `days` days.
+   * Aggregates multiple updates into a single DBPriceUpdate-like object.
    */
-  async getTopPriceDec(limit: number, days: number): Promise<DBPriceUpdate[]> {
+  async getTopPriceInc(limit: number, days: number): Promise<DBPriceUpdate[]> {
     const query = `
-    SELECT DISTINCT ON (product_id) *, 
-           ((old_price - new_price) / old_price) * 100 AS percentage_change
-    FROM price_updates
-    WHERE old_price > 0
-      AND new_price < old_price
-      AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
-    ORDER BY product_id, percentage_change DESC
+    WITH aggregated_changes AS (
+      SELECT 
+        product_id,
+        MIN(old_price) AS min_old_price,
+        MAX(new_price) AS max_new_price,
+        ((MAX(new_price) - MIN(old_price)) / MIN(old_price)) * 100 AS percentage_change,
+        MAX(updated_at) AS updated_at
+      FROM price_updates
+      WHERE old_price > 0
+        AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
+      GROUP BY product_id
+      HAVING MAX(new_price) > MIN(old_price)
+    )
+    SELECT *
+    FROM aggregated_changes
+    ORDER BY percentage_change DESC
     LIMIT $1;
   `;
+
     try {
       const result = await pool.query(query, [limit]);
-      return result.rows.map((row) => DBPriceUpdateSchema.parse(row));
+
+      const priceUpdates = result.rows.map((row) => ({
+        product_id: row.product_id,
+        old_price: row.min_old_price,
+        new_price: row.max_new_price,
+        updated_at: row.updated_at,
+      }));
+
+      return priceUpdates.map((update) => DBPriceUpdateSchema.parse(update));
     } catch (error) {
-      console.error('Error fetching top discounts:', error);
-      throw new Error('Failed to fetch top discounts');
+      console.error('Error fetching top price increases:', error);
+      throw new Error('Failed to fetch top price increases');
     }
   }
 
   /**
-   * Fetch the top N largest price increases for the past `days` days.
-   * Only considers price updates after the daily cutoff time.
-   * Ensures one entry per product with the largest percentage change.
+   * Fetch the top N largest price decreases for the past `days` days.
+   * Aggregates multiple updates into a single DBPriceUpdate-like object.
    */
-  async getTopPriceInc(limit: number, days: number): Promise<DBPriceUpdate[]> {
+  async getTopPriceDec(limit: number, days: number): Promise<DBPriceUpdate[]> {
     const query = `
-    SELECT DISTINCT ON (product_id) *, 
-           ((new_price - old_price) / old_price) * 100 AS percentage_change
-    FROM price_updates
-    WHERE old_price > 0
-      AND new_price > old_price
-      AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
-    ORDER BY product_id, percentage_change DESC
+    WITH aggregated_changes AS (
+      SELECT 
+        product_id,
+        MIN(old_price) AS min_old_price,
+        MAX(new_price) AS max_new_price,
+        ((MIN(old_price) - MAX(new_price)) / MIN(old_price)) * 100 AS percentage_change,
+        MAX(updated_at) AS updated_at
+      FROM price_updates
+      WHERE old_price > 0
+        AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
+      GROUP BY product_id
+      HAVING MAX(new_price) < MIN(old_price)
+    )
+    SELECT *
+    FROM aggregated_changes
+    ORDER BY percentage_change DESC
     LIMIT $1;
   `;
+
     try {
       const result = await pool.query(query, [limit]);
-      return result.rows.map((row) => DBPriceUpdateSchema.parse(row));
+
+      const priceUpdates = result.rows.map((row) => ({
+        product_id: row.product_id,
+        old_price: row.min_old_price,
+        new_price: row.max_new_price,
+        updated_at: row.updated_at,
+      }));
+
+      return priceUpdates.map((update) => DBPriceUpdateSchema.parse(update));
     } catch (error) {
-      console.error('Error fetching top price increases:', error);
-      throw new Error('Failed to fetch top price increases');
+      console.error('Error fetching top price decreases:', error);
+      throw new Error('Failed to fetch top price decreases');
     }
   }
 }

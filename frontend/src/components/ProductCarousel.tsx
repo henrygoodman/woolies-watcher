@@ -47,7 +47,9 @@ interface ProductCarouselProps {
 export const ProductCarousel: React.FC<ProductCarouselProps> = ({
   productList,
 }) => {
-  const [products, setProducts] = useState<DBProduct[]>([]);
+  const [products, setProducts] = useState<
+    { product: DBProduct; old_price?: number }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [api, setApi] = useState<CarouselApi | null>(null);
@@ -60,7 +62,10 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
             fetchProductByNameAndUrlApi(product_name, url)
           )
         );
-        setProducts(fetchedProducts);
+        const mappedProducts = fetchedProducts.map((product) => ({
+          product,
+        }));
+        setProducts(mappedProducts);
       } catch (err) {
         console.error('Error fetching products:', err);
         setError('Failed to load products: ' + err);
@@ -75,7 +80,9 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
       ): product is PriceUpdateWithProduct => 'product' in product;
 
       const mappedProducts = productList.map((item) =>
-        isPriceUpdateWithProduct(item) ? item.product : item
+        isPriceUpdateWithProduct(item)
+          ? { product: item.product, old_price: item.old_price }
+          : { product: item }
       );
       setProducts(mappedProducts);
       setLoading(false);
@@ -99,12 +106,12 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
         className="overflow-visible p-4"
       >
         <CarouselContent className="-ml-4 sm:-ml-8">
-          {products.map((product) => (
+          {products.map(({ product, old_price }) => (
             <CarouselItem
               key={product.id}
               className="basis-full sm:basis-1/3 pl-4 sm:pl-8"
             >
-              <ProductCard product={product} />
+              <ProductCard product={product} oldPrice={old_price} />
             </CarouselItem>
           ))}
         </CarouselContent>

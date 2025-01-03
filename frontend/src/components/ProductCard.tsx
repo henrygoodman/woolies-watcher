@@ -15,9 +15,20 @@ import { HeartIcon } from '@/components/HeartIcon';
 
 interface ProductCardProps {
   product: DBProduct;
+  oldPrice?: number; // Optional old price prop
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  oldPrice,
+}) => {
+  // Calculate the price change percentage if oldPrice is provided
+  const priceDifference = oldPrice
+    ? (((product.current_price - oldPrice) / oldPrice) * 100).toFixed(2)
+    : null;
+
+  const isDiscount = oldPrice && product.current_price < oldPrice; // Check if it's a discount
+
   return (
     <Card className="relative w-full flex flex-col bg-card text-card-foreground border border-border rounded-xl overflow-hidden h-full">
       <HeartIcon product={product} />
@@ -47,12 +58,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </CardDescription>
         </CardHeader>
 
-        {/* Price and Footer */}
+        {/* Price and Discount Info */}
         <CardContent className="flex-1 flex flex-col justify-end p-0 mt-2">
-          <p className="text-primary font-bold text-lg mb-2">
-            ${product.current_price.toFixed(2)}
-          </p>
-          <CardFooter className="p-0">
+          <div className="flex items-center justify-between">
+            <p className="text-primary font-bold text-lg mb-2">
+              ${product.current_price.toFixed(2)}
+            </p>
+
+            {oldPrice && (
+              <div
+                className={`text-sm font-semibold ${
+                  isDiscount ? 'text-green-600' : 'text-red-600'
+                }`}
+              >
+                {isDiscount ? '-' : '+'}
+                {Math.abs(Number(priceDifference))}%
+              </div>
+            )}
+          </div>
+
+          {oldPrice && (
+            <p className="text-muted-foreground text-sm line-through">
+              ${oldPrice.toFixed(2)}
+            </p>
+          )}
+
+          <CardFooter className="p-0 mt-2">
             <Link
               href={`/product/${product.id}`}
               className="w-full text-center bg-primary text-primary-foreground font-medium py-2 px-4 rounded-md transition-all hover:bg-primary/90"

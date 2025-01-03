@@ -48,8 +48,8 @@ export const handleGetTopDailyPriceChanges: RequestHandler = async (
 
   try {
     const [topDiscounts, topIncreases] = await Promise.all([
-      priceRepository.getTopPriceInc(parsedLimit, parsedDays),
       priceRepository.getTopPriceDec(parsedLimit, parsedDays),
+      priceRepository.getTopPriceInc(parsedLimit, parsedDays),
     ]);
 
     const enrichWithProduct = async (priceUpdates: typeof topDiscounts) => {
