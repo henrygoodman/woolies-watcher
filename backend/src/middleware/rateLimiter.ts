@@ -11,7 +11,7 @@ const BLOCKLIST_KEY = 'blocklist:permanent';
 const COOLDOWN_PREFIX = 'cooldown:';
 const STRIKES_PREFIX = 'strikes:';
 const STRIKE_LIMIT = 3;
-const MAX_API_CALLS_PER_MINUTE = 10;
+const MAX_API_CALLS_PER_MINUTE = 30;
 const COOLDOWN_DURATION_SECONDS = 600;
 
 /**
