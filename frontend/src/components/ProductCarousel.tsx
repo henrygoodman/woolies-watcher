@@ -15,7 +15,7 @@ import { type DBProduct } from '@shared-types/db';
 import { fetchProductByNameAndUrlApi } from '@/lib/api/productApi';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { ErrorMessage } from '@/components/ErrorMessage';
-import { ProductIdentifier } from '@shared-types/api';
+import { PriceUpdateWithProduct, ProductIdentifier } from '@shared-types/api';
 
 const productIdentifiers: ProductIdentifier[] = [
   {
@@ -40,7 +40,13 @@ const productIdentifiers: ProductIdentifier[] = [
   },
 ];
 
-export const ProductCarousel: React.FC = () => {
+interface ProductCarouselProps {
+  productList?: (DBProduct | PriceUpdateWithProduct)[];
+}
+
+export const ProductCarousel: React.FC<ProductCarouselProps> = ({
+  productList,
+}) => {
   const [products, setProducts] = useState<DBProduct[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,8 +69,20 @@ export const ProductCarousel: React.FC = () => {
       }
     };
 
-    fetchProducts();
-  }, []);
+    if (productList) {
+      const isPriceUpdateWithProduct = (
+        product: DBProduct | PriceUpdateWithProduct
+      ): product is PriceUpdateWithProduct => 'product' in product;
+
+      const mappedProducts = productList.map((item) =>
+        isPriceUpdateWithProduct(item) ? item.product : item
+      );
+      setProducts(mappedProducts);
+      setLoading(false);
+    } else {
+      fetchProducts();
+    }
+  }, [productList]);
 
   if (loading) return <LoadingIndicator />;
   if (error) return <ErrorMessage error={error} />;
