@@ -1,10 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
+import { RequestHandler } from 'express';
 
-const errorLogMiddleware = (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const errorLogMiddleware: RequestHandler = async (req, res, next) => {
   res.on('finish', () => {
     if (res.statusCode >= 400 && res.statusCode < 600) {
       console.log(

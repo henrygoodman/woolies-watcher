@@ -32,7 +32,7 @@ export const Watchlist: React.FC = () => {
   }, []);
 
   if (loading) return <LoadingIndicator />;
-  if (error) return <ErrorMessage message={error} />;
+  if (error) return <ErrorMessage error={error} />;
 
   return (
     <div className="container mx-auto max-w-5xl">

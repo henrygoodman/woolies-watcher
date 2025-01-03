@@ -46,7 +46,7 @@ export default function ProductDetailsPage() {
   }, [product]);
 
   if (loading) return <LoadingIndicator />;
-  if (error || !product) return <ErrorMessage message={error || 'Not found'} />;
+  if (error || !product) return <ErrorMessage error={error || 'Not found'} />;
 
   return (
     <div className="container max-w-5xl mx-auto p-8">

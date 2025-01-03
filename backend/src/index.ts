@@ -4,7 +4,6 @@ import cors from 'cors';
 import routes from '@/routes';
 import errorLogMiddleware from '@/middleware/errorLogMiddleware';
 import { initMailer } from '@/services/email/index';
-import { rateLimitMiddleware } from '@/middleware/rateLimiter';
 import { initializeCronJobs } from './jobs';
 import { initSeeding } from '@/utils/seedWatchlist';
 import setupLogging from './utils/loggingConfig';
@@ -25,7 +24,6 @@ app.use(
   })
 );
 
-app.use(rateLimitMiddleware);
 app.use(express.json());
 app.use(errorLogMiddleware);
 app.use('/api', routes);

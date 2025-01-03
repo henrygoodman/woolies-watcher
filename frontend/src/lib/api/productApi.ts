@@ -6,6 +6,30 @@ import {
 import { DBProduct, DBProductSchema } from '@shared-types/db';
 import { z } from 'zod';
 
+export class ApiRateLimitError extends Error {
+  title: string;
+
+  constructor(
+    message: string = 'Whoa! You’re searching too quickly.\nTry again later, and slow down or you may be permanently blocked.'
+  ) {
+    super(message);
+    this.name = 'ApiRateLimitError';
+    this.title = 'Too Many Requests';
+  }
+}
+
+export class ApiBlocklistError extends Error {
+  title: string;
+
+  constructor() {
+    const message = `Your IP address has been blocked from this function due to repeated API abuse.\n \
+                    If you believe this is a mistake, please contact us to resolve the issue.`;
+    super(message);
+    this.name = 'ApiBlocklistError';
+    this.title = 'Access Denied';
+  }
+}
+
 /**
  * Fetch product details by ID.
  * @param id - The ID of the product.
@@ -18,7 +42,12 @@ export const fetchProductApi = async (id: number): Promise<DBProduct> => {
   );
 
   if (!response.ok) {
-    throw new Error(`Error: ${response.status} ${response.statusText}`);
+    if (response.status === 403) {
+      throw new ApiBlocklistError();
+    } else if (response.status === 429) {
+      throw new ApiRateLimitError();
+    }
+    throw new Error(`${response.status} ${response.statusText}`);
   }
 
   const json = await response.json();
@@ -44,6 +73,11 @@ export const fetchProductsApi = async (
   );
 
   if (!response.ok) {
+    if (response.status === 403) {
+      throw new ApiBlocklistError();
+    } else if (response.status === 429) {
+      throw new ApiRateLimitError();
+    }
     throw new Error(`${response.status} ${response.statusText}`);
   }
 
@@ -81,6 +115,11 @@ export const fetchProductByNameAndUrlApi = async (
   );
 
   if (!response.ok) {
+    if (response.status === 403) {
+      throw new ApiBlocklistError();
+    } else if (response.status === 429) {
+      throw new ApiRateLimitError();
+    }
     throw new Error(`${response.status} ${response.statusText}`);
   }
 

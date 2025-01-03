@@ -18,9 +18,11 @@
     "express": "^4.21.1",
     "express-rate-limit": "^7.5.0",
     "google-auth-library": "^9.15.0",
+    "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
     "node-cron": "^3.0.3",
     "pg": "^8.13.1",
+    "rate-limit-redis": "^4.2.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {

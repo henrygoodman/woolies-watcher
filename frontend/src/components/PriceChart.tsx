@@ -48,7 +48,7 @@ export const PriceChart = ({ productId }: { productId: number }) => {
     <div className="p-4 border rounded-md shadow-sm">
       <h3 className="text-lg font-semibold mb-2">Price History</h3>
       {loading && <LoadingIndicator />}
-      {error && <ErrorMessage message={error} />}
+      {error && <ErrorMessage error={error} />}
       {!loading && !error && (!chartData || chartData.length < 2) && (
         <div className="h-32 bg-muted flex items-center justify-center p-4">
           <span className="text-muted-foreground">

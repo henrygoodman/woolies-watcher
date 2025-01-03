@@ -4,8 +4,11 @@ import { useSessionError } from '@/contexts/SessionErrorContext';
 import { signIn } from 'next-auth/react';
 
 export const GlobalAlert = () => {
-  const { error, setError } = useSessionError();
+  const handleSignIn = () => {
+    signIn('google', { callbackUrl: '/' });
+  };
 
+  const { error, setError } = useSessionError();
   if (!error) return null;
 
   return (
@@ -14,7 +17,7 @@ export const GlobalAlert = () => {
       <button
         onClick={() => {
           setError(null);
-          signIn();
+          handleSignIn();
         }}
         className="mt-2 underline"
       >

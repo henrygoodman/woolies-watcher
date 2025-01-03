@@ -59,7 +59,7 @@ export default function SearchPage() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex flex-col items-center">
         {loading && <LoadingIndicator />}
-        {error && <ErrorMessage message={error} />}
+        {error && <ErrorMessage error={error} />}
 
         {!loading && !error && (
           <>

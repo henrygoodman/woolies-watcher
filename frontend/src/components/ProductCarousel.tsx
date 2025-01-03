@@ -67,7 +67,7 @@ export const ProductCarousel: React.FC = () => {
   }, []);
 
   if (loading) return <LoadingIndicator />;
-  if (error) return <ErrorMessage message={error} />;
+  if (error) return <ErrorMessage error={error} />;
 
   return (
     <div className="w-full relative px-4 sm:px-8">
