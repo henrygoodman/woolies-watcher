@@ -1,4 +1,4 @@
-import { CUTOFF_HOUR_UTC } from '@/constants/sync';
+import { STALE_PRODUCT_CUTOFF_HOUR_UTC } from '@/constants/sync';
 
 /**
  * Determines whether a product is considered stale based on its last updated timestamp.
@@ -19,7 +19,7 @@ export const isStaleProduct = (lastUpdated: string | Date): boolean => {
       now.getUTCFullYear(),
       now.getUTCMonth(),
       now.getUTCDate(),
-      CUTOFF_HOUR_UTC
+      STALE_PRODUCT_CUTOFF_HOUR_UTC
     )
   );
   if (now < cutoff) {
