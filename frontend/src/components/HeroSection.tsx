@@ -16,9 +16,9 @@ import { Search, Mail, Heart } from 'lucide-react';
 const categories = [
   { label: 'Beef Mince', value: 'Beef Mince' },
   { label: 'Whey Protein', value: 'Whey Protein' },
-  { label: 'Almond Milk', value: 'Almond Milk' },
-  { label: 'Organic Eggs', value: 'Organic Eggs' },
-  { label: 'Whole Grain Bread', value: 'Whole Grain Bread' },
+  { label: 'Chicken Breast', value: 'Chicken Breast' },
+  { label: 'Greek Yoghurt', value: 'Greek Yoghurt' },
+  { label: 'Peanut Butter', value: 'Peanut Butter' },
 ];
 
 const steps = [
