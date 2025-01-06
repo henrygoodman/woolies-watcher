@@ -43,6 +43,7 @@ export const scheduleDailyWatchlistEmails = () => {
     },
     {
       scheduled: true,
+      timezone: 'UTC',
     }
   );
   console.log('Initialized emailCron');

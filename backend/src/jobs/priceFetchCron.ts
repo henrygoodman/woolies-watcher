@@ -51,6 +51,7 @@ export const scheduleDailyProductUpdates = () => {
     },
     {
       scheduled: true,
+      timezone: 'UTC',
     }
   );
   console.log('Initialized priceFetchCron');
