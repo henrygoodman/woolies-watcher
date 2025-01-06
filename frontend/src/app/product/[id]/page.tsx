@@ -103,7 +103,10 @@ export default function ProductDetailsPage() {
 
       {/* Price Chart */}
       <div className="mt-8">
-        <PriceChart productId={product.id!} />
+        <PriceChart
+          currentPrice={product.current_price}
+          productId={product.id!}
+        />
       </div>
     </div>
   );
