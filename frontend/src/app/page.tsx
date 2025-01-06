@@ -33,6 +33,8 @@ export default function Home() {
   if (loading) return <LoadingIndicator />;
   if (error) return <ErrorMessage error={error} />;
 
+  const { topDiscounts, topIncreases } = highlightedProducts!;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <HeroSection />
@@ -48,28 +50,28 @@ export default function Home() {
         </div>
       </div>
 
-      {highlightedProducts && (
-        <>
-          <div className="flex flex-col items-center p-8">
-            <h1 className="text-4xl font-bold mb-8 text-primary">
-              Recent Discounts
-            </h1>
-            {/* Carousel for price decreases */}
-            <div className="w-full max-w-5xl">
-              <ProductCarousel productList={highlightedProducts.topDiscounts} />
-            </div>
+      {topDiscounts?.length > 0 && (
+        <div className="flex flex-col items-center p-8">
+          <h1 className="text-4xl font-bold mb-8 text-primary">
+            Recent Discounts
+          </h1>
+          {/* Carousel for price decreases */}
+          <div className="w-full max-w-5xl">
+            <ProductCarousel productList={topDiscounts} />
           </div>
+        </div>
+      )}
 
-          <div className="flex flex-col items-center p-8">
-            <h1 className="text-4xl font-bold mb-8 text-primary">
-              Recent Markups
-            </h1>
-            {/* Carousel for price increases */}
-            <div className="w-full max-w-5xl">
-              <ProductCarousel productList={highlightedProducts.topIncreases} />
-            </div>
+      {topIncreases?.length > 0 && (
+        <div className="flex flex-col items-center p-8">
+          <h1 className="text-4xl font-bold mb-8 text-primary">
+            Recent Markups
+          </h1>
+          {/* Carousel for price increases */}
+          <div className="w-full max-w-5xl">
+            <ProductCarousel productList={topIncreases} />
           </div>
-        </>
+        </div>
       )}
     </div>
   );
