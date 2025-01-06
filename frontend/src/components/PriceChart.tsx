@@ -19,13 +19,17 @@ type ChartDataPoint = {
   price: number;
 };
 
-/*
-  TODO:
-  - Render left/right anchors properly
-  - Render all points properly
-  - Check if browser dates are compatible with backend
-  - Fix aesthetics
-*/
+const themeColors = {
+  light: {
+    lineStroke: 'black',
+    gridStroke: '#ccc',
+  },
+  dark: {
+    lineStroke: 'white',
+    gridStroke: '#666',
+  },
+};
+
 export const PriceChart = ({
   productId,
   currentPrice,
@@ -36,6 +40,28 @@ export const PriceChart = ({
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
+
+  useEffect(() => {
+    // Detect theme from the document's data-theme attribute
+    const handleThemeChange = () => {
+      const currentTheme =
+        document.documentElement.getAttribute('data-theme') || 'light';
+      setThemeMode(currentTheme as 'light' | 'dark');
+    };
+
+    // Initial theme setup
+    handleThemeChange();
+
+    // Add a mutation observer to detect changes to the data-theme attribute
+    const observer = new MutationObserver(handleThemeChange);
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const loadPriceUpdates = async () => {
@@ -47,12 +73,11 @@ export const PriceChart = ({
         if (updates.length > 0) {
           const firstUpdate = updates[0];
           const firstUpdateDate = new Date(firstUpdate.updated_at);
-          console.log(firstUpdateDate, firstUpdate);
           const leftAnchorDate = new Date(
             firstUpdateDate.getTime() - 24 * 60 * 60 * 1000
           );
 
-          // Add left anchor point (one day before the first price update)
+          // Add left anchor point
           data.push({
             updatedAt: leftAnchorDate.toISOString(),
             price: firstUpdate.old_price || currentPrice,
@@ -75,21 +100,20 @@ export const PriceChart = ({
             }
           });
 
-          // Add right anchor point (current price)
-          console.log(new Date());
+          // Add right anchor point
           data.push({
-            updatedAt: new Date().toISOString(), // Current time
+            updatedAt: new Date().toISOString(),
             price: currentPrice,
           });
         } else {
-          // No updates, fallback with default anchor points
-          const leftAnchorDate = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000); // A day ago
+          // Default anchor points
+          const leftAnchorDate = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000);
           data.push({
             updatedAt: leftAnchorDate.toISOString(),
             price: currentPrice,
           });
           data.push({
-            updatedAt: new Date().toISOString(), // Current time
+            updatedAt: new Date().toISOString(),
             price: currentPrice,
           });
         }
@@ -106,15 +130,20 @@ export const PriceChart = ({
     loadPriceUpdates();
   }, [productId, currentPrice]);
 
+  const currentTheme = themeColors[themeMode];
+
   return (
     <div className="p-4 border rounded-md shadow-sm">
       <h3 className="text-lg font-semibold mb-2">Price History</h3>
       {loading && <LoadingIndicator />}
       {error && <ErrorMessage error={error} />}
       {!loading && !error && (
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={200}>
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke={currentTheme.gridStroke}
+            />
             <XAxis
               dataKey="updatedAt"
               padding={{ left: 20, right: 20 }}
@@ -122,21 +151,46 @@ export const PriceChart = ({
             />
             <YAxis
               domain={[
-                (dataMin: number) => Math.max(0, dataMin - 5),
-                (dataMax: number) => dataMax + 5,
+                (dataMin: number) => {
+                  const percentage =
+                    currentPrice < 100 ? 0.5 : currentPrice < 1000 ? 0.2 : 0.1;
+                  const lowerBound = currentPrice * (1 - percentage);
+                  return Math.max(0, lowerBound);
+                },
+                (dataMax: number) => {
+                  const percentage =
+                    currentPrice < 100 ? 0.5 : currentPrice < 1000 ? 0.2 : 0.1;
+                  return currentPrice * (1 + percentage);
+                },
               ]}
               tickFormatter={(value) => `$${value.toFixed(2)}`}
             />
+
             <Tooltip
-              formatter={(value) => `$${value}`}
-              labelFormatter={(label) =>
-                `Date: ${new Date(label).toLocaleDateString()}`
-              }
+              formatter={(value: number, name: string) => [
+                <span style={{ color: themeMode === 'dark' ? '#ddd' : '#333' }}>
+                  {`${name.charAt(0).toUpperCase() + name.slice(1)}: $${value.toFixed(2)}`}
+                </span>,
+              ]}
+              labelFormatter={(label) => (
+                <span style={{ color: themeMode === 'dark' ? '#ddd' : '#333' }}>
+                  {`Date: ${new Date(label).toLocaleDateString()}`}
+                </span>
+              )}
+              contentStyle={{
+                backgroundColor: themeMode === 'dark' ? '#333' : '#fff',
+                borderRadius: '8px',
+                border: '1px solid #ccc',
+              }}
+              labelStyle={{
+                color: themeMode === 'dark' ? '#ddd' : '#333',
+              }}
             />
+
             <Line
-              type="monotone"
+              type="linear"
               dataKey="price"
-              stroke="var(--chart-1)"
+              stroke={currentTheme.lineStroke} // Dynamic theme color
               strokeWidth={2}
               dot={{ r: 5 }}
               activeDot={{ r: 8 }}

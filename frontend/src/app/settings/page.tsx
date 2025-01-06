@@ -132,23 +132,6 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Divider */}
-          <hr className="border-t border-muted my-6" />
-
-          {/* Appearance Section */}
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">Appearance</h2>
-            <div className="flex items-center justify-between">
-              <Label
-                htmlFor="theme-toggle"
-                className="block text-sm font-medium"
-              >
-                Theme
-              </Label>
-              <ThemeToggle />
-            </div>
-          </div>
-
           {/* Save Button */}
           <div className="mt-6">
             <Button onClick={handleSave} className="w-full" disabled={!isDirty}>
