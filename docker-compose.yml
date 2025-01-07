@@ -26,7 +26,7 @@ services:
       - ./shared-types:/app/shared-types
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgres://postgres:password@db:5432/woolies-watcher
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
     depends_on:
       - db
       - redis
@@ -38,13 +38,26 @@ services:
     ports:
       - '5432:5432'
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: woolies-watcher
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     restart: always
+
+  migrations:
+    image: postgres:14
+    container_name: postgres_migrations
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    depends_on:
+      - db
+    volumes:
+      - ./db/migrations:/migrations
+    entrypoint: ['sh', '-c', './migrations/migrate.sh']
 
   redis:
     image: redis:6
@@ -52,19 +65,6 @@ services:
     ports:
       - '6379:6379'
     restart: always
-
-  migrations:
-    image: postgres:14
-    container_name: postgres_migrations
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: woolies-watcher
-    depends_on:
-      - db
-    volumes:
-      - ./db/migrations:/migrations
-    entrypoint: ['sh', '-c', './migrations/migrate.sh']
 
   pgadmin:
     image: dpage/pgadmin4

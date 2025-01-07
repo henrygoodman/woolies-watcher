@@ -2,8 +2,6 @@
 set -e
 
 # Database connection parameters
-DB_USER="postgres"
-DB_NAME="woolies-watcher"
 DB_HOST="db"
 MIGRATIONS_DIR="/migrations"
 
@@ -11,14 +9,14 @@ export PGPASSWORD="$POSTGRES_PASSWORD"
 
 echo "Waiting for PostgreSQL to be ready..."
 
-until pg_isready -h "$DB_HOST" -U "$DB_USER"; do
+until pg_isready -h "$DB_HOST" -U "$POSTGRES_USER"; do
   sleep 1
 done
 
 echo "PostgreSQL is ready."
 
 echo "Ensuring migration_history table exists..."
-psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
+psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "
 CREATE TABLE IF NOT EXISTS migration_history (
     id SERIAL PRIMARY KEY,
     migration_name TEXT UNIQUE NOT NULL,
@@ -29,13 +27,13 @@ apply_migration() {
   local migration="$1"
   local migration_name=$(basename "$migration")
 
-  already_applied=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -tAc \
+  already_applied=$(psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc \
     "SELECT COUNT(*) FROM migration_history WHERE migration_name = '$migration_name';")
 
   if [ "$already_applied" -eq 0 ]; then
     echo "Applying migration: $migration_name"
-    psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -f "$migration"
-    psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c \
+    psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$migration"
+    psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
       "INSERT INTO migration_history (migration_name) VALUES ('$migration_name');"
     echo "Migration applied: $migration_name"
   else
@@ -47,13 +45,13 @@ revert_migration() {
   local migration="$1"
   local migration_name=$(basename "$migration" | sed 's/_down.sql/_up.sql/')
 
-  already_applied=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -tAc \
+  already_applied=$(psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc \
     "SELECT COUNT(*) FROM migration_history WHERE migration_name = '$migration_name';")
 
   if [ "$already_applied" -eq 1 ]; then
     echo "Reverting migration: $migration_name"
-    psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -f "$migration"
-    psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c \
+    psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$migration"
+    psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
       "DELETE FROM migration_history WHERE migration_name = '$migration_name';"
     echo "Migration reverted: $migration_name"
   else
