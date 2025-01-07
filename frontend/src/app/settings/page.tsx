@@ -141,12 +141,12 @@ export default function SettingsPage() {
               <Input
                 id="notification-time"
                 type="text"
-                value="8:00 AM AEDT"
+                value="8:00 AM AEST"
                 disabled
                 className="w-full bg-muted cursor-not-allowed"
               />
               <p className="text-sm text-muted-foreground mt-2">
-                Notification time is currently set to 8:00 AM AEDT and cannot be
+                Notification time is currently set to 8:00 AM AEST and cannot be
                 changed at this time.
               </p>
             </div>

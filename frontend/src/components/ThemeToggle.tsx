@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { SunIcon, MoonIcon } from '@heroicons/react/24/solid';
+import Cookies from 'js-cookie';
 
 export const ThemeToggle: React.FC = () => {
   const [isDarkTheme, setIsDarkTheme] = useState<boolean | null>(null);
 
   useEffect(() => {
-    const savedTheme = sessionStorage.getItem('theme') || '';
+    const savedTheme = Cookies.get('theme') || '';
     setIsDarkTheme(savedTheme === 'dark');
     document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
@@ -17,7 +18,7 @@ export const ThemeToggle: React.FC = () => {
     const theme = checked ? 'dark' : '';
     setIsDarkTheme(checked);
     document.documentElement.setAttribute('data-theme', theme);
-    sessionStorage.setItem('theme', theme);
+    Cookies.set('theme', theme, { expires: 365 }); // Cookie expires in 1 year
   };
 
   if (isDarkTheme === null) {
