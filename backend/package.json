@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "start": "node dist/backend/src/index.js",
+    "start": "node dist/src/index.js",
     "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
     "build": "tsc",
     "test": "jest --passWithNoTests"
@@ -49,7 +49,7 @@
     "typescript": "^5.0.0"
   },
   "_moduleAliases": {
-    "@": "dist/backend/src",
+    "@": "dist/src",
     "@shared-types": "dist/shared-types"
   }
 }

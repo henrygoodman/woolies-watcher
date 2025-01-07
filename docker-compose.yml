@@ -26,7 +26,7 @@ services:
       - ./shared-types:/app/shared-types
     environment:
       NODE_ENV: development
-      DATABASE_URL: postgres://postgres:password@db:5432/woolies-watcher
+      DATABASE_URL: postgres://postgres:password@db:5432/woolies-watcher?sslmode=disable
     depends_on:
       - db
       - redis
