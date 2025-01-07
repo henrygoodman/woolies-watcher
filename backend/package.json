@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node dist/backend/src/index.js",
     "dev": "ts-node-dev -r tsconfig-paths/register src/index.ts",
     "build": "tsc",
     "test": "jest --passWithNoTests"
@@ -20,6 +20,7 @@
     "google-auth-library": "^9.15.0",
     "ioredis": "^5.4.2",
     "jsonwebtoken": "^9.0.2",
+    "module-alias": "^2.2.3",
     "node-cron": "^3.0.3",
     "pg": "^8.13.1",
     "rate-limit-redis": "^4.2.0",
@@ -46,5 +47,9 @@
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.0.0"
+  },
+  "_moduleAliases": {
+    "@": "dist/backend/src",
+    "@shared-types": "dist/shared-types"
   }
 }
