@@ -154,66 +154,6 @@ export const fetchProductsByNameAndUrl = async (
 };
 
 /**
- * Searches for a product by its barcode, updates its price if stale,
- * and saves it to the database.
- * NOTE: This is unreliable, the 3rd party API does not have proper unique mapping
- */
-export const fetchProductsByBarcode = async (
-  product: DBProduct
-): Promise<DBProduct | null> => {
-  if (!product.barcode) {
-    console.warn('Product barcode is missing. Skipping search.');
-    return null;
-  }
-
-  try {
-    const cachedProduct = await productRepository.findByFields(
-      product.product_name,
-      product.url
-    );
-
-    if (cachedProduct && !isStaleProduct(cachedProduct.last_updated)) {
-      return cachedProduct;
-    }
-
-    const response = await rateLimiter.fetch({
-      method: 'GET',
-      url: `https://woolworths-products-api.p.rapidapi.com/woolworths/barcode-search/${product.barcode}`,
-      headers: {
-        'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
-        'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
-      },
-    });
-
-    if (!response.data?.results || response.data.results.length === 0) {
-      return null;
-    }
-
-    const apiProduct = response.data.results[0];
-    const validatedProduct = preprocessAndValidateProduct(apiProduct);
-
-    const image_url = generateImageUrl(validatedProduct.url);
-
-    return await productRepository.create({
-      ...validatedProduct,
-      id: cachedProduct?.id,
-      image_url,
-    });
-  } catch (error: any) {
-    if (
-      error.response?.status === 500 &&
-      error.response?.data?.detail === '404: No products found'
-    ) {
-      return null;
-    }
-    console.error('Error fetching product by barcode', error.response?.status);
-    throw new Error(
-      'Failed to fetch or update product ' + error.response?.status
-    );
-  }
-};
-
-/**
  * Preprocesses and validates an API product object.
  * @param apiProduct - The raw product object from the API.
  * @returns A validated and preprocessed DBProduct.
