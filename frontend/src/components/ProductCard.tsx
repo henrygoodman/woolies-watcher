@@ -34,15 +34,16 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
       <Link href={`/product/${product.id}`}>
         <div className="relative h-64 w-full bg-white flex items-center justify-center p-4">
-          <div className="relative w-full h-full p-10 bg-white">
+          <div className="relative w-full h-full p-4 bg-white flex items-center justify-center">
             <img
               src={product.image_url || '/images/product_placeholder.jpeg'}
               alt={product.product_name}
-              className="rounded-md object-contain"
+              className="rounded-md"
               loading="lazy"
               style={{
-                width: '100%',
-                height: 'auto',
+                maxWidth: '100%',
+                maxHeight: '100%',
+                objectFit: 'contain',
               }}
             />
           </div>
