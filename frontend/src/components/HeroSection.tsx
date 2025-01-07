@@ -16,7 +16,7 @@ import { Search, Mail, Heart } from 'lucide-react';
 const categories = [
   { label: 'Beef Mince', value: 'Beef Mince' },
   { label: 'Whey Protein', value: 'Whey Protein' },
-  { label: 'Chicken Breast', value: 'Chicken Breast' },
+  { label: 'Chicken Breast Fillets', value: 'Chicken Breast Fillets' },
   { label: 'Greek Yoghurt', value: 'Greek Yoghurt' },
   { label: 'Peanut Butter', value: 'Peanut Butter' },
 ];

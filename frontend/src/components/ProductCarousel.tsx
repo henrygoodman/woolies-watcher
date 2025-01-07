@@ -23,8 +23,8 @@ const productIdentifiers: ProductIdentifier[] = [
     url: 'https://www.woolworths.com.au/shop/productdetails/577861',
   },
   {
-    product_name: 'Woolworths Rspca Chicken Breast Fillets',
-    url: 'https://www.woolworths.com.au/shop/productdetails/349091',
+    product_name: 'Woolworths RSPCA Approved Chicken Breast Fillet',
+    url: 'https://www.woolworths.com.au/shop/productdetails/25734',
   },
   {
     product_name: 'Musashi 100% Whey Protein Vanilla Milkshake Flavour',

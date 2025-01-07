@@ -130,6 +130,26 @@ export default function SettingsPage() {
                 aria-label="Toggle email updates"
               />
             </div>
+            <hr></hr>
+            <div className="my-4">
+              <Label
+                htmlFor="notification-time"
+                className="block text-sm font-medium mb-2"
+              >
+                Notification Time
+              </Label>
+              <Input
+                id="notification-time"
+                type="text"
+                value="8:00 AM AEDT"
+                disabled
+                className="w-full bg-muted cursor-not-allowed"
+              />
+              <p className="text-sm text-muted-foreground mt-2">
+                Notification time is currently set to 8:00 AM AEDT and cannot be
+                changed at this time.
+              </p>
+            </div>
           </div>
 
           {/* Save Button */}
