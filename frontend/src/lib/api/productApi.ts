@@ -85,7 +85,7 @@ export const fetchProductsApi = async (
 
   const ProductSearchResponseSchema = z.object({
     results: z.array(DBProductSchema),
-    total: z.number(),
+    total: z.number(), // the number of pages
     page: z.number(),
     size: z.number(), // the count of results
   });
