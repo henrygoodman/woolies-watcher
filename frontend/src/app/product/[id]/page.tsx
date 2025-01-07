@@ -6,7 +6,6 @@ import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { fetchProductApi } from '@/lib/api/productApi';
 import { DBProduct } from '@shared-types/db';
 import { useParams } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import { HeartIcon } from '@/components/HeartIcon';
 import { PriceChart } from '@/components/PriceChart';
@@ -56,13 +55,17 @@ export default function ProductDetailsPage() {
           {/* Pass the toggle handler to the HeartIcon */}
           <HeartIcon product={product} onToggle={handleWatchCountToggle} />
 
-          <div className="relative w-full h-80 flex items-center justify-center">
-            <Image
+          <div className="relative w-full h-80 flex items-center justify-center p-2 bg-white">
+            <img
               src={product.image_url || '/images/product_placeholder.jpeg'}
               alt={product.product_name}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="rounded-md object-contain"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'contain',
+              }}
+              loading="lazy"
             />
           </div>
         </div>

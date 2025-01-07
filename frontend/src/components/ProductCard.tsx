@@ -1,7 +1,6 @@
 'use client';
 
 import { DBProduct } from '@shared-types/db';
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   Card,
@@ -34,14 +33,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       <HeartIcon product={product} />
 
       <Link href={`/product/${product.id}`}>
-        <div className="relative h-64 w-full bg-white flex items-center justify-center p-8">
-          <div className="relative w-full h-full">
-            <Image
+        <div className="relative h-64 w-full bg-white flex items-center justify-center p-4">
+          <div className="relative w-full h-full p-10 bg-white">
+            <img
               src={product.image_url || '/images/product_placeholder.jpeg'}
               alt={product.product_name}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="rounded-md object-contain"
+              loading="lazy"
+              style={{
+                width: '100%',
+                height: 'auto',
+              }}
             />
           </div>
         </div>
