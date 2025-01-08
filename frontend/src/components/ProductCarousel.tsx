@@ -9,7 +9,6 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
-import Autoplay from 'embla-carousel-autoplay';
 import { ProductCard } from '@/components/ProductCard';
 import { type DBProduct } from '@shared-types/db';
 import { fetchProductByNameAndUrlApi } from '@/lib/api/productApi';
@@ -52,7 +51,6 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
   >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [api, setApi] = useState<CarouselApi | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -96,15 +94,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
 
   return (
     <div className="w-full relative px-4 sm:px-8">
-      <Carousel
-        setApi={setApi}
-        plugins={[
-          Autoplay({
-            delay: 5000, // Carousel delay
-          }),
-        ]}
-        className="overflow-visible p-4"
-      >
+      <Carousel className="overflow-visible p-4">
         <CarouselContent className="-ml-4 sm:-ml-8">
           {products.map(({ product, old_price }) => (
             <CarouselItem
