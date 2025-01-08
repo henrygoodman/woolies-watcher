@@ -115,21 +115,37 @@ class WatchlistRepository extends GenericRepository<DBWatchlist> {
    * @returns A list of all user watchlists for users whose enable_emails flag is true.
    */
   async getAllUserWatchlists(): Promise<
-    { email: string; watchlist: DBProduct[] }[]
+    {
+      email: string;
+      watchlist: (DBProduct & { old_price?: number })[];
+    }[]
   > {
     const query = `
     SELECT 
-      COALESCE(u.destination_email, u.email) AS email, 
-      p.*
+      COALESCE(u.destination_email, u.email) AS email,
+      p.*,
+      pu.old_price
     FROM users u
     INNER JOIN watchlist w ON u.id = w.user_id
     INNER JOIN products p ON w.product_id = p.id
+    LEFT JOIN LATERAL (
+      SELECT old_price
+      FROM price_updates
+      WHERE product_id = p.id
+        AND updated_at >= NOW() - INTERVAL '24 hours'
+      ORDER BY updated_at DESC
+      LIMIT 1
+    ) pu ON true
     WHERE u.enable_emails = true
     ORDER BY email, w.date_added ASC;
   `;
+
     try {
       const { rows } = await pool.query(query);
-      const userWatchlists: Record<string, DBProduct[]> = {};
+      const userWatchlists: Record<
+        string,
+        (DBProduct & { old_price?: number })[]
+      > = {};
 
       for (const row of rows) {
         const email = row.email;
@@ -138,7 +154,18 @@ class WatchlistRepository extends GenericRepository<DBWatchlist> {
           userWatchlists[email] = [];
         }
 
-        userWatchlists[email].push(row);
+        userWatchlists[email].push({
+          id: row.id,
+          barcode: row.barcode,
+          product_name: row.product_name,
+          product_brand: row.product_brand,
+          current_price: parseFloat(row.current_price),
+          product_size: row.product_size,
+          url: row.url,
+          image_url: row.image_url,
+          last_updated: row.last_updated,
+          old_price: row.old_price ? parseFloat(row.old_price) : undefined,
+        });
       }
 
       return Object.entries(userWatchlists).map(([email, watchlist]) => ({

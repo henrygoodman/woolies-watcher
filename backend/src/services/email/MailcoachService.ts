@@ -26,9 +26,9 @@ export class MailcoachService implements EmailService {
 
   async sendWatchlistEmail(
     recipient: string,
-    watchlist: DBProduct[]
+    watchlist: (DBProduct & { old_price?: number })[]
   ): Promise<void> {
-    const emailHtml = generateWatchlistEmail(watchlist, this.apiFromAddress);
+    const emailHtml = generateWatchlistEmail(watchlist);
 
     const payload = {
       to: recipient,
