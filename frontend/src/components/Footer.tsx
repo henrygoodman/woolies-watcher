@@ -13,18 +13,22 @@ export const Footer: React.FC = () => {
   return (
     <footer className="w-full bg-background text-foreground p-4 mt-8">
       <div className="max-w-7xl mx-auto flex flex-col items-center space-y-2">
-        <p className="text-sm">&copy; {currentYear ?? '...'} Woolies Watcher</p>
+        <p className="text-sm">&copy; {currentYear ?? '...'} Henry Goodman</p>
         <div className="flex space-x-4">
           <Link href="/terms" className="text-sm hover:underline">
-            Terms of Service
+            Terms of Service (Coming soon)
           </Link>
           <Link href="/privacy" className="text-sm hover:underline">
-            Privacy Policy
+            Privacy Policy (Coming soon)
           </Link>
           <Link href="/contact" className="text-sm hover:underline">
-            Contact Us
+            Contact
           </Link>
         </div>
+        <p className="text-xs text-center mt-4">
+          Woolies Watcher is an independent project and is not affiliated with,
+          endorsed, or sponsored by Woolworths or any of its subsidiaries.
+        </p>
       </div>
     </footer>
   );
