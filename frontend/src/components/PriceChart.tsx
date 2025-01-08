@@ -152,15 +152,14 @@ export const PriceChart = ({
             <YAxis
               domain={[
                 (dataMin: number) => {
-                  const percentage =
-                    currentPrice < 100 ? 0.5 : currentPrice < 1000 ? 0.2 : 0.1;
-                  const lowerBound = currentPrice * (1 - percentage);
-                  return Math.max(0, lowerBound);
+                  const padding = Math.abs(dataMin * 0.5);
+                  const roundedMin = Math.floor((dataMin - padding) * 10) / 10; // Round down to nearest 10c
+                  return Math.max(0, roundedMin);
                 },
                 (dataMax: number) => {
-                  const percentage =
-                    currentPrice < 100 ? 0.5 : currentPrice < 1000 ? 0.2 : 0.1;
-                  return currentPrice * (1 + percentage);
+                  const padding = Math.abs(dataMax * 0.5);
+                  const roundedMax = Math.ceil((dataMax + padding) * 10) / 10; // Round up to nearest 10c
+                  return roundedMax;
                 },
               ]}
               tickFormatter={(value) => `$${value.toFixed(2)}`}
