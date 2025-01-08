@@ -16,10 +16,10 @@ export const Footer: React.FC = () => {
         <p className="text-sm">&copy; {currentYear ?? '...'} Henry Goodman</p>
         <div className="flex space-x-4">
           <Link href="/terms" className="text-sm hover:underline">
-            Terms of Service (Coming soon)
+            Terms of Service
           </Link>
           <Link href="/privacy" className="text-sm hover:underline">
-            Privacy Policy (Coming soon)
+            Privacy Policy
           </Link>
           <Link href="/contact" className="text-sm hover:underline">
             Contact
