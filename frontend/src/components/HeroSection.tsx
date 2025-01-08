@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Search, Mail, Heart } from 'lucide-react';
+import { Search, Mail, Heart, Info } from 'lucide-react';
 
 const categories = [
   { label: 'Beef Mince', value: 'Beef Mince' },
@@ -31,7 +31,21 @@ const steps = [
     icon: <Heart className="mt-1 mr-4 text-primary" size={20} />,
   },
   {
-    label: 'Get notified when prices change',
+    label: (
+      <>
+        Get notified when prices change
+        <div className="relative group inline-block ml-2">
+          <Info
+            className="text-secondary cursor-pointer"
+            size={18}
+            aria-label="Info about notifications"
+          />
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-secondary text-secondary-foreground text-sm rounded-md px-3 py-2 shadow-md w-48 text-center">
+            Emails are sent at 8am AEST each day
+          </div>
+        </div>
+      </>
+    ),
     icon: <Mail className="mt-1 mr-4 text-primary" size={20} />,
   },
 ];

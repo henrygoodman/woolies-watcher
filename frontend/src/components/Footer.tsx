@@ -15,11 +15,14 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto flex flex-col items-center space-y-2">
         <p className="text-sm">&copy; {currentYear ?? '...'} Henry Goodman</p>
         <div className="flex space-x-4">
+          <Link href="/faq" className="text-sm hover:underline">
+            FAQ
+          </Link>
           <Link href="/terms" className="text-sm hover:underline">
-            Terms of Service
+            Terms
           </Link>
           <Link href="/privacy" className="text-sm hover:underline">
-            Privacy Policy
+            Privacy
           </Link>
           <Link href="/contact" className="text-sm hover:underline">
             Contact
