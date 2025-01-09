@@ -7,9 +7,15 @@ export const generateWatchlistEmail = (
   watchlist: (DBProduct & { old_price?: number })[]
 ): string => {
   // Separate products with and without price updates
-  const updatedProducts = watchlist.filter(
-    (product) => product.old_price !== undefined
-  );
+  const updatedProducts = watchlist
+    .filter((product) => product.old_price !== undefined)
+    .sort((a, b) => {
+      // Sort by price drop first, then by price increase
+      const aChange = a.old_price! - a.current_price!;
+      const bChange = b.old_price! - b.current_price!;
+      return bChange - aChange; // Higher drops (negative values) come first
+    });
+
   const regularProducts = watchlist.filter(
     (product) => product.old_price === undefined
   );
@@ -76,6 +82,20 @@ export const generateWatchlistEmail = (
         .footer a {
           color: #007bff;
         }
+        .price {
+          display: inline-block;
+          margin: 0 5px;
+        }
+        .price-old {
+          color: #333; /* Default for old price */
+          text-decoration: line-through;
+        }
+        .price-new.decreased {
+          color: green;
+        }
+        .price-new.increased {
+          color: red;
+        }
       </style>
     </head>
     <body>
@@ -90,16 +110,24 @@ export const generateWatchlistEmail = (
             <h2>Recently Updated Products</h2>
             <ul>
               ${updatedProducts
-                .map(
-                  (product) => `
+                .map((product) => {
+                  const isIncreased =
+                    product.old_price! < product.current_price!;
+                  return `
                   <li>
-                    <strong>${product.product_name}</strong>${product.product_brand ? ` (${product.product_brand})` : ''}<br />
-                    <span style="color: red;">Old Price: $${Number(product.old_price).toFixed(2)}</span><br />
-                    <span style="color: green;">New Price: $${Number(product.current_price).toFixed(2)}</span><br />
+                    <strong>${product.product_name}</strong>${
+                      product.product_brand ? ` (${product.product_brand})` : ''
+                    }<br />
+                    <span class="price price-old">$${Number(
+                      product.old_price
+                    ).toFixed(2)}</span>
+                    <span class="price price-new ${
+                      isIncreased ? 'increased' : 'decreased'
+                    }">$${Number(product.current_price).toFixed(2)}</span><br />
                     <a href="${product.url}" target="_blank">View Product</a>
                   </li>
-                `
-                )
+                `;
+                })
                 .join('')}
             </ul>
           `
@@ -110,13 +138,19 @@ export const generateWatchlistEmail = (
         }
 
         <!-- Section for all products -->
-        <h2>All Products in Your Watchlist</h2>
+        <h2>${
+          hasUpdates
+            ? 'All Other Products in Your Watchlist'
+            : 'All Products in Your Watchlist'
+        }</h2>
         <ul>
           ${regularProducts
             .map(
               (product) => `
               <li>
-                <strong>${product.product_name}</strong>${product.product_brand ? ` (${product.product_brand})` : ''}<br />
+                <strong>${product.product_name}</strong>${
+                  product.product_brand ? ` (${product.product_brand})` : ''
+                }<br />
                 Price: $${Number(product.current_price).toFixed(2)}<br />
                 <a href="${product.url}" target="_blank">View Product</a>
               </li>
