@@ -2,8 +2,8 @@
 
 export default function Page() {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
-      <div className="w-full max-w-lg p-6 bg-card rounded-lg shadow-md">
+    <div className="bg-background text-foreground">
+      <div className="container mx-auto max-w-5xl p-6 pt-12 bg-card rounded-lg shadow-md">
         <h1 className="text-4xl font-extrabold text-center mb-4 text-primary">
           Contact Me
         </h1>
