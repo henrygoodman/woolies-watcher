@@ -161,7 +161,7 @@ export const generateWatchlistEmail = (
 
         <div class="footer">
           <p>Need help or have questions? <a href="mailto:contact@henrygoodman.dev">Contact us</a>.</p>
-          <p>To unsubscribe, please visit our <a href="https://woolieswatcher.com/settings" target="_blank">settings page</a> and toggle the "Enable Email Updates" option.</p>
+          <p>To unsubscribe, please visit <a href="https://woolieswatcher.com/settings" target="_blank">settings page</a> and toggle the "Enable Email Updates" option.</p>
         </div>
       </div>
     </body>

@@ -63,7 +63,7 @@ export function SearchBar({
                   <Input
                     type="search"
                     placeholder="Search items..."
-                    className="w-full pr-10 h-10 text-xl rounded-lg"
+                    className="w-full pr-10 h-10 text-md rounded-lg"
                     {...field}
                     onKeyDown={onEnterSubmit}
                   />

@@ -88,11 +88,11 @@ export const HeroSection = () => {
           </h2>
 
           {/* Divider */}
-          <hr className="border-t-2 border-primary my-6 w-96 mx-auto" />
+          <hr className="border-t-2 border-primary my-6 w-1/2 mx-auto" />
 
           {/* Steps Section */}
           <div className="max-w-5xl mx-auto">
-            <ol className="list-decimal list-outside text-left mb-8 space-y-4 pl-6">
+            <ol className="list-decimal list-outside text-left mb-8 space-y-4 pl-1">
               {steps.map((step, index) => (
                 <li key={index} className="flex items-start">
                   {step.icon}

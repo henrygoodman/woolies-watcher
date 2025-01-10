@@ -86,12 +86,10 @@ export default function MarkupsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex flex-col items-center">
-        <h1 className="text-4xl font-bold mb-8 text-primary">
-          Current Markups
-        </h1>
+        <h1 className="text-3xl font-bold mb-8 text-primary">Recent Markups</h1>
 
         {/* Description Section */}
-        <div className="w-full max-w-5xl text-left text-gray-600 mb-8 italic">
+        <div className="w-full max-w-5xl text-left text-muted-foreground mb-8 italic">
           <p>
             Note: These price increases often reflect items returning to their
             regular prices after a sale, rather than a price hike. The data
@@ -104,8 +102,7 @@ export default function MarkupsPage() {
         <div className="w-full flex justify-between items-center max-w-5xl mb-4">
           <div>
             <p className="text-lg font-semibold">
-              Found <span className="text-primary">{resultSize}</span> recent
-              markup
+              Found <span className="text-primary">{resultSize}</span> result
               {resultSize > 1 ? 's' : ''}
             </p>
           </div>

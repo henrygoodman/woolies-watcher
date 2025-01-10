@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { useRouter } from 'next/navigation';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Home() {
   const [highlightedProducts, setHighlightedProducts] =
@@ -42,7 +43,7 @@ export default function Home() {
       <HeroSection />
 
       <div className="flex flex-col items-center p-8">
-        <h1 className="text-4xl font-bold mb-8 text-primary">Popular Items</h1>
+        <h1 className="text-2xl font-bold mb-8 text-primary">Popular Items</h1>
 
         {/* Carousel for popular products */}
         <div className="w-full max-w-5xl">
@@ -52,7 +53,7 @@ export default function Home() {
 
       {topDiscounts?.length > 0 && (
         <div className="flex flex-col items-center p-8">
-          <h1 className="text-4xl font-bold mb-4 text-primary">
+          <h1 className="text-2xl font-bold mb-4 text-primary">
             Recent Discounts
           </h1>
           {/* Carousel for price decreases */}
@@ -70,7 +71,7 @@ export default function Home() {
 
       {topIncreases?.length > 0 && (
         <div className="flex flex-col items-center p-8">
-          <h1 className="text-4xl font-bold mb-8 text-primary">
+          <h1 className="text-2xl font-bold mb-8 text-primary">
             Recent Markups
           </h1>
           {/* Carousel for price increases */}

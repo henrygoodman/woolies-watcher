@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,7 +42,7 @@ export default function SettingsPage() {
           description: 'Failed to load settings',
           variant: 'destructive',
         });
-        console.log(error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
@@ -51,7 +51,6 @@ export default function SettingsPage() {
     loadSettings();
   }, [user?.email]);
 
-  // Check if settings have been modified
   useEffect(() => {
     setIsDirty(email !== initialEmail || enableEmails !== initialEnableEmails);
   }, [email, enableEmails, initialEmail, initialEnableEmails]);
@@ -67,14 +66,15 @@ export default function SettingsPage() {
     }
 
     try {
-      await updateUserApi({ enable_emails: enableEmails });
+      await updateUserApi({
+        enable_emails: enableEmails,
+      });
 
       toast({
         title: 'Settings Saved',
         description: 'Your settings have been successfully updated.',
       });
 
-      // Update initial state after successful save
       setInitialEmail(email);
       setInitialEnableEmails(enableEmails);
       setIsDirty(false);
@@ -130,25 +130,16 @@ export default function SettingsPage() {
                 aria-label="Toggle email updates"
               />
             </div>
-            <hr></hr>
-            <div className="my-4">
-              <Label
-                htmlFor="notification-time"
-                className="block text-sm font-medium mb-2"
-              >
-                Notification Time
-              </Label>
-              <Input
-                id="notification-time"
-                type="text"
-                value="8:00 AM AEST"
-                disabled
-                className="w-full bg-muted cursor-not-allowed"
-              />
-              <p className="text-sm text-muted-foreground mt-2">
-                Notification time is currently set to 8:00 AM AEST and cannot be
-                changed at this time.
-              </p>
+          </div>
+
+          <hr></hr>
+
+          {/* Appearance Section */}
+          <div className="mt-4 mb-6">
+            <h2 className="text-xl font-semibold mb-4">Appearance</h2>
+            <div className="flex items-center justify-between">
+              <p className="text-sm">Theme</p>
+              <ThemeToggle />
             </div>
           </div>
 

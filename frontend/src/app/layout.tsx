@@ -44,13 +44,24 @@ export const metadata = {
   },
 };
 
+const setThemeScript = `
+  (function() {
+    const theme = document.cookie.split('; ').find(row => row.startsWith('theme='));
+    const themeValue = theme ? theme.split('=')[1] : 'light';
+    document.documentElement.dataset.theme = themeValue;
+  })();
+`;
+
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: setThemeScript }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

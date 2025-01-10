@@ -86,12 +86,12 @@ export default function DiscountsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex flex-col items-center">
-        <h1 className="text-4xl font-bold mb-8 text-primary">
-          Current Discounts
+        <h1 className="text-3xl font-bold mb-8 text-primary">
+          Recent Discounts
         </h1>
 
         {/* Description Section */}
-        <div className="w-full max-w-5xl text-left text-gray-600 mb-8 italic">
+        <div className="w-full max-w-5xl text-left text-muted-foreground mb-8 italic">
           <p>
             Note: These price changes reflect drops in price compared to their
             values from the last{' '}
@@ -103,8 +103,7 @@ export default function DiscountsPage() {
         <div className="w-full flex justify-between items-center max-w-5xl mb-4">
           <div>
             <p className="text-lg font-semibold">
-              Found <span className="text-primary">{resultSize}</span> recent
-              discount
+              Found <span className="text-primary">{resultSize}</span> result
               {resultSize > 1 ? 's' : ''}
             </p>
           </div>
