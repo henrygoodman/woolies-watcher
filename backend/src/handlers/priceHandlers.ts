@@ -96,11 +96,12 @@ export const handleGetTopDailyPriceChanges: RequestHandler = async (
  * Fetch paginated discounts with products and return a structured paginated response.
  */
 export const handleGetPaginatedDiscounts: RequestHandler = async (req, res) => {
-  const { limit, offset, days } = req.query;
+  const { limit, offset, days, sortRaw } = req.query;
 
   const parsedLimit = parseInt(limit as string, 10);
   const parsedOffset = parseInt(offset as string, 10);
   const parsedDays = parseInt(days as string, 10);
+  const parsedSortRaw = sortRaw === 'true';
 
   if (isNaN(parsedLimit) || parsedLimit <= 0) {
     res.status(400).json({ error: 'Invalid or missing limit parameter' });
@@ -121,7 +122,8 @@ export const handleGetPaginatedDiscounts: RequestHandler = async (req, res) => {
     const { total, data } = await priceRepository.getTopPriceDec(
       parsedLimit,
       parsedDays,
-      parsedOffset
+      parsedOffset,
+      parsedSortRaw
     );
 
     const totalPages = Math.ceil(total / parsedLimit);
@@ -157,11 +159,12 @@ export const handleGetPaginatedDiscounts: RequestHandler = async (req, res) => {
  * Fetch paginated markups with products and return a structured paginated response.
  */
 export const handleGetPaginatedMarkups: RequestHandler = async (req, res) => {
-  const { limit, offset, days } = req.query;
+  const { limit, offset, days, sortRaw } = req.query;
 
   const parsedLimit = parseInt(limit as string, 10);
   const parsedOffset = parseInt(offset as string, 10);
   const parsedDays = parseInt(days as string, 10);
+  const parsedSortRaw = sortRaw === 'true';
 
   if (isNaN(parsedLimit) || parsedLimit <= 0) {
     res.status(400).json({ error: 'Invalid or missing limit parameter' });
@@ -182,7 +185,8 @@ export const handleGetPaginatedMarkups: RequestHandler = async (req, res) => {
     const { total, data } = await priceRepository.getTopPriceInc(
       parsedLimit,
       parsedDays,
-      parsedOffset
+      parsedOffset,
+      parsedSortRaw
     );
 
     const totalPages = Math.ceil(total / parsedLimit);

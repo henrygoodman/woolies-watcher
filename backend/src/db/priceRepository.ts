@@ -85,37 +85,41 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
   async getTopPriceInc(
     limit: number,
     days: number,
-    offset: number = 0
+    offset: number = 0,
+    sortRaw: boolean = false
   ): Promise<{ total: number; data: DBPriceUpdate[] }> {
     const baseQuery = `
-      WITH aggregated_changes AS (
-        SELECT 
-          product_id,
-          MIN(old_price) AS min_old_price,
-          MAX(new_price) AS max_new_price,
-          ((MAX(new_price) - MIN(old_price)) / MIN(old_price)) * 100 AS percentage_change,
-          MAX(updated_at) AS updated_at
-        FROM price_updates
-        WHERE old_price > 0
-          AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
-        GROUP BY product_id
-        HAVING MAX(new_price) > MIN(old_price)
-      )
-    `;
+    WITH aggregated_changes AS (
+      SELECT 
+        product_id,
+        MIN(old_price) AS min_old_price,
+        MAX(new_price) AS max_new_price,
+        ((MAX(new_price) - MIN(old_price)) / MIN(old_price)) * 100 AS percentage_change,
+        (MAX(new_price) - MIN(old_price)) AS raw_increase,
+        MAX(updated_at) AS updated_at
+      FROM price_updates
+      WHERE old_price > 0
+        AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
+      GROUP BY product_id
+      HAVING MAX(new_price) > MIN(old_price)
+    )
+  `;
+
+    const sortColumn = sortRaw ? 'raw_increase' : 'percentage_change';
 
     const dataQuery = `
-      ${baseQuery}
-      SELECT *
-      FROM aggregated_changes
-      ORDER BY percentage_change DESC
-      LIMIT $1 OFFSET $2;
-    `;
+    ${baseQuery}
+    SELECT *
+    FROM aggregated_changes
+    ORDER BY ${sortColumn} DESC
+    LIMIT $1 OFFSET $2;
+  `;
 
     const countQuery = `
-      ${baseQuery}
-      SELECT COUNT(*) AS total
-      FROM aggregated_changes;
-    `;
+    ${baseQuery}
+    SELECT COUNT(*) AS total
+    FROM aggregated_changes;
+  `;
 
     try {
       const [dataResult, countResult] = await Promise.all([
@@ -149,37 +153,41 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
   async getTopPriceDec(
     limit: number,
     days: number,
-    offset: number = 0
+    offset: number = 0,
+    sortRaw: boolean = false
   ): Promise<{ total: number; data: DBPriceUpdate[] }> {
     const baseQuery = `
-      WITH aggregated_changes AS (
-        SELECT 
-          product_id,
-          MIN(old_price) AS min_old_price,
-          MAX(new_price) AS max_new_price,
-          ((MIN(old_price) - MAX(new_price)) / MIN(old_price)) * 100 AS percentage_change,
-          MAX(updated_at) AS updated_at
-        FROM price_updates
-        WHERE old_price > 0
-          AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
-        GROUP BY product_id
-        HAVING MAX(new_price) < MIN(old_price)
-      )
-    `;
+    WITH aggregated_changes AS (
+      SELECT 
+        product_id,
+        MIN(old_price) AS min_old_price,
+        MAX(new_price) AS max_new_price,
+        ((MIN(old_price) - MAX(new_price)) / MIN(old_price)) * 100 AS percentage_change,
+        (MIN(old_price) - MAX(new_price)) AS raw_discount,
+        MAX(updated_at) AS updated_at
+      FROM price_updates
+      WHERE old_price > 0
+        AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
+      GROUP BY product_id
+      HAVING MAX(new_price) < MIN(old_price)
+    )
+  `;
+
+    const sortColumn = sortRaw ? 'raw_discount' : 'percentage_change';
 
     const dataQuery = `
-      ${baseQuery}
-      SELECT *
-      FROM aggregated_changes
-      ORDER BY percentage_change DESC
-      LIMIT $1 OFFSET $2;
-    `;
+    ${baseQuery}
+    SELECT *
+    FROM aggregated_changes
+    ORDER BY ${sortColumn} DESC
+    LIMIT $1 OFFSET $2;
+  `;
 
     const countQuery = `
-      ${baseQuery}
-      SELECT COUNT(*) AS total
-      FROM aggregated_changes;
-    `;
+    ${baseQuery}
+    SELECT COUNT(*) AS total
+    FROM aggregated_changes;
+  `;
 
     try {
       const [dataResult, countResult] = await Promise.all([
