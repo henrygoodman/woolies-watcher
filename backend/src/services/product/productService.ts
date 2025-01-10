@@ -68,8 +68,9 @@ export const fetchProducts = async (
 
     return {
       page,
-      size: response.data.total_results,
-      total: response.data.total_pages,
+      size,
+      total_results: response.data.total_results,
+      total_pages: response.data.total_pages,
       results,
     };
   } catch (error: any) {
@@ -78,7 +79,13 @@ export const fetchProducts = async (
       error.response?.status === 500 &&
       error.response?.data?.detail === '404: No products found'
     ) {
-      return { page, size: 0, total: 0, results: [] };
+      return {
+        page: 1,
+        size: 0,
+        total_pages: 0,
+        total_results: 0,
+        results: [],
+      };
     }
     console.error('Error fetching products', error.response?.status);
     throw new Error('Failed to fetch products ' + error.response?.status);

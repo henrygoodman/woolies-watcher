@@ -18,8 +18,8 @@ export const useFetchProducts = () => {
       const data = await fetchProductsApi(query, page, size);
       setProducts(data.results);
       setCurrentPage(data.page);
-      setTotalPages(data.total);
-      setResultSize(data.size);
+      setTotalPages(data.total_pages);
+      setResultSize(data.total_results);
     } catch (err: any) {
       console.log('Err', err);
       setError(err);

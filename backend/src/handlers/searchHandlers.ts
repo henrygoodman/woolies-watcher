@@ -5,6 +5,10 @@ import {
 } from '@/services/product/productService';
 import { parseQueryParams } from '@/utils/parseQueryParams';
 import { ApiRateLimitExceededError } from '@/utils/apiRateLimitHandler';
+import {
+  ProductSearchRequestSchema,
+  ProductSearchResponseSchema,
+} from '@shared-types/api';
 
 /**
  * Handles product search requests with pagination.
@@ -25,6 +29,7 @@ export const handleSearchProducts: RequestHandler = async (req, res) => {
     }
 
     const searchResults = await fetchProducts(query, page, size);
+    ProductSearchResponseSchema.parse(searchResults);
     res.status(200).json(searchResults);
   } catch (error: any) {
     if (error instanceof ApiRateLimitExceededError) {

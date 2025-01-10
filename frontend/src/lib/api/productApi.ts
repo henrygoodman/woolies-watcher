@@ -2,6 +2,7 @@ import {
   ProductIdentifier,
   ProductSearchRequest,
   ProductSearchResponse,
+  ProductSearchResponseSchema,
 } from '@shared-types/api';
 import { DBProduct, DBProductSchema } from '@shared-types/db';
 import { z } from 'zod';
@@ -83,12 +84,6 @@ export const fetchProductsApi = async (
 
   const json = await response.json();
 
-  const ProductSearchResponseSchema = z.object({
-    results: z.array(DBProductSchema),
-    total: z.number(), // the number of pages
-    page: z.number(),
-    size: z.number(), // the count of results
-  });
   return ProductSearchResponseSchema.parse(json);
 };
 

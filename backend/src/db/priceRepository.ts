@@ -79,41 +79,63 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
   }
 
   /**
-   * Fetch the top N largest price increases for the past `days` days.
+   * Fetch the top N largest price increases for the past `days` days with pagination.
    * Aggregates multiple updates into a single DBPriceUpdate-like object.
    */
-  async getTopPriceInc(limit: number, days: number): Promise<DBPriceUpdate[]> {
-    const query = `
-    WITH aggregated_changes AS (
-      SELECT 
-        product_id,
-        MIN(old_price) AS min_old_price,
-        MAX(new_price) AS max_new_price,
-        ((MAX(new_price) - MIN(old_price)) / MIN(old_price)) * 100 AS percentage_change,
-        MAX(updated_at) AS updated_at
-      FROM price_updates
-      WHERE old_price > 0
-        AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
-      GROUP BY product_id
-      HAVING MAX(new_price) > MIN(old_price)
-    )
-    SELECT *
-    FROM aggregated_changes
-    ORDER BY percentage_change DESC
-    LIMIT $1;
-  `;
+  async getTopPriceInc(
+    limit: number,
+    days: number,
+    offset: number = 0
+  ): Promise<{ total: number; data: DBPriceUpdate[] }> {
+    const baseQuery = `
+      WITH aggregated_changes AS (
+        SELECT 
+          product_id,
+          MIN(old_price) AS min_old_price,
+          MAX(new_price) AS max_new_price,
+          ((MAX(new_price) - MIN(old_price)) / MIN(old_price)) * 100 AS percentage_change,
+          MAX(updated_at) AS updated_at
+        FROM price_updates
+        WHERE old_price > 0
+          AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
+        GROUP BY product_id
+        HAVING MAX(new_price) > MIN(old_price)
+      )
+    `;
+
+    const dataQuery = `
+      ${baseQuery}
+      SELECT *
+      FROM aggregated_changes
+      ORDER BY percentage_change DESC
+      LIMIT $1 OFFSET $2;
+    `;
+
+    const countQuery = `
+      ${baseQuery}
+      SELECT COUNT(*) AS total
+      FROM aggregated_changes;
+    `;
 
     try {
-      const result = await pool.query(query, [limit]);
+      const [dataResult, countResult] = await Promise.all([
+        pool.query(dataQuery, [limit, offset]),
+        pool.query(countQuery),
+      ]);
 
-      const priceUpdates = result.rows.map((row) => ({
+      const data = dataResult.rows.map((row) => ({
         product_id: row.product_id,
         old_price: row.min_old_price,
         new_price: row.max_new_price,
         updated_at: row.updated_at,
       }));
 
-      return priceUpdates.map((update) => DBPriceUpdateSchema.parse(update));
+      const total = parseInt(countResult.rows[0].total, 10);
+
+      return {
+        total,
+        data: data.map((update) => DBPriceUpdateSchema.parse(update)),
+      };
     } catch (error) {
       console.error('Error fetching top price increases:', error);
       throw new Error('Failed to fetch top price increases');
@@ -121,41 +143,63 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
   }
 
   /**
-   * Fetch the top N largest price decreases for the past `days` days.
+   * Fetch the top N largest price decreases for the past `days` days with pagination.
    * Aggregates multiple updates into a single DBPriceUpdate-like object.
    */
-  async getTopPriceDec(limit: number, days: number): Promise<DBPriceUpdate[]> {
-    const query = `
-    WITH aggregated_changes AS (
-      SELECT 
-        product_id,
-        MIN(old_price) AS min_old_price,
-        MAX(new_price) AS max_new_price,
-        ((MIN(old_price) - MAX(new_price)) / MIN(old_price)) * 100 AS percentage_change,
-        MAX(updated_at) AS updated_at
-      FROM price_updates
-      WHERE old_price > 0
-        AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
-      GROUP BY product_id
-      HAVING MAX(new_price) < MIN(old_price)
-    )
-    SELECT *
-    FROM aggregated_changes
-    ORDER BY percentage_change DESC
-    LIMIT $1;
-  `;
+  async getTopPriceDec(
+    limit: number,
+    days: number,
+    offset: number = 0
+  ): Promise<{ total: number; data: DBPriceUpdate[] }> {
+    const baseQuery = `
+      WITH aggregated_changes AS (
+        SELECT 
+          product_id,
+          MIN(old_price) AS min_old_price,
+          MAX(new_price) AS max_new_price,
+          ((MIN(old_price) - MAX(new_price)) / MIN(old_price)) * 100 AS percentage_change,
+          MAX(updated_at) AS updated_at
+        FROM price_updates
+        WHERE old_price > 0
+          AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
+        GROUP BY product_id
+        HAVING MAX(new_price) < MIN(old_price)
+      )
+    `;
+
+    const dataQuery = `
+      ${baseQuery}
+      SELECT *
+      FROM aggregated_changes
+      ORDER BY percentage_change DESC
+      LIMIT $1 OFFSET $2;
+    `;
+
+    const countQuery = `
+      ${baseQuery}
+      SELECT COUNT(*) AS total
+      FROM aggregated_changes;
+    `;
 
     try {
-      const result = await pool.query(query, [limit]);
+      const [dataResult, countResult] = await Promise.all([
+        pool.query(dataQuery, [limit, offset]),
+        pool.query(countQuery),
+      ]);
 
-      const priceUpdates = result.rows.map((row) => ({
+      const data = dataResult.rows.map((row) => ({
         product_id: row.product_id,
         old_price: row.min_old_price,
         new_price: row.max_new_price,
         updated_at: row.updated_at,
       }));
 
-      return priceUpdates.map((update) => DBPriceUpdateSchema.parse(update));
+      const total = parseInt(countResult.rows[0].total, 10);
+
+      return {
+        total,
+        data: data.map((update) => DBPriceUpdateSchema.parse(update)),
+      };
     } catch (error) {
       console.error('Error fetching top price decreases:', error);
       throw new Error('Failed to fetch top price decreases');
