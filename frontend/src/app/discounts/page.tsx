@@ -8,6 +8,7 @@ import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { fetchDiscountsApi } from '@/lib/api/priceApi';
 import { PriceUpdateWithProduct } from '@shared-types/api';
+import PriceUpdatePageDropdown from '@/components/PriceUpdatePageDropdown';
 
 export default function DiscountsPage() {
   const router = useRouter();
@@ -23,8 +24,9 @@ export default function DiscountsPage() {
     const size = searchParams?.get('size');
     return size ? parseInt(size, 10) : 18;
   });
+  const [sortRaw, setSortRaw] = useState(false);
 
-  const DISCOUNT_PERIOD_DAYS = 7;
+  const PRICE_UPDATE_PERIOD_DAYS = 7;
 
   useEffect(() => {
     const fetchDiscounts = async () => {
@@ -32,12 +34,13 @@ export default function DiscountsPage() {
         setLoading(true);
         const page = parseInt(searchParams?.get('page') || '1', 10);
         const size = parseInt(searchParams?.get('size') || '18', 10);
-
         const offset = (page - 1) * size;
+
         const response = await fetchDiscountsApi(
           size,
           offset,
-          DISCOUNT_PERIOD_DAYS
+          PRICE_UPDATE_PERIOD_DAYS,
+          sortRaw
         );
 
         setProducts(response.results);
@@ -54,7 +57,7 @@ export default function DiscountsPage() {
     };
 
     fetchDiscounts();
-  }, [searchParams]);
+  }, [searchParams, sortRaw]);
 
   const handlePagination = (page: number) => {
     router.push(`/discounts?page=${page}&size=${perPage}`);
@@ -62,6 +65,10 @@ export default function DiscountsPage() {
 
   const handlePerPageChange = (newPerPage: number) => {
     router.push(`/discounts?page=1&size=${newPerPage}`);
+  };
+
+  const handleSortChange = (isRaw: boolean) => {
+    setSortRaw(isRaw);
   };
 
   if (loading) return <LoadingIndicator />;
@@ -74,23 +81,32 @@ export default function DiscountsPage() {
           Discounted Products
         </h1>
 
+        <div className="w-full flex justify-between items-center max-w-5xl mb-4">
+          <div>
+            <p className="text-lg font-semibold">
+              Found <span className="text-primary">{resultSize}</span> recent
+              discount
+              {resultSize > 1 ? 's' : ''}
+            </p>
+          </div>
+
+          <PriceUpdatePageDropdown
+            sortRaw={sortRaw}
+            onSortChange={handleSortChange}
+          />
+        </div>
+
         {resultSize > 0 ? (
           <>
-            <div className="w-full text-center mt-4">
-              <p className="text-lg font-semibold">
-                Found <span className="text-primary">{resultSize}</span>{' '}
-                discount
-                {resultSize > 1 ? 's' : ''} in the past {DISCOUNT_PERIOD_DAYS}{' '}
-                days
-              </p>
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
               {products.map((discount, index) => (
                 <ProductCard
                   key={index}
                   product={discount.product}
-                  oldPrice={discount.old_price}
+                  priceUpdate={{
+                    oldPrice: discount.old_price,
+                    showPriceUpdateAsPercentage: !sortRaw,
+                  }}
                 />
               ))}
             </div>

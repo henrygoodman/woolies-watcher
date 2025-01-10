@@ -56,16 +56,18 @@ export const fetchGlobalPriceUpdatesApi = async (
  * @param limit - Maximum number of results to return.
  * @param offset - Number of results to skip for pagination.
  * @param days - Number of days to look back for price changes.
+ * @param sortRaw - True if results should be sorted based on raw AUD (default is percentage).
  * @returns A promise that resolves to a paginated response of discounts.
  * @throws Will throw an error if the fetch fails or if the data is invalid.
  */
 export const fetchDiscountsApi = async (
   limit: number,
   offset: number,
-  days: number
+  days: number,
+  sortRaw: boolean = false
 ): Promise<PaginatedPriceUpdateWithProduct> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/price/discounts?limit=${limit}&offset=${offset}&days=${days}`
+    `${process.env.NEXT_PUBLIC_API_URL}/price/discounts?limit=${limit}&offset=${offset}&days=${days}&sortRaw=${sortRaw}`
   );
 
   if (!response.ok) {
@@ -82,16 +84,18 @@ export const fetchDiscountsApi = async (
  * @param limit - Maximum number of results to return.
  * @param offset - Number of results to skip for pagination.
  * @param days - Number of days to look back for price changes.
+ * @param sortRaw - True if results should be sorted based on raw AUD (default is percentage).
  * @returns A promise that resolves to a paginated response of markups.
  * @throws Will throw an error if the fetch fails or if the data is invalid.
  */
 export const fetchMarkupsApi = async (
   limit: number,
   offset: number,
-  days: number
+  days: number,
+  sortRaw: boolean = false
 ): Promise<PaginatedPriceUpdateWithProduct> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/price/markups?limit=${limit}&offset=${offset}&days=${days}`
+    `${process.env.NEXT_PUBLIC_API_URL}/price/markups?limit=${limit}&offset=${offset}&days=${days}&sortRaw=${sortRaw}`
   );
 
   if (!response.ok) {

@@ -12,23 +12,33 @@ import {
 } from '@/components/ui/card';
 import { HeartIcon } from '@/components/HeartIcon';
 
+export interface PriceUpdateInfo {
+  oldPrice: number;
+  showPriceUpdateAsPercentage: boolean;
+}
+
 interface ProductCardProps {
   product: DBProduct;
-  oldPrice?: number; // Optional old price prop
+  priceUpdate?: PriceUpdateInfo;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
-  oldPrice,
+  priceUpdate,
 }) => {
-  // Calculate the price change percentage if oldPrice is provided
-  const priceDifference = oldPrice
+  const { oldPrice, showPriceUpdateAsPercentage } = priceUpdate || {};
+
+  // Calculate the price change percentage or dollar amount if oldPrice is provided
+  const priceDifferencePercentage = oldPrice
     ? (((product.current_price - oldPrice) / oldPrice) * 100).toFixed(2)
+    : null;
+
+  const priceDifferenceRaw = oldPrice
+    ? (product.current_price - oldPrice).toFixed(2)
     : null;
 
   const isDiscount = oldPrice && product.current_price < oldPrice; // Check if it's a discount
 
-  console.log('Mounted', product);
   return (
     <Card className="relative w-full flex flex-col bg-card text-card-foreground border border-border rounded-xl overflow-hidden h-full">
       <HeartIcon product={product} />
@@ -68,19 +78,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               ${product.current_price.toFixed(2)}
             </p>
 
-            {oldPrice && (
+            {priceUpdate && oldPrice && (
               <div
                 className={`text-sm font-semibold ${
                   isDiscount ? 'text-green-600' : 'text-red-600'
                 }`}
               >
                 {isDiscount ? '-' : '+'}
-                {Math.abs(Number(priceDifference))}%
+                {showPriceUpdateAsPercentage
+                  ? `${Math.abs(Number(priceDifferencePercentage))}%`
+                  : `$${Math.abs(Number(priceDifferenceRaw)).toFixed(2)}`}
               </div>
             )}
           </div>
 
-          {oldPrice && (
+          {priceUpdate && oldPrice && (
             <p className="text-muted-foreground text-sm line-through">
               ${oldPrice.toFixed(2)}
             </p>

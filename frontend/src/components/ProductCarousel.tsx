@@ -101,7 +101,14 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
               key={product.id}
               className="basis-full sm:basis-1/3 pl-4 sm:pl-8"
             >
-              <ProductCard product={product} oldPrice={old_price} />
+              <ProductCard
+                product={product}
+                priceUpdate={
+                  old_price
+                    ? { oldPrice: old_price, showPriceUpdateAsPercentage: true }
+                    : undefined
+                }
+              />
             </CarouselItem>
           ))}
         </CarouselContent>
