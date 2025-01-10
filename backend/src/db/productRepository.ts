@@ -46,11 +46,7 @@ class ProductRepository extends GenericRepository<DBProduct> {
 
     if (existingProduct) {
       if (existingProduct.current_price !== product.current_price) {
-        console.debug(
-          'Price change detected',
-          product.id,
-          product.product_name
-        );
+        console.log('Price change detected', product.id, product.product_name);
         await priceRepository.create({
           product_id: existingProduct.id!,
           old_price: existingProduct.current_price,
@@ -58,7 +54,7 @@ class ProductRepository extends GenericRepository<DBProduct> {
           updated_at: new Date(),
         });
       } else {
-        console.debug('No price change detected', product.id);
+        console.log('No price change detected', product.id);
       }
     }
 
