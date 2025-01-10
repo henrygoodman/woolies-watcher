@@ -90,6 +90,16 @@ export default function DiscountsPage() {
           Current Discounts
         </h1>
 
+        {/* Description Section */}
+        <div className="w-full max-w-5xl text-left text-gray-600 mb-8 italic">
+          <p>
+            Note: These price changes reflect drops in price compared to their
+            values from the last{' '}
+            <span className="font-semibold">{PRICE_UPDATE_PERIOD_DAYS}</span>{' '}
+            days. They may not always represent actual discounts or promotions.
+          </p>
+        </div>
+
         <div className="w-full flex justify-between items-center max-w-5xl mb-4">
           <div>
             <p className="text-lg font-semibold">

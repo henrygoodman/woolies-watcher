@@ -90,6 +90,17 @@ export default function MarkupsPage() {
           Current Markups
         </h1>
 
+        {/* Description Section */}
+        <div className="w-full max-w-5xl text-left text-gray-600 mb-8 italic">
+          <p>
+            Note: These price increases often reflect items returning to their
+            regular prices after a sale, rather than a price hike. The data
+            compares prices over the last{' '}
+            <span className="font-semibold">{PRICE_UPDATE_PERIOD_DAYS}</span>{' '}
+            days.
+          </p>
+        </div>
+
         <div className="w-full flex justify-between items-center max-w-5xl mb-4">
           <div>
             <p className="text-lg font-semibold">
