@@ -28,6 +28,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
   const isDiscount = oldPrice && product.current_price < oldPrice; // Check if it's a discount
 
+  console.log('Mounted', product);
   return (
     <Card className="relative w-full flex flex-col bg-card text-card-foreground border border-border rounded-xl overflow-hidden h-full">
       <HeartIcon product={product} />
@@ -39,7 +40,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               src={product.image_url || '/images/product_placeholder.jpeg'}
               alt={product.product_name}
               className="rounded-md"
-              loading="lazy"
               style={{
                 maxWidth: '100%',
                 maxHeight: '100%',
