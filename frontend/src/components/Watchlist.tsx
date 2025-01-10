@@ -36,7 +36,10 @@ export const Watchlist: React.FC = () => {
 
   return (
     <div className="container mx-auto max-w-5xl">
-      <h2 className="text-2xl font-bold mb-4">Your Watchlist</h2>
+      <h2 className="text-2xl font-bold mb-6">Your Watchlist</h2>
+      <p className="text-sm italic mb-4">
+        Notification emails occur daily at 8am AEST.
+      </p>
       <DataTable
         columns={columns(setWatchlist, removeFromWatchlist)}
         data={watchlist}

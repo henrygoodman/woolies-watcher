@@ -23,7 +23,7 @@ export const metadata = {
   title: 'Woolies Watcher',
   description: 'Track price updates of Woolworths Items',
   icons: {
-    icon: '/images/favicon.ico',
+    icon: '/images/favicon.ico?v=3',
     apple: '/images/apple-touch-icon.png',
     shortcut: '/images/favicon-32x32.png',
     other: [

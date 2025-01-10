@@ -87,7 +87,7 @@ export default function MarkupsPage() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex flex-col items-center">
         <h1 className="text-4xl font-bold mb-8 text-primary">
-          Marked-up Products
+          Current Markups
         </h1>
 
         <div className="w-full flex justify-between items-center max-w-5xl mb-4">

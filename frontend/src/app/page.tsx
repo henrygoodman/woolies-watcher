@@ -42,9 +42,7 @@ export default function Home() {
       <HeroSection />
 
       <div className="flex flex-col items-center p-8">
-        <h1 className="text-4xl font-bold mb-8 text-primary">
-          Popular Products
-        </h1>
+        <h1 className="text-4xl font-bold mb-8 text-primary">Popular Items</h1>
 
         {/* Carousel for popular products */}
         <div className="w-full max-w-5xl">

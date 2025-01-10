@@ -62,8 +62,8 @@ export function SearchBar({
                 <div className="relative">
                   <Input
                     type="search"
-                    placeholder="Search products..."
-                    className="w-full pr-10 h-9 text-sm rounded-lg"
+                    placeholder="Search items..."
+                    className="w-full pr-10 h-10 text-xl rounded-lg"
                     {...field}
                     onKeyDown={onEnterSubmit}
                   />
