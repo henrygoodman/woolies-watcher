@@ -24,7 +24,9 @@ export default function MarkupsPage() {
     const size = searchParams?.get('size');
     return size ? parseInt(size, 10) : 18;
   });
-  const [sortRaw, setSortRaw] = useState(false);
+  const [sortRaw, setSortRaw] = useState(() => {
+    return searchParams?.get('sort') === 'raw';
+  });
 
   const PRICE_UPDATE_PERIOD_DAYS = 7;
 
@@ -60,15 +62,22 @@ export default function MarkupsPage() {
   }, [searchParams, sortRaw]);
 
   const handlePagination = (page: number) => {
-    router.push(`/markups?page=${page}&size=${perPage}`);
+    router.push(
+      `/markups?page=${page}&size=${perPage}&sort=${sortRaw ? 'raw' : 'percentage'}`
+    );
   };
 
   const handlePerPageChange = (newPerPage: number) => {
-    router.push(`/markups?page=1&size=${newPerPage}`);
+    router.push(
+      `/markups?page=1&size=${newPerPage}&sort=${sortRaw ? 'raw' : 'percentage'}`
+    );
   };
 
   const handleSortChange = (isRaw: boolean) => {
     setSortRaw(isRaw);
+    router.push(
+      `/markups?page=1&size=${perPage}&sort=${isRaw ? 'raw' : 'percentage'}`
+    );
   };
 
   if (loading) return <LoadingIndicator />;
