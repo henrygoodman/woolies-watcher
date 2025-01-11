@@ -1,7 +1,7 @@
 import cron from 'node-cron';
-import watchlistRepository from '@/db/watchlistRepository';
 import { fetchProductsByNameAndUrl } from '@/services/product/productService';
 import { PRODUCT_UPDATE_CRON_UTC } from '@/constants/sync';
+import productRepository from '@/db/productRepository';
 
 /**
  * Schedules a daily job to update product information in the watchlist.
@@ -19,10 +19,11 @@ export const scheduleDailyProductUpdates = () => {
       let errorsOccurred = 0;
 
       try {
-        const watchedProducts = await watchlistRepository.getWatchedProducts();
+        // FIXME: If we end up fetching over ~50% of API quota, probably switch to just watched
+        const productsToUpdate = await productRepository.findAll();
 
         await Promise.all(
-          watchedProducts.map(async (product) => {
+          productsToUpdate.map(async (product) => {
             try {
               const updatedProduct = await fetchProductsByNameAndUrl(
                 product.product_name,
