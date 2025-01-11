@@ -3,7 +3,6 @@ import productRepository from '@/db/productRepository';
 
 export const handleProductGet: RequestHandler = async (req, res) => {
   const { id } = req.params;
-
   try {
     const product = await productRepository.findById(Number(id));
     if (!product) {

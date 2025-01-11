@@ -89,48 +89,64 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
     sortRaw: boolean = false
   ): Promise<{ total: number; data: DBPriceUpdate[] }> {
     const baseQuery = `
-    WITH aggregated_changes AS (
-      SELECT 
+      WITH filtered_updates AS (
+        SELECT *
+        FROM price_updates
+        WHERE updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
+      ),
+      first_and_last_updates AS (
+        SELECT
+          product_id,
+          (SELECT old_price FROM filtered_updates u1 WHERE u1.product_id = u.product_id ORDER BY updated_at ASC LIMIT 1) AS start_price,
+          (SELECT new_price FROM filtered_updates u2 WHERE u2.product_id = u.product_id ORDER BY updated_at DESC LIMIT 1) AS end_price,
+          MAX(updated_at) AS updated_at
+        FROM filtered_updates u
+        GROUP BY product_id
+      )
+      SELECT
         product_id,
-        MIN(old_price) AS min_old_price,
-        MAX(new_price) AS max_new_price,
-        ((MAX(new_price) - MIN(old_price)) / MIN(old_price)) * 100 AS percentage_change,
-        (MAX(new_price) - MIN(old_price)) AS raw_increase,
-        MAX(updated_at) AS updated_at
-      FROM price_updates
-      WHERE old_price > 0
-        AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
-      GROUP BY product_id
-      HAVING MAX(new_price) > MIN(old_price)
-    )
-  `;
-
-    const sortColumn = sortRaw ? 'raw_increase' : 'percentage_change';
-
-    const dataQuery = `
-    ${baseQuery}
-    SELECT *
-    FROM aggregated_changes
-    ORDER BY ${sortColumn} DESC
-    LIMIT $1 OFFSET $2;
-  `;
+        start_price,
+        end_price,
+        ((end_price - start_price) / start_price) * 100 AS percentage_change,
+        (end_price - start_price) AS raw_increase,
+        updated_at
+      FROM first_and_last_updates
+      WHERE start_price < end_price -- Only include valid increases
+      ORDER BY ${sortRaw ? 'raw_increase' : 'percentage_change'} DESC
+      LIMIT $1 OFFSET $2;
+    `;
 
     const countQuery = `
-    ${baseQuery}
-    SELECT COUNT(*) AS total
-    FROM aggregated_changes;
-  `;
+      WITH filtered_updates AS (
+        SELECT *
+        FROM price_updates
+        WHERE updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
+      ),
+      first_and_last_updates AS (
+        SELECT
+          product_id,
+          (SELECT old_price FROM filtered_updates u1 WHERE u1.product_id = u.product_id ORDER BY updated_at ASC LIMIT 1) AS start_price,
+          (SELECT new_price FROM filtered_updates u2 WHERE u2.product_id = u.product_id ORDER BY updated_at DESC LIMIT 1) AS end_price
+        FROM filtered_updates u
+        GROUP BY product_id
+      )
+      SELECT COUNT(*) AS total
+      FROM first_and_last_updates
+      WHERE start_price < end_price -- Only include valid increases
+    `;
 
     try {
       const [dataResult, countResult] = await Promise.all([
-        pool.query(dataQuery, [limit, offset]),
+        pool.query(baseQuery, [limit, offset]),
         pool.query(countQuery),
       ]);
 
       const data = dataResult.rows.map((row) => ({
         product_id: row.product_id,
-        old_price: row.min_old_price,
-        new_price: row.max_new_price,
+        old_price: row.start_price,
+        new_price: row.end_price,
+        percentage_change: row.percentage_change,
+        raw_increase: row.raw_increase,
         updated_at: row.updated_at,
       }));
 
@@ -157,48 +173,64 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
     sortRaw: boolean = false
   ): Promise<{ total: number; data: DBPriceUpdate[] }> {
     const baseQuery = `
-    WITH aggregated_changes AS (
-      SELECT 
+      WITH filtered_updates AS (
+        SELECT *
+        FROM price_updates
+        WHERE updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
+      ),
+      first_and_last_updates AS (
+        SELECT
+          product_id,
+          (SELECT old_price FROM filtered_updates u1 WHERE u1.product_id = u.product_id ORDER BY updated_at ASC LIMIT 1) AS start_price,
+          (SELECT new_price FROM filtered_updates u2 WHERE u2.product_id = u.product_id ORDER BY updated_at DESC LIMIT 1) AS end_price,
+          MAX(updated_at) AS updated_at
+        FROM filtered_updates u
+        GROUP BY product_id
+      )
+      SELECT
         product_id,
-        MIN(old_price) AS min_old_price,
-        MAX(new_price) AS max_new_price,
-        ((MIN(old_price) - MAX(new_price)) / MIN(old_price)) * 100 AS percentage_change,
-        (MIN(old_price) - MAX(new_price)) AS raw_discount,
-        MAX(updated_at) AS updated_at
-      FROM price_updates
-      WHERE old_price > 0
-        AND updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
-      GROUP BY product_id
-      HAVING MAX(new_price) < MIN(old_price)
-    )
-  `;
-
-    const sortColumn = sortRaw ? 'raw_discount' : 'percentage_change';
-
-    const dataQuery = `
-    ${baseQuery}
-    SELECT *
-    FROM aggregated_changes
-    ORDER BY ${sortColumn} DESC
-    LIMIT $1 OFFSET $2;
-  `;
+        start_price,
+        end_price,
+        ((start_price - end_price) / start_price) * 100 AS percentage_change,
+        (start_price - end_price) AS raw_discount,
+        updated_at
+      FROM first_and_last_updates
+      WHERE start_price > end_price -- Only include valid discounts
+      ORDER BY ${sortRaw ? 'raw_discount' : 'percentage_change'} DESC
+      LIMIT $1 OFFSET $2;
+    `;
 
     const countQuery = `
-    ${baseQuery}
-    SELECT COUNT(*) AS total
-    FROM aggregated_changes;
-  `;
+      WITH filtered_updates AS (
+        SELECT *
+        FROM price_updates
+        WHERE updated_at >= DATE_TRUNC('day', NOW() AT TIME ZONE 'UTC') - INTERVAL '${days} days'
+      ),
+      first_and_last_updates AS (
+        SELECT
+          product_id,
+          (SELECT old_price FROM filtered_updates u1 WHERE u1.product_id = u.product_id ORDER BY updated_at ASC LIMIT 1) AS start_price,
+          (SELECT new_price FROM filtered_updates u2 WHERE u2.product_id = u.product_id ORDER BY updated_at DESC LIMIT 1) AS end_price
+        FROM filtered_updates u
+        GROUP BY product_id
+      )
+      SELECT COUNT(*) AS total
+      FROM first_and_last_updates
+      WHERE start_price > end_price -- Only include valid discounts
+    `;
 
     try {
       const [dataResult, countResult] = await Promise.all([
-        pool.query(dataQuery, [limit, offset]),
+        pool.query(baseQuery, [limit, offset]),
         pool.query(countQuery),
       ]);
 
       const data = dataResult.rows.map((row) => ({
         product_id: row.product_id,
-        old_price: row.min_old_price,
-        new_price: row.max_new_price,
+        old_price: row.start_price,
+        new_price: row.end_price,
+        percentage_change: row.percentage_change,
+        raw_discount: row.raw_discount,
         updated_at: row.updated_at,
       }));
 

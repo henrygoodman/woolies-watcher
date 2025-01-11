@@ -84,7 +84,25 @@ class ProductRepository extends GenericRepository<DBProduct> {
         product.url,
         product.image_url,
       ]);
-      return DBProductSchema.parse(result.rows[0]);
+
+      const savedProduct = DBProductSchema.parse(result.rows[0]);
+
+      // If the product is new, create an initial price update
+      if (!existingProduct) {
+        console.log(
+          'New product detected',
+          savedProduct.id,
+          savedProduct.product_name
+        );
+        await priceRepository.create({
+          product_id: savedProduct.id!,
+          old_price: savedProduct.current_price,
+          new_price: savedProduct.current_price,
+          updated_at: new Date(),
+        });
+      }
+
+      return savedProduct;
     } catch (error) {
       console.error('Error saving product to database:', error);
       throw error;

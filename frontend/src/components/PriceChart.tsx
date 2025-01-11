@@ -13,9 +13,10 @@ import {
 import { fetchPriceUpdatesApi } from '@/lib/api/priceApi';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { ErrorMessage } from '@/components/ErrorMessage';
+import { useTheme } from '@/contexts/ThemeContext';
 
 type ChartDataPoint = {
-  updatedAt: string;
+  updatedAt: number;
   price: number;
 };
 
@@ -40,33 +41,20 @@ export const PriceChart = ({
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
+  const { isDarkTheme } = useTheme();
 
-  useEffect(() => {
-    // Detect theme from the document's data-theme attribute
-    const handleThemeChange = () => {
-      const currentTheme =
-        document.documentElement.getAttribute('data-theme') || 'light';
-      setThemeMode(currentTheme as 'light' | 'dark');
-    };
-
-    // Initial theme setup
-    handleThemeChange();
-
-    // Add a mutation observer to detect changes to the data-theme attribute
-    const observer = new MutationObserver(handleThemeChange);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
-    });
-
-    return () => observer.disconnect();
-  }, []);
+  const currentTheme = isDarkTheme ? themeColors.dark : themeColors.light;
 
   useEffect(() => {
     const loadPriceUpdates = async () => {
       try {
         const updates = await fetchPriceUpdatesApi(productId);
+
+        // Sort updates by updated_at before processing
+        updates.sort(
+          (a, b) =>
+            new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()
+        );
 
         const data: ChartDataPoint[] = [];
 
@@ -77,15 +65,9 @@ export const PriceChart = ({
             firstUpdateDate.getTime() - 24 * 60 * 60 * 1000
           );
 
-          // Add left anchor point
-          data.push({
-            updatedAt: leftAnchorDate.toISOString(),
-            price: firstUpdate.old_price || currentPrice,
-          });
-
           // Add first price update
           data.push({
-            updatedAt: firstUpdateDate.toISOString(),
+            updatedAt: firstUpdateDate.getTime(),
             price: firstUpdate.new_price,
           });
 
@@ -94,29 +76,17 @@ export const PriceChart = ({
             const updateDate = new Date(update.updated_at);
             if (!isNaN(updateDate.getTime())) {
               data.push({
-                updatedAt: updateDate.toISOString(),
+                updatedAt: updateDate.getTime(),
                 price: update.new_price,
               });
             }
           });
-
-          // Add right anchor point
-          data.push({
-            updatedAt: new Date().toISOString(),
-            price: currentPrice,
-          });
-        } else {
-          // Default anchor points
-          const leftAnchorDate = new Date(Date.now() - 1 * 24 * 60 * 60 * 1000);
-          data.push({
-            updatedAt: leftAnchorDate.toISOString(),
-            price: currentPrice,
-          });
-          data.push({
-            updatedAt: new Date().toISOString(),
-            price: currentPrice,
-          });
         }
+        // Add right anchor point
+        data.push({
+          updatedAt: new Date().getTime(),
+          price: currentPrice,
+        });
 
         setChartData(data);
       } catch (err) {
@@ -129,8 +99,6 @@ export const PriceChart = ({
 
     loadPriceUpdates();
   }, [productId, currentPrice]);
-
-  const currentTheme = themeColors[themeMode];
 
   return (
     <div className="p-4 border rounded-md shadow-sm">
@@ -146,9 +114,15 @@ export const PriceChart = ({
             />
             <XAxis
               dataKey="updatedAt"
+              type="number"
+              domain={['dataMin', 'dataMax']}
+              scale="time"
               padding={{ left: 20, right: 20 }}
-              tickFormatter={(date) => new Date(date).toLocaleDateString()}
+              tickFormatter={(timestamp) =>
+                new Date(timestamp).toLocaleDateString()
+              }
             />
+
             <YAxis
               domain={[
                 (dataMin: number) => {
@@ -167,22 +141,22 @@ export const PriceChart = ({
 
             <Tooltip
               formatter={(value: number, name: string) => [
-                <span style={{ color: themeMode === 'dark' ? '#ddd' : '#333' }}>
+                <span style={{ color: isDarkTheme ? '#ddd' : '#333' }}>
                   {`${name.charAt(0).toUpperCase() + name.slice(1)}: $${value.toFixed(2)}`}
                 </span>,
               ]}
               labelFormatter={(label) => (
-                <span style={{ color: themeMode === 'dark' ? '#ddd' : '#333' }}>
+                <span style={{ color: isDarkTheme ? '#ddd' : '#333' }}>
                   {`Date: ${new Date(label).toLocaleDateString()}`}
                 </span>
               )}
               contentStyle={{
-                backgroundColor: themeMode === 'dark' ? '#333' : '#fff',
+                backgroundColor: isDarkTheme ? '#333' : '#fff',
                 borderRadius: '8px',
                 border: '1px solid #ccc',
               }}
               labelStyle={{
-                color: themeMode === 'dark' ? '#ddd' : '#333',
+                color: isDarkTheme ? '#ddd' : '#333',
               }}
             />
 
