@@ -23,6 +23,7 @@ class UserRepository extends GenericRepository<DBUser> {
       name,
       destination_email: email,
       enable_emails: true,
+      theme_dark: false,
     });
     return DBUserSchema.parse(newUser);
   }
