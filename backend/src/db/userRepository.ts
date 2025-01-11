@@ -18,14 +18,16 @@ class UserRepository extends GenericRepository<DBUser> {
       return DBUserSchema.parse(existingUser);
     }
 
-    const newUser = await this.create({
+    const newUser: DBUser = {
       email,
-      name,
+      name: name || null,
       destination_email: email,
       enable_emails: true,
       theme_dark: false,
-    });
-    return DBUserSchema.parse(newUser);
+    };
+
+    const createdUser = await this.create(newUser);
+    return DBUserSchema.parse(createdUser);
   }
 }
 
