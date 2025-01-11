@@ -97,11 +97,21 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
       first_and_last_updates AS (
         SELECT
           product_id,
-          (SELECT old_price FROM filtered_updates u1 WHERE u1.product_id = u.product_id ORDER BY updated_at ASC LIMIT 1) AS start_price,
-          (SELECT new_price FROM filtered_updates u2 WHERE u2.product_id = u.product_id ORDER BY updated_at DESC LIMIT 1) AS end_price,
-          MAX(updated_at) AS updated_at
-        FROM filtered_updates u
+          MIN(updated_at) AS first_update_time,
+          MAX(updated_at) AS last_update_time
+        FROM filtered_updates
         GROUP BY product_id
+      ),
+      aggregated_updates AS (
+        SELECT
+          u.product_id,
+          MIN(u.old_price) FILTER (WHERE u.updated_at = f.first_update_time) AS start_price,
+          MAX(u.new_price) FILTER (WHERE u.updated_at = f.last_update_time) AS end_price,
+          f.last_update_time AS updated_at
+        FROM filtered_updates u
+        INNER JOIN first_and_last_updates f
+        ON u.product_id = f.product_id
+        GROUP BY u.product_id, f.last_update_time
       )
       SELECT
         product_id,
@@ -110,7 +120,7 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
         ((end_price - start_price) / start_price) * 100 AS percentage_change,
         (end_price - start_price) AS raw_increase,
         updated_at
-      FROM first_and_last_updates
+      FROM aggregated_updates
       WHERE start_price < end_price -- Only include valid increases
       ORDER BY ${sortRaw ? 'raw_increase' : 'percentage_change'} DESC
       LIMIT $1 OFFSET $2;
@@ -125,14 +135,24 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
       first_and_last_updates AS (
         SELECT
           product_id,
-          (SELECT old_price FROM filtered_updates u1 WHERE u1.product_id = u.product_id ORDER BY updated_at ASC LIMIT 1) AS start_price,
-          (SELECT new_price FROM filtered_updates u2 WHERE u2.product_id = u.product_id ORDER BY updated_at DESC LIMIT 1) AS end_price
-        FROM filtered_updates u
+          MIN(updated_at) AS first_update_time,
+          MAX(updated_at) AS last_update_time
+        FROM filtered_updates
         GROUP BY product_id
+      ),
+      aggregated_updates AS (
+        SELECT
+          u.product_id,
+          MIN(u.old_price) FILTER (WHERE u.updated_at = f.first_update_time) AS start_price,
+          MAX(u.new_price) FILTER (WHERE u.updated_at = f.last_update_time) AS end_price
+        FROM filtered_updates u
+        INNER JOIN first_and_last_updates f
+        ON u.product_id = f.product_id
+        GROUP BY u.product_id
       )
       SELECT COUNT(*) AS total
-      FROM first_and_last_updates
-      WHERE start_price < end_price -- Only include valid increases
+      FROM aggregated_updates
+      WHERE start_price < end_price;
     `;
 
     try {
@@ -181,11 +201,21 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
       first_and_last_updates AS (
         SELECT
           product_id,
-          (SELECT old_price FROM filtered_updates u1 WHERE u1.product_id = u.product_id ORDER BY updated_at ASC LIMIT 1) AS start_price,
-          (SELECT new_price FROM filtered_updates u2 WHERE u2.product_id = u.product_id ORDER BY updated_at DESC LIMIT 1) AS end_price,
-          MAX(updated_at) AS updated_at
-        FROM filtered_updates u
+          MIN(updated_at) AS first_update_time,
+          MAX(updated_at) AS last_update_time
+        FROM filtered_updates
         GROUP BY product_id
+      ),
+      aggregated_updates AS (
+        SELECT
+          u.product_id,
+          MIN(u.old_price) FILTER (WHERE u.updated_at = f.first_update_time) AS start_price,
+          MAX(u.new_price) FILTER (WHERE u.updated_at = f.last_update_time) AS end_price,
+          f.last_update_time AS updated_at
+        FROM filtered_updates u
+        INNER JOIN first_and_last_updates f
+        ON u.product_id = f.product_id
+        GROUP BY u.product_id, f.last_update_time
       )
       SELECT
         product_id,
@@ -194,7 +224,7 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
         ((start_price - end_price) / start_price) * 100 AS percentage_change,
         (start_price - end_price) AS raw_discount,
         updated_at
-      FROM first_and_last_updates
+      FROM aggregated_updates
       WHERE start_price > end_price -- Only include valid discounts
       ORDER BY ${sortRaw ? 'raw_discount' : 'percentage_change'} DESC
       LIMIT $1 OFFSET $2;
@@ -209,14 +239,24 @@ class PriceUpdateRepository extends GenericRepository<DBPriceUpdate> {
       first_and_last_updates AS (
         SELECT
           product_id,
-          (SELECT old_price FROM filtered_updates u1 WHERE u1.product_id = u.product_id ORDER BY updated_at ASC LIMIT 1) AS start_price,
-          (SELECT new_price FROM filtered_updates u2 WHERE u2.product_id = u.product_id ORDER BY updated_at DESC LIMIT 1) AS end_price
-        FROM filtered_updates u
+          MIN(updated_at) AS first_update_time,
+          MAX(updated_at) AS last_update_time
+        FROM filtered_updates
         GROUP BY product_id
+      ),
+      aggregated_updates AS (
+        SELECT
+          u.product_id,
+          MIN(u.old_price) FILTER (WHERE u.updated_at = f.first_update_time) AS start_price,
+          MAX(u.new_price) FILTER (WHERE u.updated_at = f.last_update_time) AS end_price
+        FROM filtered_updates u
+        INNER JOIN first_and_last_updates f
+        ON u.product_id = f.product_id
+        GROUP BY u.product_id
       )
       SELECT COUNT(*) AS total
-      FROM first_and_last_updates
-      WHERE start_price > end_price -- Only include valid discounts
+      FROM aggregated_updates
+      WHERE start_price > end_price;
     `;
 
     try {
