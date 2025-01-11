@@ -12,15 +12,37 @@ services:
     depends_on:
       - frontend
       - backend
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
     restart: always
 
   frontend:
     environment:
       NODE_ENV: production
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
 
   backend:
     environment:
       NODE_ENV: production
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  db:
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '10m'
+        max-file: '3'
 
   pgadmin:
     deploy:
