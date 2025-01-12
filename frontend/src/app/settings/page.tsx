@@ -78,7 +78,7 @@ export default function SettingsPage() {
       setInitialEmail(email);
       setInitialEnableEmails(enableEmails);
       setIsDirty(false);
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'Failed to save settings',

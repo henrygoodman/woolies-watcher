@@ -1,4 +1,3 @@
-import { useSessionError } from '@/contexts/SessionErrorContext';
 import NextAuth, { AuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 
@@ -86,17 +85,18 @@ const authOptions: AuthOptions = {
 
       try {
         return await refreshAccessToken(typedToken);
-      } catch (error) {
-        const { setError } = useSessionError();
-        setError('Your session has expired. Please sign in again.');
-        return { ...typedToken, error: 'RefreshAccessTokenError' };
+      } catch {
+        return {
+          ...typedToken,
+          error: 'Your session has expired. Please sign in again.',
+        };
       }
     },
 
     async session({ session, token }) {
       const typedToken = token as JWT;
-      session.accessToken = typedToken.accessToken;
       session.error = typedToken.error;
+      session.accessToken = typedToken.accessToken;
       session.user.name = typedToken.name || session.user.name;
       session.user.email = typedToken.email || session.user.email;
       session.user.image = typedToken.picture || session.user.image;

@@ -1,22 +1,31 @@
-'use client';
-
-import { createContext, useContext, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
+import { useSession } from 'next-auth/react';
 
 type SessionErrorContextType = {
   error: string | null;
   setError: (error: string | null) => void;
 };
 
-const SessionErrorContext = createContext<SessionErrorContextType | undefined>(
-  undefined
-);
+const SessionErrorContext = createContext<SessionErrorContextType>({
+  error: null,
+  setError: () => {},
+});
 
-export const SessionErrorProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
+export const SessionErrorProvider = ({ children }: { children: ReactNode }) => {
+  const { data: session } = useSession();
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session?.error) {
+      setError(session.error);
+    }
+  }, [session]);
 
   return (
     <SessionErrorContext.Provider value={{ error, setError }}>
@@ -25,12 +34,4 @@ export const SessionErrorProvider = ({
   );
 };
 
-export const useSessionError = (): SessionErrorContextType => {
-  const context = useContext(SessionErrorContext);
-  if (!context) {
-    throw new Error(
-      'useSessionError must be used within a SessionErrorProvider'
-    );
-  }
-  return context;
-};
+export const useSessionError = () => useContext(SessionErrorContext);

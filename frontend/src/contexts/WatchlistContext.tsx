@@ -1,6 +1,12 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import {
   getWatchlist,
   addToWatchlist as apiAddToWatchlist,
@@ -32,7 +38,7 @@ export const WatchlistProvider = ({
   const [watchlist, setWatchlist] = useState<DBProduct[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchWatchlist = async () => {
+  const fetchWatchlist = useCallback(async () => {
     if (!isLoggedIn) return;
 
     try {
@@ -43,11 +49,11 @@ export const WatchlistProvider = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isLoggedIn]);
 
   useEffect(() => {
     fetchWatchlist();
-  }, [isLoggedIn]);
+  }, [fetchWatchlist]);
 
   const addToWatchlist = async (product: DBProduct) => {
     await apiAddToWatchlist(product.id);
@@ -64,7 +70,6 @@ export const WatchlistProvider = ({
     toast({
       title: 'Removed from Watchlist',
       description: `${product.product_name} has been removed from your watchlist.`,
-      variant: 'destructive',
     });
   };
 

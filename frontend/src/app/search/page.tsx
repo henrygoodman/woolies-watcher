@@ -40,7 +40,7 @@ export default function SearchPage() {
         document.title = `${searchQuery} - Woolies Watcher`;
       }
     }
-  }, [searchParams]);
+  }, [searchParams, fetchProducts]);
 
   const handlePagination = (page: number) => {
     const query = searchParams?.get('q') || '';
@@ -70,7 +70,7 @@ export default function SearchPage() {
                   result
                   {resultSize > 1 ? 's' : ''} for{' '}
                   <span className="italic">
-                    "{searchParams?.get('q') || ''}"
+                    &quot;{searchParams?.get('q') || ''}&quot;
                   </span>
                 </p>
               ) : (
@@ -78,7 +78,7 @@ export default function SearchPage() {
                   <p className="text-lg font-semibold text-gray-500">
                     No results found for{' '}
                     <span className="italic">
-                      "{searchParams?.get('q') || 'your query'}"
+                      &quot;{searchParams?.get('q') || 'your query'}&quot;
                     </span>
                     .
                   </p>

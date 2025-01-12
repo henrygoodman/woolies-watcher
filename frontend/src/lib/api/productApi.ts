@@ -5,7 +5,6 @@ import {
   ProductSearchResponseSchema,
 } from '@shared-types/api';
 import { DBProduct, DBProductSchema } from '@shared-types/db';
-import { z } from 'zod';
 
 export class ApiRateLimitError extends Error {
   title: string;

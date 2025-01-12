@@ -8,7 +8,6 @@ import { useEffect, useState } from 'react';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { useRouter } from 'next/navigation';
-import { ThemeToggle } from '@/components/ThemeToggle';
 
 export default function Home() {
   const [highlightedProducts, setHighlightedProducts] =

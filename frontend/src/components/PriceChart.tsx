@@ -59,20 +59,7 @@ export const PriceChart = ({
         const data: ChartDataPoint[] = [];
 
         if (updates.length > 0) {
-          const firstUpdate = updates[0];
-          const firstUpdateDate = new Date(firstUpdate.updated_at);
-          const leftAnchorDate = new Date(
-            firstUpdateDate.getTime() - 24 * 60 * 60 * 1000
-          );
-
-          // Add first price update
-          data.push({
-            updatedAt: firstUpdateDate.getTime(),
-            price: firstUpdate.new_price,
-          });
-
-          // Add remaining updates
-          updates.slice(1).forEach((update) => {
+          updates.forEach((update) => {
             const updateDate = new Date(update.updated_at);
             if (!isNaN(updateDate.getTime())) {
               data.push({
@@ -141,7 +128,10 @@ export const PriceChart = ({
 
             <Tooltip
               formatter={(value: number, name: string) => [
-                <span style={{ color: isDarkTheme ? '#ddd' : '#333' }}>
+                <span
+                  key={`${name}-${value}`}
+                  style={{ color: isDarkTheme ? '#ddd' : '#333' }}
+                >
                   {`${name.charAt(0).toUpperCase() + name.slice(1)}: $${value.toFixed(2)}`}
                 </span>,
               ]}
@@ -165,8 +155,8 @@ export const PriceChart = ({
               dataKey="price"
               stroke={currentTheme.lineStroke} // Dynamic theme color
               strokeWidth={2}
-              dot={{ r: 5 }}
-              activeDot={{ r: 8 }}
+              dot={{ r: 3 }}
+              activeDot={{ r: 5 }}
             />
           </LineChart>
         </ResponsiveContainer>

@@ -7,7 +7,6 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-  type CarouselApi,
 } from '@/components/ui/carousel';
 import { ProductCard } from '@/components/ProductCard';
 import { type DBProduct } from '@shared-types/db';
@@ -108,6 +107,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
                     ? { oldPrice: old_price, showPriceUpdateAsPercentage: true }
                     : undefined
                 }
+                lazyLoadImg={false}
               />
             </CarouselItem>
           ))}

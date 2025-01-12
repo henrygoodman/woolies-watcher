@@ -19,11 +19,13 @@ export interface PriceUpdateInfo {
 
 interface ProductCardProps {
   product: DBProduct;
+  lazyLoadImg?: boolean;
   priceUpdate?: PriceUpdateInfo;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
+  lazyLoadImg = true,
   priceUpdate,
 }) => {
   const { oldPrice, showPriceUpdateAsPercentage } = priceUpdate || {};
@@ -55,6 +57,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
                 maxHeight: '100%',
                 objectFit: 'contain',
               }}
+              loading={lazyLoadImg ? 'lazy' : 'eager'}
             />
           </div>
         </div>
