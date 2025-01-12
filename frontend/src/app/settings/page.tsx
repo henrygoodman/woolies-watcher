@@ -73,6 +73,7 @@ export default function SettingsPage() {
       toast({
         title: 'Settings Saved',
         description: 'Your settings have been successfully updated.',
+        duration: 2000,
       });
 
       setInitialEmail(email);

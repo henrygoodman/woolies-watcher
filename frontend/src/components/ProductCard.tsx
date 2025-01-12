@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { DBProduct } from '@shared-types/db';
 import Link from 'next/link';
 import {
@@ -11,6 +12,7 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import { HeartIcon } from '@/components/HeartIcon';
+import { useWatchlist } from '@/hooks/useWatchlist';
 
 export interface PriceUpdateInfo {
   oldPrice: number;
@@ -30,7 +32,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 }) => {
   const { oldPrice, showPriceUpdateAsPercentage } = priceUpdate || {};
 
-  // Calculate the price change percentage or dollar amount if oldPrice is provided
+  const { isInWatchlist, toggleWatchlist } = useWatchlist(product);
+
   const priceDifferencePercentage = oldPrice
     ? (((product.current_price - oldPrice) / oldPrice) * 100).toFixed(2)
     : null;
@@ -39,11 +42,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     ? (product.current_price - oldPrice).toFixed(2)
     : null;
 
-  const isDiscount = oldPrice && product.current_price < oldPrice; // Check if it's a discount
+  const isDiscount = oldPrice && product.current_price < oldPrice;
 
   return (
     <Card className="relative w-full flex flex-col bg-card text-card-foreground border border-border rounded-xl overflow-hidden h-full">
-      <HeartIcon product={product} />
+      <HeartIcon
+        isChecked={isInWatchlist}
+        onToggle={toggleWatchlist}
+        ariaLabel={{
+          checked: 'Remove from watchlist',
+          unchecked: 'Add to watchlist',
+        }}
+      />
 
       <Link href={`/product/${product.id}`}>
         <div className="relative h-64 w-full bg-white flex items-center justify-center p-4">

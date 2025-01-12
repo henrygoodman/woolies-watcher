@@ -61,6 +61,7 @@ export const WatchlistProvider = ({
     toast({
       title: 'Added to Watchlist',
       description: `${product.product_name} has been added to your watchlist.`,
+      duration: 2000,
     });
   };
 
@@ -70,6 +71,7 @@ export const WatchlistProvider = ({
     toast({
       title: 'Removed from Watchlist',
       description: `${product.product_name} has been removed from your watchlist.`,
+      duration: 2000,
     });
   };
 
