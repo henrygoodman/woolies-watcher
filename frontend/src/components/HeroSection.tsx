@@ -79,7 +79,7 @@ export const HeroSection = () => {
   ];
 
   return (
-    <section className="max-w-7xl mx-auto bg-background py-8">
+    <section className="mx-auto bg-background py-8">
       <div className="container mx-auto px-4">
         <div className="bg-card rounded-xl shadow-xl p-8">
           {/* Title Section */}
@@ -91,7 +91,7 @@ export const HeroSection = () => {
           <hr className="border-t-2 border-primary my-6 w-1/2 mx-auto" />
 
           {/* Steps Section */}
-          <div className="max-w-5xl mx-auto">
+          <div className="mx-auto">
             <ol className="list-decimal list-outside text-left mb-8 space-y-4 pl-1">
               {steps.map((step, index) => (
                 <li key={index} className="flex items-start">

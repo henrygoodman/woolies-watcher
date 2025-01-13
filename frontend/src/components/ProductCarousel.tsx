@@ -1,12 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from '@/components/ui/carousel';
 import { ProductCard } from '@/components/ProductCard';
 import { type DBProduct } from '@shared-types/db';
@@ -92,13 +90,18 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
   if (error) return <ErrorMessage error={error} />;
 
   return (
-    <div className="w-full relative px-4 sm:px-8">
-      <Carousel className="overflow-visible p-4">
-        <CarouselContent className="-ml-4 sm:-ml-8">
+    <div className="w-full relative">
+      <Carousel className="overflow-x-auto scroll-smooth">
+        {/* Slightly reduce padding */}
+        <CarouselContent className="flex gap-4 px-6 sm:px-10">
           {products.map(({ product, old_price }) => (
             <CarouselItem
               key={product.id}
-              className="basis-full sm:basis-1/3 pl-4 sm:pl-8"
+              className="
+        flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] 2xl:flex-[0_0_20%]
+        max-w-full sm:max-w-1/2 lg:max-w-1/3 xl:max-w-1/4 2xl:max-w-1/5
+        flex-shrink-0
+      "
             >
               <ProductCard
                 product={product}
@@ -112,8 +115,6 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious />
-        <CarouselNext />
       </Carousel>
     </div>
   );

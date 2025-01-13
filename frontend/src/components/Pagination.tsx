@@ -40,6 +40,17 @@ export const Pagination: React.FC<PaginationProps> = ({
   const searchParams = useSearchParams();
 
   const [selectedPerPage, setSelectedPerPage] = useState(perPage);
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsSmallScreen(window.innerWidth < 768); // Adjust breakpoint as needed
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const perPageFromQuery = searchParams.get('perPage');
@@ -64,9 +75,64 @@ export const Pagination: React.FC<PaginationProps> = ({
   };
 
   const renderPaginationLinks = () => {
+    if (isSmallScreen) {
+      return (
+        <>
+          <PaginationItem>
+            <PaginationLink
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                updateQueryParams({ page: 1 });
+              }}
+              className={`${
+                currentPage === 1 ? 'font-bold text-primary' : 'text-muted'
+              }`}
+            >
+              1
+            </PaginationLink>
+          </PaginationItem>
+          {/* Only show the current page if it's not the first or last */}
+          {currentPage > 2 && <PaginationEllipsis />}
+          {currentPage > 1 && currentPage < totalPages && (
+            <PaginationItem>
+              <PaginationLink
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  updateQueryParams({ page: currentPage });
+                }}
+                className="font-bold text-primary"
+              >
+                {currentPage}
+              </PaginationLink>
+            </PaginationItem>
+          )}
+          {currentPage < totalPages - 1 && <PaginationEllipsis />}
+          {totalPages > 1 && (
+            <PaginationItem>
+              <PaginationLink
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  updateQueryParams({ page: totalPages });
+                }}
+                className={`${
+                  currentPage === totalPages
+                    ? 'font-bold text-primary'
+                    : 'text-muted'
+                }`}
+              >
+                {totalPages}
+              </PaginationLink>
+            </PaginationItem>
+          )}
+        </>
+      );
+    }
+
     const maxPagesToShow = 5;
     const pages = [];
-
     let startPage = Math.max(1, currentPage - Math.floor(maxPagesToShow / 2));
     let endPage = Math.min(
       totalPages,
@@ -146,7 +212,7 @@ export const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <ShadcnPagination className="mt-8 flex items-center justify-between w-full max-w-5xl">
+    <ShadcnPagination className="mt-8 flex items-center justify-between w-full">
       <div className="w-[120px]" />
 
       <PaginationContent className="flex items-center justify-center">
@@ -193,7 +259,7 @@ export const Pagination: React.FC<PaginationProps> = ({
           <SelectContent>
             <SelectItem value="6">6</SelectItem>
             <SelectItem value="12">12</SelectItem>
-            <SelectItem value="18">18</SelectItem>
+            <SelectItem value="20">20</SelectItem>
           </SelectContent>
         </Select>
       </div>

@@ -110,15 +110,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({
               ${oldPrice.toFixed(2)}
             </p>
           )}
-
-          <CardFooter className="p-0 mt-2">
-            <Link
-              href={`/product/${product.id}`}
-              className="w-full text-center bg-primary text-primary-foreground font-medium py-2 px-4 rounded-md transition-all hover:bg-primary/90"
-            >
-              View Product
-            </Link>
-          </CardFooter>
         </CardContent>
       </div>
     </Card>

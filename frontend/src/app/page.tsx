@@ -42,21 +42,21 @@ export default function Home() {
       <HeroSection />
 
       <div className="flex flex-col items-center p-8">
-        <h1 className="text-2xl font-bold mb-8 text-primary">Popular Items</h1>
+        <h1 className="text-4xl font-bold mb-8 text-primary">Popular Items</h1>
 
         {/* Carousel for popular products */}
-        <div className="w-full max-w-5xl">
+        <div className="w-full">
           <ProductCarousel />
         </div>
       </div>
 
       {topDiscounts?.length > 0 && (
         <div className="flex flex-col items-center p-8">
-          <h1 className="text-2xl font-bold mb-4 text-primary">
+          <h1 className="text-4xl font-bold mb-8 text-primary">
             Recent Discounts
           </h1>
           {/* Carousel for price decreases */}
-          <div className="w-full max-w-5xl">
+          <div className="w-full">
             <ProductCarousel productList={topDiscounts} />
           </div>
           <button
@@ -70,11 +70,11 @@ export default function Home() {
 
       {topIncreases?.length > 0 && (
         <div className="flex flex-col items-center p-8">
-          <h1 className="text-2xl font-bold mb-8 text-primary">
+          <h1 className="text-4xl font-bold mb-8 text-primary">
             Recent Markups
           </h1>
           {/* Carousel for price increases */}
-          <div className="w-full max-w-5xl">
+          <div className="w-full">
             <ProductCarousel productList={topIncreases} />
           </div>
           <button

@@ -12,7 +12,7 @@ export const Footer: React.FC = () => {
 
   return (
     <footer className="w-full bg-background text-foreground p-4 mt-8">
-      <div className="max-w-7xl mx-auto flex flex-col items-center space-y-2">
+      <div className="mx-auto flex flex-col items-center space-y-2">
         <p className="text-sm">&copy; {currentYear ?? '...'} Henry Goodman</p>
         <div className="flex space-x-4">
           <Link href="/faq" className="text-sm hover:underline">

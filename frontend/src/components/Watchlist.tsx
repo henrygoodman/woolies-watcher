@@ -35,7 +35,7 @@ export const Watchlist: React.FC = () => {
   if (error) return <ErrorMessage error={error} />;
 
   return (
-    <div className="container mx-auto max-w-5xl">
+    <div className="container mx-auto">
       <h2 className="text-2xl font-bold mb-6">Your Watchlist</h2>
       <p className="text-sm text-muted-foreground italic mb-4">
         Notification emails occur daily at 8am AEST.

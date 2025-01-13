@@ -122,7 +122,7 @@ export const fetchProductsByNameAndUrl = async (
         'x-rapidapi-key': process.env.RAPIDAPI_KEY || '',
         'x-rapidapi-host': 'woolworths-products-api.p.rapidapi.com',
       },
-      params: { query: product_name, page: 1, size: 18 },
+      params: { query: product_name, page: 1, size: 20 },
     });
 
     if (!Array.isArray(response.data.results)) {

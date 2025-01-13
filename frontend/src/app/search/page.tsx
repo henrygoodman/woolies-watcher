@@ -24,14 +24,14 @@ export default function SearchPage() {
 
   const [perPage, setPerPage] = useState(() => {
     const size = searchParams?.get('size');
-    return size ? parseInt(size, 10) : 18;
+    return size ? parseInt(size, 10) : 20;
   });
 
   useEffect(() => {
     if (searchParams) {
       const searchQuery = searchParams.get('q') || '';
       const page = parseInt(searchParams.get('page') || '1', 10);
-      const perPageFromQuery = parseInt(searchParams.get('size') || '18', 10);
+      const perPageFromQuery = parseInt(searchParams.get('size') || '20', 10);
 
       setPerPage(perPageFromQuery);
       fetchProducts(searchQuery, page, perPageFromQuery);
@@ -90,7 +90,7 @@ export default function SearchPage() {
             </div>
 
             {resultSize > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-8 w-full">
                 {products.map((product, index) => (
                   <ProductCard key={index} product={product} />
                 ))}

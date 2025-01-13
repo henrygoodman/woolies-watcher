@@ -22,7 +22,7 @@ export default function MarkupsPage() {
   const [resultSize, setResultSize] = useState(0);
   const [perPage, setPerPage] = useState(() => {
     const size = searchParams?.get('size');
-    return size ? parseInt(size, 10) : 18;
+    return size ? parseInt(size, 10) : 20;
   });
   const [sortRaw, setSortRaw] = useState(() => {
     return searchParams?.get('sort') === 'raw';
@@ -35,7 +35,7 @@ export default function MarkupsPage() {
       try {
         setLoading(true);
         const page = parseInt(searchParams?.get('page') || '1', 10);
-        const size = parseInt(searchParams?.get('size') || '18', 10);
+        const size = parseInt(searchParams?.get('size') || '20', 10);
         const offset = (page - 1) * size;
 
         const response = await fetchMarkupsApi(
@@ -84,12 +84,12 @@ export default function MarkupsPage() {
   if (error) return <ErrorMessage error={error} />;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen mt-4 bg-background text-foreground">
       <div className="flex flex-col items-center">
         <h1 className="text-3xl font-bold mb-8 text-primary">Recent Markups</h1>
 
         {/* Description Section */}
-        <div className="w-full max-w-5xl text-left text-muted-foreground mb-8 italic">
+        <div className="w-full text-left text-muted-foreground mb-8 italic">
           <p>
             Note: These price increases often reflect items returning to their
             regular prices after a sale, rather than a price hike. The data
@@ -99,7 +99,7 @@ export default function MarkupsPage() {
           </p>
         </div>
 
-        <div className="w-full flex justify-between items-center max-w-5xl mb-4">
+        <div className="w-full flex justify-between items-center mb-4">
           <div>
             <p className="text-lg font-semibold">
               Found <span className="text-primary">{resultSize}</span> result
@@ -115,7 +115,7 @@ export default function MarkupsPage() {
 
         {resultSize > 0 ? (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 w-full max-w-5xl">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-8 w-full">
               {products.map((markup, index) => (
                 <ProductCard
                   key={index}

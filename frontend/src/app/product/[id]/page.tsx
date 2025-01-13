@@ -52,7 +52,7 @@ export default function ProductDetailsPage() {
   if (error || !product) return <ErrorMessage error={error || 'Not found'} />;
 
   return (
-    <div className="container max-w-5xl mx-auto p-8">
+    <div className="container max-w-7xl mx-auto p-8">
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Product Image */}
         <div className="relative w-full lg:w-1/3 bg-white p-4 rounded-xl shadow-md">
