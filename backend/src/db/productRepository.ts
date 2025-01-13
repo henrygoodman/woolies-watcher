@@ -53,8 +53,6 @@ class ProductRepository extends GenericRepository<DBProduct> {
           new_price: product.current_price,
           updated_at: new Date(),
         });
-      } else {
-        console.log('No price change detected', product.id);
       }
     }
 
