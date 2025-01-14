@@ -25,6 +25,7 @@ services:
       - ./shared-types:/app/shared-types
     environment:
       NODE_ENV: production
+      NEXT_PUBLIC_API_URL: /backend-api
     logging:
       driver: 'json-file'
       options:
