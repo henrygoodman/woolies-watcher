@@ -30,6 +30,8 @@ services:
       options:
         max-size: '10m'
         max-file: '3'
+    env_file:
+      - ./frontend/.env
     restart: always
 
   backend:
@@ -44,6 +46,8 @@ services:
       options:
         max-size: '10m'
         max-file: '3'
+    env_file:
+      - ./backend/.env
     depends_on:
       - db
     restart: always
