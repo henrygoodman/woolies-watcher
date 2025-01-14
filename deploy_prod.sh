@@ -7,8 +7,8 @@ export DOCKER_BUILDKIT=1
 
 # Start the services
 echo "Starting the Docker Compose stack in detached mode..."
-docker-compose -f docker-compose.prod.yml --pull restart nginx -d
-
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 
 # Clean up dangling images to save space
 echo "Cleaning up dangling images..."
