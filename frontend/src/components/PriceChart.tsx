@@ -106,7 +106,11 @@ export const PriceChart = ({
               scale="time"
               padding={{ left: 20, right: 20 }}
               tickFormatter={(timestamp) =>
-                new Date(timestamp).toLocaleDateString()
+                new Intl.DateTimeFormat('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                }).format(new Date(timestamp))
               }
             />
 
@@ -135,11 +139,13 @@ export const PriceChart = ({
                   {`${name.charAt(0).toUpperCase() + name.slice(1)}: $${value.toFixed(2)}`}
                 </span>,
               ]}
-              labelFormatter={(label) => (
-                <span style={{ color: isDarkTheme ? '#ddd' : '#333' }}>
-                  {`Date: ${new Date(label).toLocaleDateString()}`}
-                </span>
-              )}
+              labelFormatter={(label) =>
+                `Date: ${new Intl.DateTimeFormat('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric',
+                }).format(new Date(label))}`
+              }
               contentStyle={{
                 backgroundColor: isDarkTheme ? '#333' : '#fff',
                 borderRadius: '8px',

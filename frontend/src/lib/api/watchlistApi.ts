@@ -8,7 +8,7 @@ import { DBProduct, DBProductSchema } from '@shared-types/db';
  * @returns A promise that resolves to the updated watchlist or success message.
  * @throws Will throw an error if the user is not authenticated or the fetch fails.
  */
-export const addToWatchlist = async (
+export const addToWatchlistApi = async (
   product_id: number | undefined
 ): Promise<DBProduct[]> => {
   if (!product_id) throw new Error('No product ID specified');
@@ -40,7 +40,7 @@ export const addToWatchlist = async (
  * @returns A promise that resolves to the updated watchlist or success message.
  * @throws Will throw an error if the user is not authenticated or the fetch fails.
  */
-export const removeFromWatchlist = async (
+export const removeFromWatchlistApi = async (
   productId: number | undefined
 ): Promise<DBProduct[]> => {
   if (!productId) throw new Error('No product ID specified');
@@ -70,7 +70,7 @@ export const removeFromWatchlist = async (
  * @returns A promise that resolves to the user's watchlist.
  * @throws Will throw an error if the user is not authenticated or the fetch fails.
  */
-export const getWatchlist = async (): Promise<DBProduct[]> => {
+export const getWatchlistApi = async (): Promise<DBProduct[]> => {
   const session = await getSession();
   if (!session) throw new Error('User is not authenticated');
 

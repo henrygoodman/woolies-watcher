@@ -17,8 +17,7 @@ import Link from 'next/link';
 import { DBProduct } from '@shared-types/db';
 
 export const columns = (
-  setWatchlist: React.Dispatch<React.SetStateAction<DBProduct[]>>,
-  removeFromWatchlist: (product: DBProduct) => Promise<void>
+  removeFromWatchlist: (product: DBProduct) => void
 ): ColumnDef<DBProduct>[] => {
   return [
     {
@@ -71,12 +70,9 @@ export const columns = (
       cell: ({ row }) => {
         const item = row.original;
 
-        const handleRemove = async () => {
+        const handleRemove = () => {
           try {
-            await removeFromWatchlist(item);
-            setWatchlist((prev) =>
-              prev.filter((product) => product.id !== item.id)
-            );
+            removeFromWatchlist(item);
           } catch (error) {
             console.error('Error removing item from watchlist:', error);
           }

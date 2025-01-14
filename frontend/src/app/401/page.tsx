@@ -8,10 +8,10 @@ export default function UnauthorizedPage() {
   };
 
   return (
-    <div className="h-screen flex flex-col justify-center items-center text-center p-4">
+    <div className="flex flex-col justify-center items-center text-center p-4">
       <h1 className="text-5xl font-bold text-primary mb-4">401</h1>
       <p className="text-muted-foreground mb-4">
-        You are not authorized to access this page.
+        You are not authorized to access this page. Please log in.
       </p>
       <button
         onClick={handleSignIn}

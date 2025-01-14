@@ -1,10 +1,7 @@
-'use client';
-
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
-  getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 import {
@@ -20,17 +17,27 @@ import { Button } from '@/components/ui/button';
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  pageIndex: number;
+  pageSize: number;
+  setPageIndex: (index: number) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  pageIndex,
+  pageSize,
+  setPageIndex,
 }: DataTableProps<TData, TValue>) {
   const table = useReactTable({
     data,
     columns,
+    pageCount: Math.ceil(data.length / pageSize),
+    state: {
+      pagination: { pageIndex, pageSize },
+    },
+    manualPagination: true,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
   });
 
   return (
@@ -54,20 +61,16 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {data.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+            {!data.length && (
               <TableRow>
                 <TableCell colSpan={columns.length} className="text-center">
                   No results found.
@@ -80,15 +83,15 @@ export function DataTable<TData, TValue>({
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
           variant="outline"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
+          onClick={() => setPageIndex(pageIndex - 1)}
+          disabled={pageIndex === 0}
         >
           Previous
         </Button>
         <Button
           variant="outline"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
+          onClick={() => setPageIndex(pageIndex + 1)}
+          disabled={data.length < pageSize}
         >
           Next
         </Button>

@@ -8,9 +8,9 @@ import React, {
   useState,
 } from 'react';
 import {
-  getWatchlist,
-  addToWatchlist as apiAddToWatchlist,
-  removeFromWatchlist as apiRemoveFromWatchlist,
+  getWatchlistApi,
+  addToWatchlistApi,
+  removeFromWatchlistApi,
 } from '@/lib/api/watchlistApi';
 import { useSession } from 'next-auth/react';
 import { toast } from '@/hooks/use-toast';
@@ -42,7 +42,7 @@ export const WatchlistProvider = ({
     if (!isLoggedIn) return;
 
     try {
-      const data = await getWatchlist();
+      const data = await getWatchlistApi();
       setWatchlist(data);
     } catch (error) {
       console.error('Error fetching watchlist:', error);
@@ -56,7 +56,7 @@ export const WatchlistProvider = ({
   }, [fetchWatchlist]);
 
   const addToWatchlist = async (product: DBProduct) => {
-    await apiAddToWatchlist(product.id);
+    await addToWatchlistApi(product.id);
     setWatchlist((prev) => [...prev, product]);
     toast({
       title: 'Added to Watchlist',
@@ -66,7 +66,7 @@ export const WatchlistProvider = ({
   };
 
   const removeFromWatchlist = async (product: DBProduct) => {
-    await apiRemoveFromWatchlist(product.id);
+    await removeFromWatchlistApi(product.id);
     setWatchlist((prev) => prev.filter((item) => item.id !== product.id));
     toast({
       title: 'Removed from Watchlist',

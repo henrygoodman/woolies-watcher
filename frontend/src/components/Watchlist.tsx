@@ -1,38 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { DataTable } from '@/components/DataTable';
 import { columns } from '@/app/watchlist/watchlistColumns';
-import { getWatchlist } from '@/lib/api/watchlistApi';
 import { LoadingIndicator } from './LoadingIndicator';
 import { ErrorMessage } from './ErrorMessage';
-import { DBProduct } from '@shared-types/db';
 import { useWatchlistContext } from '@/contexts/WatchlistContext';
+import { useState } from 'react';
 
 export const Watchlist: React.FC = () => {
-  const { removeFromWatchlist } = useWatchlistContext();
-  const [watchlist, setWatchlist] = useState<DBProduct[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { watchlist, isLoading, removeFromWatchlist } = useWatchlistContext();
+  const [pageIndex, setPageIndex] = useState(0);
+  const pageSize = 20;
 
-  useEffect(() => {
-    const fetchWatchlist = async () => {
-      try {
-        const data = await getWatchlist();
-        setWatchlist(data);
-      } catch (err) {
-        setError('Failed to load watchlist: ' + err);
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  if (isLoading) return <LoadingIndicator />;
+  if (!watchlist) return <ErrorMessage error="Failed to load watchlist." />;
 
-    fetchWatchlist();
-  }, []);
-
-  if (loading) return <LoadingIndicator />;
-  if (error) return <ErrorMessage error={error} />;
+  const paginatedData = watchlist.slice(
+    pageIndex * pageSize,
+    (pageIndex + 1) * pageSize
+  );
 
   return (
     <div className="container mx-auto">
@@ -41,8 +27,11 @@ export const Watchlist: React.FC = () => {
         Notification emails occur daily at 8am AEST.
       </p>
       <DataTable
-        columns={columns(setWatchlist, removeFromWatchlist)}
-        data={watchlist}
+        columns={columns(removeFromWatchlist)}
+        data={paginatedData}
+        pageIndex={pageIndex}
+        pageSize={pageSize}
+        setPageIndex={setPageIndex}
       />
     </div>
   );

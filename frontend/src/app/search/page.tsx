@@ -12,56 +12,46 @@ export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const {
-    products,
-    loading,
-    error,
-    currentPage,
-    totalPages,
-    resultSize,
-    fetchProducts,
-  } = useFetchProducts();
-
   const [perPage, setPerPage] = useState(() => {
     const size = searchParams?.get('size');
     return size ? parseInt(size, 10) : 20;
   });
 
+  const query = searchParams?.get('q') || '';
+  const page = parseInt(searchParams?.get('page') || '1', 10);
+
+  const {
+    products,
+    isLoading,
+    isError,
+    error,
+    currentPage,
+    totalPages,
+    resultSize,
+  } = useFetchProducts(query, page, perPage);
+
   useEffect(() => {
-    if (searchParams) {
-      const searchQuery = searchParams.get('q') || '';
-      const page = parseInt(searchParams.get('page') || '1', 10);
-      const perPageFromQuery = parseInt(searchParams.get('size') || '20', 10);
-
-      setPerPage(perPageFromQuery);
-      fetchProducts(searchQuery, page, perPageFromQuery);
-
-      if (searchQuery.trim()) {
-        document.title = `${searchQuery} - Woolies Watcher`;
-      }
+    if (query.trim()) {
+      document.title = `${query} - Woolies Watcher`;
     }
-  }, [searchParams, fetchProducts]);
+  }, [query]);
 
-  const handlePagination = (page: number) => {
-    const query = searchParams?.get('q') || '';
-    router.push(`/search?q=${query}&page=${page}&size=${perPage}`);
-    fetchProducts(query, page, perPage);
+  const handlePagination = (newPage: number) => {
+    router.push(`/search?q=${query}&page=${newPage}&size=${perPage}`);
   };
 
   const handlePerPageChange = (newPerPage: number) => {
     setPerPage(newPerPage);
-    const query = searchParams?.get('q') || '';
     router.push(`/search?q=${query}&page=1&size=${newPerPage}`);
-    fetchProducts(query, 1, newPerPage);
   };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex flex-col items-center">
-        {loading && <LoadingIndicator />}
-        {error && <ErrorMessage error={error} />}
+        {isLoading && <LoadingIndicator />}
+        {isError && <ErrorMessage error={String(error)} />}
 
-        {!loading && !error && (
+        {!isLoading && !isError && (
           <>
             <div className="w-full text-center mt-4">
               {resultSize > 0 ? (
@@ -69,16 +59,14 @@ export default function SearchPage() {
                   Found <span className="text-primary">{resultSize}</span>{' '}
                   result
                   {resultSize > 1 ? 's' : ''} for{' '}
-                  <span className="italic">
-                    &quot;{searchParams?.get('q') || ''}&quot;
-                  </span>
+                  <span className="italic">&quot;{query}&quot;</span>
                 </p>
               ) : (
                 <div className="text-center mt-8">
                   <p className="text-lg font-semibold text-gray-500">
                     No results found for{' '}
                     <span className="italic">
-                      &quot;{searchParams?.get('q') || 'your query'}&quot;
+                      &quot;{query || 'your query'}&quot;
                     </span>
                     .
                   </p>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function NotFoundPage() {
   return (
-    <div className="h-screen flex flex-col justify-center items-center text-center p-4">
+    <div className="flex flex-col justify-center items-center text-center p-4">
       <h1 className="text-5xl font-bold text-primary mb-4">404</h1>
       <p className="text-muted-foreground mb-4">
         Oops! The page you&apos;re looking for doesn&apos;t exist.

@@ -4,38 +4,28 @@ import { HeroSection } from '@/components/HeroSection';
 import { ProductCarousel } from '@/components/ProductCarousel';
 import { fetchGlobalPriceUpdatesApi } from '@/lib/api/priceApi';
 import { TopPriceUpdatesWithProducts } from '@shared-types/api';
-import { useEffect, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { LoadingIndicator } from '@/components/LoadingIndicator';
 import { ErrorMessage } from '@/components/ErrorMessage';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  const [highlightedProducts, setHighlightedProducts] =
-    useState<TopPriceUpdatesWithProducts | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    const fetchHighlightedProducts = async () => {
-      try {
-        const products = await fetchGlobalPriceUpdatesApi(20, 7);
-        setHighlightedProducts(products);
-      } catch (err) {
-        console.error('Error fetching highlighted products:', err);
-        setError('Failed to load highlighted products. Please try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
+  // Fetch data with React Query
+  const { data, error, isLoading, isError } = useQuery<
+    TopPriceUpdatesWithProducts,
+    Error
+  >({
+    queryKey: ['highlightedProducts'],
+    queryFn: () => fetchGlobalPriceUpdatesApi(20, 7),
+    staleTime: 360000,
+  });
 
-    fetchHighlightedProducts();
-  }, []);
+  if (isLoading) return <LoadingIndicator />;
+  if (isError) return <ErrorMessage error={(error as Error).message} />;
 
-  if (loading) return <LoadingIndicator />;
-  if (error) return <ErrorMessage error={error} />;
-
-  const { topDiscounts, topIncreases } = highlightedProducts!;
+  const { topDiscounts, topIncreases } = data!;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -43,8 +33,6 @@ export default function Home() {
 
       <div className="flex flex-col items-center p-8">
         <h1 className="text-4xl font-bold mb-8 text-primary">Popular Items</h1>
-
-        {/* Carousel for popular products */}
         <div className="w-full">
           <ProductCarousel />
         </div>
@@ -55,7 +43,6 @@ export default function Home() {
           <h1 className="text-4xl font-bold mb-8 text-primary">
             Recent Discounts
           </h1>
-          {/* Carousel for price decreases */}
           <div className="w-full">
             <ProductCarousel productList={topDiscounts} />
           </div>
@@ -73,7 +60,6 @@ export default function Home() {
           <h1 className="text-4xl font-bold mb-8 text-primary">
             Recent Markups
           </h1>
-          {/* Carousel for price increases */}
           <div className="w-full">
             <ProductCarousel productList={topIncreases} />
           </div>
