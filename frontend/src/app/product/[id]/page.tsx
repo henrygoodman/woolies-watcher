@@ -10,7 +10,6 @@ import Link from 'next/link';
 import { HeartIcon } from '@/components/HeartIcon';
 import { PriceChart } from '@/components/PriceChart';
 import { Eye } from 'lucide-react';
-import { useWatchlist } from '@/hooks/useWatchlist';
 
 export default function ProductDetailsPage() {
   const { id } = useParams();
@@ -18,8 +17,6 @@ export default function ProductDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [watchCount, setWatchCount] = useState<number>(0);
-
-  const { isInWatchlist, toggleWatchlist } = useWatchlist(product);
 
   useEffect(() => {
     const loadProductDetails = async () => {
@@ -43,9 +40,8 @@ export default function ProductDetailsPage() {
     }
   }, [product]);
 
-  const handleWatchCountToggle = async (newState: boolean) => {
-    setWatchCount((prevCount) => prevCount + (newState ? 1 : -1));
-    await toggleWatchlist();
+  const handleWatchCountChange = (isInWatchlist: boolean) => {
+    setWatchCount((prev) => prev + (isInWatchlist ? 1 : -1));
   };
 
   if (loading) return <LoadingIndicator />;
@@ -56,14 +52,7 @@ export default function ProductDetailsPage() {
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Product Image */}
         <div className="relative w-full lg:w-1/3 bg-white p-4 rounded-xl shadow-md">
-          <HeartIcon
-            isChecked={isInWatchlist}
-            onToggle={handleWatchCountToggle}
-            ariaLabel={{
-              checked: 'Remove from watchlist',
-              unchecked: 'Add to watchlist',
-            }}
-          />
+          <HeartIcon product={product} onToggle={handleWatchCountChange} />
 
           <div className="relative w-full h-80 flex items-center justify-center p-2 bg-white">
             <img
