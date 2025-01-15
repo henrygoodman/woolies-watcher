@@ -88,70 +88,72 @@ export default function SettingsPage() {
     }
   };
 
-  if (loading) return <LoadingIndicator />;
-
   return (
     <div className="container mx-auto max-w-2xl py-10">
       <h1 className="text-3xl font-bold mb-6">Settings</h1>
 
-      {loading ? (
-        <p className="text-muted-foreground">Loading settings...</p>
-      ) : (
-        <>
-          {/* Email Section */}
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-4">Email</h2>
-            <div className="mb-4">
-              <Label htmlFor="email" className="block text-sm font-medium mb-2">
-                Email Address
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                disabled
-                className="w-full bg-muted cursor-not-allowed"
-              />
-              <p className="text-sm text-muted-foreground mt-2">
-                Currently, we can only send emails to your authenticated email
-                address.
-              </p>
-            </div>
-            <div className="flex items-center justify-between mb-4">
-              <Label
-                htmlFor="enable-emails"
-                className="block text-sm font-medium"
-              >
-                Enable Update Emails
-              </Label>
-              <Switch
-                id="enable-emails"
-                checked={enableEmails}
-                onCheckedChange={setEnableEmails}
-                aria-label="Toggle email updates"
-              />
-            </div>
+      {/* Static Content */}
+      <div>
+        {/* Email Section */}
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold mb-4">Email</h2>
+          <div className="mb-4">
+            <Label htmlFor="email" className="block text-sm font-medium mb-2">
+              Email Address
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              disabled
+              className="w-full bg-muted cursor-not-allowed"
+            />
+            <p className="text-sm text-muted-foreground mt-2">
+              Currently, we can only send emails to your authenticated email
+              address.
+            </p>
           </div>
-
-          <hr></hr>
-
-          {/* Appearance Section */}
-          <div className="mt-4 mb-6">
-            <h2 className="text-xl font-semibold mb-4">Appearance</h2>
-            <div className="flex items-center justify-between">
-              <p className="text-sm">Theme</p>
-              <ThemeToggle />
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <Label
+              htmlFor="enable-emails"
+              className="block text-sm font-medium"
+            >
+              Enable Update Emails
+            </Label>
+            <Switch
+              id="enable-emails"
+              checked={enableEmails}
+              onCheckedChange={setEnableEmails}
+              aria-label="Toggle email updates"
+            />
           </div>
+        </div>
 
-          {/* Save Button */}
+        <hr />
+
+        {/* Appearance Section */}
+        <div className="mt-4 mb-6">
+          <h2 className="text-xl font-semibold mb-4">Appearance</h2>
+          <div className="flex items-center justify-between">
+            <p className="text-sm">Theme</p>
+            <ThemeToggle />
+          </div>
+        </div>
+
+        {/* Dynamic Loading/Error Content */}
+        {loading && (
+          <div className="my-4 flex justify-center">
+            <LoadingIndicator />
+          </div>
+        )}
+        {!loading && (
           <div className="mt-6">
             <Button onClick={handleSave} className="w-full" disabled={!isDirty}>
               Save Changes
             </Button>
           </div>
-        </>
-      )}
+        )}
+      </div>
     </div>
   );
 }

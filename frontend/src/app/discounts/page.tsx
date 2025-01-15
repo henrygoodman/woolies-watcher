@@ -80,9 +80,6 @@ export default function DiscountsPage() {
     );
   };
 
-  if (loading) return <LoadingIndicator />;
-  if (error) return <ErrorMessage error={error} />;
-
   return (
     <div className="min-h-screen mt-4 bg-background text-foreground">
       <div className="flex flex-col items-center">
@@ -100,7 +97,7 @@ export default function DiscountsPage() {
           </p>
         </div>
 
-        <div className="w-full flex justify-between items-center  mb-4">
+        <div className="w-full flex justify-between items-center mb-4">
           <div>
             <p className="text-lg font-semibold">
               Found <span className="text-primary">{resultSize}</span> result
@@ -114,37 +111,48 @@ export default function DiscountsPage() {
           />
         </div>
 
-        {resultSize > 0 ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-8 w-full">
-              {products.map((discount, index) => (
-                <ProductCard
-                  key={index}
-                  product={discount.product}
-                  priceUpdate={{
-                    oldPrice: discount.old_price,
-                    showPriceUpdateAsPercentage: !sortRaw,
-                  }}
-                />
-              ))}
+        {/* Dynamic Content Section */}
+        <div className="w-full">
+          {loading ? (
+            <div className="flex justify-center mt-8">
+              <LoadingIndicator />
             </div>
+          ) : error ? (
+            <div className="flex justify-center mt-8">
+              <ErrorMessage error={error} />
+            </div>
+          ) : resultSize > 0 ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-8 w-full">
+                {products.map((discount, index) => (
+                  <ProductCard
+                    key={index}
+                    product={discount.product}
+                    priceUpdate={{
+                      oldPrice: discount.old_price,
+                      showPriceUpdateAsPercentage: !sortRaw,
+                    }}
+                  />
+                ))}
+              </div>
 
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              perPage={perPage}
-              onNext={() => handlePagination(currentPage + 1)}
-              onPrevious={() => handlePagination(currentPage - 1)}
-              onPerPageChange={handlePerPageChange}
-            />
-          </>
-        ) : (
-          <div className="text-center mt-8">
-            <p className="text-lg font-semibold text-gray-500">
-              No discounts available at the moment.
-            </p>
-          </div>
-        )}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                perPage={perPage}
+                onNext={() => handlePagination(currentPage + 1)}
+                onPrevious={() => handlePagination(currentPage - 1)}
+                onPerPageChange={handlePerPageChange}
+              />
+            </>
+          ) : (
+            <div className="text-center mt-8">
+              <p className="text-lg font-semibold text-gray-500">
+                No discounts available at the moment.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

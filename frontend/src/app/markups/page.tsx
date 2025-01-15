@@ -80,9 +80,6 @@ export default function MarkupsPage() {
     );
   };
 
-  if (loading) return <LoadingIndicator />;
-  if (error) return <ErrorMessage error={error} />;
-
   return (
     <div className="min-h-screen mt-4 bg-background text-foreground">
       <div className="flex flex-col items-center">
@@ -113,41 +110,52 @@ export default function MarkupsPage() {
           />
         </div>
 
-        {resultSize > 0 ? (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-8 w-full">
-              {products.map((markup, index) => (
-                <ProductCard
-                  key={index}
-                  product={markup.product}
-                  priceUpdate={
-                    markup.old_price
-                      ? {
-                          oldPrice: markup.old_price,
-                          showPriceUpdateAsPercentage: !sortRaw,
-                        }
-                      : undefined
-                  }
-                />
-              ))}
+        {/* Products Section */}
+        <div className="w-full">
+          {loading ? (
+            <div className="flex justify-center mt-8">
+              <LoadingIndicator />
             </div>
+          ) : error ? (
+            <div className="flex justify-center mt-8">
+              <ErrorMessage error={error} />
+            </div>
+          ) : resultSize > 0 ? (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mt-8 w-full">
+                {products.map((markup, index) => (
+                  <ProductCard
+                    key={index}
+                    product={markup.product}
+                    priceUpdate={
+                      markup.old_price
+                        ? {
+                            oldPrice: markup.old_price,
+                            showPriceUpdateAsPercentage: !sortRaw,
+                          }
+                        : undefined
+                    }
+                  />
+                ))}
+              </div>
 
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              perPage={perPage}
-              onNext={() => handlePagination(currentPage + 1)}
-              onPrevious={() => handlePagination(currentPage - 1)}
-              onPerPageChange={handlePerPageChange}
-            />
-          </>
-        ) : (
-          <div className="text-center mt-8">
-            <p className="text-lg font-semibold text-gray-500">
-              No markups available at the moment.
-            </p>
-          </div>
-        )}
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                perPage={perPage}
+                onNext={() => handlePagination(currentPage + 1)}
+                onPrevious={() => handlePagination(currentPage - 1)}
+                onPerPageChange={handlePerPageChange}
+              />
+            </>
+          ) : (
+            <div className="text-center mt-8">
+              <p className="text-lg font-semibold text-gray-500">
+                No markups available at the moment.
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

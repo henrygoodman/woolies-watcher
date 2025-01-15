@@ -12,27 +12,38 @@ export const Watchlist: React.FC = () => {
   const [pageIndex, setPageIndex] = useState(0);
   const pageSize = 20;
 
-  if (isLoading) return <LoadingIndicator />;
-  if (!watchlist) return <ErrorMessage error="Failed to load watchlist." />;
-
-  const paginatedData = watchlist.slice(
-    pageIndex * pageSize,
-    (pageIndex + 1) * pageSize
-  );
+  const paginatedData = watchlist
+    ? watchlist.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
+    : [];
 
   return (
     <div className="container mx-auto">
+      {/* Static Content */}
       <h2 className="text-2xl font-bold mb-6">Your Watchlist</h2>
       <p className="text-sm text-muted-foreground italic mb-4">
         Notification emails occur daily at 8am AEST.
       </p>
-      <DataTable
-        columns={columns(removeFromWatchlist)}
-        data={paginatedData}
-        pageIndex={pageIndex}
-        pageSize={pageSize}
-        setPageIndex={setPageIndex}
-      />
+
+      {/* Dynamic Content */}
+      <div className="relative">
+        {isLoading ? (
+          <div className="flex justify-center">
+            <LoadingIndicator />
+          </div>
+        ) : !watchlist ? (
+          <div className="flex justify-center">
+            <ErrorMessage error="Failed to load watchlist." />
+          </div>
+        ) : (
+          <DataTable
+            columns={columns(removeFromWatchlist)}
+            data={paginatedData}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            setPageIndex={setPageIndex}
+          />
+        )}
+      </div>
     </div>
   );
 };
