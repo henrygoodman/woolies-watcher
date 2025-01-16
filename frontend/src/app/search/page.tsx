@@ -46,7 +46,7 @@ export default function SearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="container mx-auto min-h-screen bg-background text-foreground">
       <div className="flex flex-col items-center">
         {isLoading && <LoadingIndicator />}
         {isError && <ErrorMessage error={String(error)} />}
