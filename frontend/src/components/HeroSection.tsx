@@ -81,7 +81,7 @@ export const HeroSection = () => {
   return (
     <section className="mx-auto bg-background py-8">
       <div className="container mx-auto px-4">
-        <div className="bg-card rounded-xl shadow-xl p-8">
+        <div className="bg-card rounded-xl shadow-xl px-2 py-4 sm:p-8">
           {/* Title Section */}
           <h2 className="text-2xl md:text-4xl font-extrabold text-primary mb-8 text-center">
             Woolworths Item Tracker

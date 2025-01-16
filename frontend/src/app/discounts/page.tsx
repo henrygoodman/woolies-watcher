@@ -81,7 +81,7 @@ export default function DiscountsPage() {
   };
 
   return (
-    <div className="min-h-screen mt-4 bg-background text-foreground">
+    <div className="container mx-auto min-h-screen mt-4 bg-background text-foreground">
       <div className="flex flex-col items-center">
         <h1 className="text-3xl font-bold mb-8 text-primary">
           Recent Discounts

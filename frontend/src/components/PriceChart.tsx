@@ -69,11 +69,27 @@ export const PriceChart = ({
             }
           });
         }
-        // Add right anchor point
-        data.push({
-          updatedAt: new Date().getTime(),
-          price: currentPrice,
-        });
+
+        if (data.length > 0) {
+          const lastDataPointDate = new Date(
+            data[data.length - 1].updatedAt
+          ).toDateString();
+          const todayDate = new Date().toDateString();
+
+          // Only add the anchor point if the last data point isn't from today
+          if (lastDataPointDate !== todayDate) {
+            data.push({
+              updatedAt: new Date().getTime(),
+              price: currentPrice,
+            });
+          }
+        } else {
+          // If no data points exist, still add the current point
+          data.push({
+            updatedAt: new Date().getTime(),
+            price: currentPrice,
+          });
+        }
 
         setChartData(data);
       } catch (err) {
@@ -113,30 +129,30 @@ export const PriceChart = ({
                 }).format(new Date(timestamp))
               }
             />
-
             <YAxis
               domain={[
                 (dataMin: number) => {
                   const padding = Math.abs(dataMin * 0.5);
-                  const roundedMin = Math.floor((dataMin - padding) * 10) / 10; // Round down to nearest 10c
+                  const roundedMin = Math.floor((dataMin - padding) * 10) / 10;
                   return Math.max(0, roundedMin);
                 },
                 (dataMax: number) => {
                   const padding = Math.abs(dataMax * 0.5);
-                  const roundedMax = Math.ceil((dataMax + padding) * 10) / 10; // Round up to nearest 10c
+                  const roundedMax = Math.ceil((dataMax + padding) * 10) / 10;
                   return roundedMax;
                 },
               ]}
               tickFormatter={(value) => `$${value.toFixed(2)}`}
             />
-
             <Tooltip
               formatter={(value: number, name: string) => [
                 <span
                   key={`${name}-${value}`}
                   style={{ color: isDarkTheme ? '#ddd' : '#333' }}
                 >
-                  {`${name.charAt(0).toUpperCase() + name.slice(1)}: $${value.toFixed(2)}`}
+                  {`${name.charAt(0).toUpperCase() + name.slice(1)}: $${value.toFixed(
+                    2
+                  )}`}
                 </span>,
               ]}
               labelFormatter={(label) =>
@@ -155,11 +171,10 @@ export const PriceChart = ({
                 color: isDarkTheme ? '#ddd' : '#333',
               }}
             />
-
             <Line
-              type="linear"
+              type="stepAfter"
               dataKey="price"
-              stroke={currentTheme.lineStroke} // Dynamic theme color
+              stroke={currentTheme.lineStroke}
               strokeWidth={2}
               dot={{ r: 3 }}
               activeDot={{ r: 5 }}

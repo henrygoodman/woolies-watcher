@@ -90,7 +90,7 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
   if (error) return <ErrorMessage error={error} />;
 
   return (
-    <div className="w-full relative">
+    <div className="container mx-auto relative">
       <Carousel className="overflow-x-auto scroll-smooth">
         {/* Slightly reduce padding */}
         <CarouselContent className="flex gap-4 px-6 sm:px-10">
@@ -98,10 +98,10 @@ export const ProductCarousel: React.FC<ProductCarouselProps> = ({
             <CarouselItem
               key={product.id}
               className="
-        flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] 2xl:flex-[0_0_20%]
-        max-w-full sm:max-w-1/2 lg:max-w-1/3 xl:max-w-1/4 2xl:max-w-1/5
-        flex-shrink-0
-      "
+              flex-[0_0_100%] sm:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] 2xl:flex-[0_0_20%]
+              max-w-[85%] sm:max-w-1/2 lg:max-w-1/3 xl:max-w-1/4 2xl:max-w-1/5
+              flex-shrink-0
+            "
             >
               <ProductCard
                 product={product}

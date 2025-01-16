@@ -31,7 +31,7 @@ export default function Home() {
     <div className="min-h-screen bg-background text-foreground">
       <HeroSection />
 
-      <div className="flex flex-col items-center p-8">
+      <div className="flex flex-col items-center py-8">
         <h1 className="text-4xl font-bold mb-8 text-primary">Popular Items</h1>
         <div className="w-full">
           <ProductCarousel />
@@ -39,7 +39,7 @@ export default function Home() {
       </div>
 
       {topDiscounts?.length > 0 && (
-        <div className="flex flex-col items-center p-8">
+        <div className="flex flex-col items-center py-8">
           <h1 className="text-4xl font-bold mb-8 text-primary">
             Recent Discounts
           </h1>
@@ -56,7 +56,7 @@ export default function Home() {
       )}
 
       {topIncreases?.length > 0 && (
-        <div className="flex flex-col items-center p-8">
+        <div className="flex flex-col items-center py-8">
           <h1 className="text-4xl font-bold mb-8 text-primary">
             Recent Markups
           </h1>

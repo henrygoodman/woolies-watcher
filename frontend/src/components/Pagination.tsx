@@ -212,8 +212,9 @@ export const Pagination: React.FC<PaginationProps> = ({
   };
 
   return (
-    <ShadcnPagination className="mt-8 flex items-center justify-between w-full">
-      <div className="w-[120px]" />
+    <ShadcnPagination className="mt-8 flex items-center justify-center md:justify-between w-full">
+      {/* Hide spacer on mobile, show on md+ */}
+      <div className="hidden md:block w-[120px]" />
 
       <PaginationContent className="flex items-center justify-center">
         <PaginationItem>
@@ -247,7 +248,8 @@ export const Pagination: React.FC<PaginationProps> = ({
         </PaginationItem>
       </PaginationContent>
 
-      <div className="flex items-center gap-2">
+      {/* Hide items per page on mobile */}
+      <div className="hidden md:flex items-center gap-2">
         <p className="text-muted-foreground">Items per page:</p>
         <Select
           value={selectedPerPage.toString()}
