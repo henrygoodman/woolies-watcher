@@ -121,24 +121,24 @@ class WatchlistRepository extends GenericRepository<DBWatchlist> {
     }[]
   > {
     const query = `
-    SELECT 
-      COALESCE(u.destination_email, u.email) AS email,
-      p.*,
-      pu.old_price
-    FROM users u
-    INNER JOIN watchlist w ON u.id = w.user_id
-    INNER JOIN products p ON w.product_id = p.id
-    LEFT JOIN LATERAL (
-      SELECT old_price
-      FROM price_updates
-      WHERE product_id = p.id
-        AND updated_at >= NOW() - INTERVAL '24 hours'
-      ORDER BY updated_at DESC
-      LIMIT 1
-    ) pu ON true
-    WHERE u.enable_emails = true
-    ORDER BY email, w.date_added ASC;
-  `;
+  SELECT 
+    COALESCE(u.destination_email, u.email) AS email,
+    p.*,
+    pu.old_price
+  FROM users u
+  INNER JOIN watchlist w ON u.id = w.user_id
+  INNER JOIN products p ON w.product_id = p.id
+  LEFT JOIN LATERAL (
+    SELECT old_price
+    FROM price_updates
+    WHERE product_id = p.id
+      AND updated_at >= NOW() - INTERVAL '24 hours'
+    ORDER BY updated_at DESC
+    LIMIT 1
+  ) pu ON true
+  WHERE u.enable_emails = true
+  ORDER BY email, w.date_added ASC;
+`;
 
     try {
       const { rows } = await pool.query(query);
@@ -149,23 +149,43 @@ class WatchlistRepository extends GenericRepository<DBWatchlist> {
 
       for (const row of rows) {
         const email = row.email;
+        const currentPrice = parseFloat(row.current_price);
+        const oldPriceValue = row.old_price
+          ? parseFloat(row.old_price)
+          : undefined;
+
+        // Skip this product if the old_price equals the current_price (can happen since we insert a 'dummy' price update on product insertion)
+        if (oldPriceValue !== undefined && oldPriceValue === currentPrice) {
+          continue;
+        }
+
+        const product: DBProduct & { old_price?: number } = {
+          id: row.id,
+          barcode: row.barcode,
+          product_name: row.product_name,
+          product_brand: row.product_brand,
+          current_price: currentPrice,
+          product_size: row.product_size,
+          url: row.url,
+          image_url: row.image_url,
+          last_updated: row.last_updated,
+          old_price: oldPriceValue,
+        };
+
+        // Assert that if old_price exists, it doesn't equal current_price
+        if (product.old_price !== undefined) {
+          if (product.old_price === product.current_price) {
+            throw new Error(
+              `Assertion failed: product.old_price (${product.old_price}) equals product.current_price (${product.current_price})`
+            );
+          }
+        }
 
         if (!userWatchlists[email]) {
           userWatchlists[email] = [];
         }
 
-        userWatchlists[email].push({
-          id: row.id,
-          barcode: row.barcode,
-          product_name: row.product_name,
-          product_brand: row.product_brand,
-          current_price: parseFloat(row.current_price),
-          product_size: row.product_size,
-          url: row.url,
-          image_url: row.image_url,
-          last_updated: row.last_updated,
-          old_price: row.old_price ? parseFloat(row.old_price) : undefined,
-        });
+        userWatchlists[email].push(product);
       }
 
       return Object.entries(userWatchlists).map(([email, watchlist]) => ({
