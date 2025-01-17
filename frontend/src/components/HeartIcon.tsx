@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { useWatchlist } from '@/hooks/useWatchlist';
 import { signIn, useSession } from 'next-auth/react';
@@ -27,6 +27,15 @@ export const HeartIcon: React.FC<HeartIconProps> = ({ product, onToggle }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
+  // Local optimistic state
+  const [optimisticInWatchlist, setOptimisticInWatchlist] =
+    useState(isInWatchlist);
+
+  // Sync optimistic state when external isInWatchlist changes
+  useEffect(() => {
+    setOptimisticInWatchlist(isInWatchlist);
+  }, [isInWatchlist]);
+
   const handleClick = async () => {
     if (isLoading) return;
 
@@ -35,15 +44,25 @@ export const HeartIcon: React.FC<HeartIconProps> = ({ product, onToggle }) => {
       return;
     }
 
+    const previousState = optimisticInWatchlist;
+    // Optimistically update UI
+    const newState = !previousState;
+    setOptimisticInWatchlist(newState);
+    if (onToggle) {
+      onToggle(newState);
+    }
+
     try {
       setIsLoading(true);
-      const previousState = isInWatchlist;
+      // Attempt to toggle watchlist on server
       await toggleWatchlist();
-      if (onToggle) {
-        onToggle(!previousState);
-      }
     } catch (error) {
       console.error('Error toggling watchlist:', error);
+      // Revert optimistic update on failure
+      setOptimisticInWatchlist(previousState);
+      if (onToggle) {
+        onToggle(previousState);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -53,18 +72,18 @@ export const HeartIcon: React.FC<HeartIconProps> = ({ product, onToggle }) => {
     <>
       <button
         onClick={handleClick}
-        className={`absolute top-2 left-2 p-1 rounded-full bg-white hover:bg-muted transition-colors shadow-md z-10 ${
+        className={`absolute top-2 left-2 p-1 rounded-full bg-white hover:bg-muted transition-colors z-10 ${
           isLoading ? 'cursor-not-allowed' : ''
         }`}
         disabled={isLoading}
         aria-label={
-          isInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
+          optimisticInWatchlist ? 'Remove from watchlist' : 'Add to watchlist'
         }
       >
         <Heart
-          fill={isInWatchlist ? 'red' : 'none'}
+          fill={optimisticInWatchlist ? 'red' : 'none'}
           className={`h-5 w-5 ${
-            isInWatchlist ? 'text-destructive' : 'text-muted-foreground'
+            optimisticInWatchlist ? 'text-destructive' : 'text-muted-foreground'
           }`}
         />
       </button>

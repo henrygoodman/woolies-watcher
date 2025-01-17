@@ -12,13 +12,12 @@ import { useRouter } from 'next/navigation';
 export default function Home() {
   const router = useRouter();
 
-  // Fetch price changes for TODAY (show 2 days just for a buffer)
   const { data, error, isLoading, isError } = useQuery<
     TopPriceUpdatesWithProducts,
     Error
   >({
     queryKey: ['highlightedProducts'],
-    queryFn: () => fetchGlobalPriceUpdatesApi(20, 2),
+    queryFn: () => fetchGlobalPriceUpdatesApi(20, 7),
     staleTime: 360000,
   });
 
@@ -41,7 +40,7 @@ export default function Home() {
       {topDiscounts?.length > 0 && (
         <div className="flex flex-col items-center py-8">
           <h1 className="text-4xl font-bold mb-8 text-primary">
-            Today's Discounts
+            Recent Discounts
           </h1>
           <div className="w-full">
             <ProductCarousel productList={topDiscounts} />
@@ -50,7 +49,7 @@ export default function Home() {
             onClick={() => router.push('/discounts')}
             className="mt-4 px-6 py-2 bg-primary text-white font-semibold rounded hover:bg-primary-dark transition"
           >
-            See All Recent
+            See All
           </button>
         </div>
       )}
@@ -58,7 +57,7 @@ export default function Home() {
       {topIncreases?.length > 0 && (
         <div className="flex flex-col items-center py-8">
           <h1 className="text-4xl font-bold mb-8 text-primary">
-            Today's Markups
+            Recent Markups
           </h1>
           <div className="w-full">
             <ProductCarousel productList={topIncreases} />
@@ -67,7 +66,7 @@ export default function Home() {
             onClick={() => router.push('/markups')}
             className="mt-4 px-6 py-2 bg-primary text-white font-semibold rounded hover:bg-primary-dark transition"
           >
-            See All Recent
+            See All
           </button>
         </div>
       )}
