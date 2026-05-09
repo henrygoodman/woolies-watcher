@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import path from 'path';
 
 const nextConfig: NextConfig = {
   async rewrites() {
@@ -30,6 +31,15 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  experimental: {
+    turbo: {
+      resolveAlias: {
+        '@shared-types/api': path.resolve(__dirname, 'shared-types/api'),
+        '@shared-types/db': path.resolve(__dirname, 'shared-types/db'),
+        '@shared-types': path.resolve(__dirname, 'shared-types'),
+      },
+    },
   },
 };
 
