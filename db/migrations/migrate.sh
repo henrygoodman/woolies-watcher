@@ -1,22 +1,41 @@
 #!/bin/bash
 set -e
 
-# Database connection parameters
-DB_HOST="db"
-MIGRATIONS_DIR="/migrations"
+# Support DATABASE_URL (Railway) or individual vars (Docker Compose)
+if [ -n "$DATABASE_URL" ]; then
+  PSQL_CONN="$DATABASE_URL"
+  PG_READY_CONN="$DATABASE_URL"
+else
+  DB_HOST="${PGHOST:-db}"
+  export PGPASSWORD="$POSTGRES_PASSWORD"
+  PSQL_CONN="-h $DB_HOST -U $POSTGRES_USER -d $POSTGRES_DB"
+  PG_READY_CONN="-h $DB_HOST -U $POSTGRES_USER"
+fi
 
-export PGPASSWORD="$POSTGRES_PASSWORD"
+MIGRATIONS_DIR="${MIGRATIONS_DIR:-/migrations}"
 
 echo "Waiting for PostgreSQL to be ready..."
 
-until pg_isready -h "$DB_HOST" -U "$POSTGRES_USER"; do
+until pg_isready $PG_READY_CONN; do
   sleep 1
 done
 
 echo "PostgreSQL is ready."
 
+# Run init.sql if schema doesn't exist yet
+if [ -f "$MIGRATIONS_DIR/../init.sql" ]; then
+  INITIALIZED=$(psql $PSQL_CONN -tAc "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'products');")
+  if [ "$INITIALIZED" = "f" ]; then
+    echo "Running init.sql..."
+    psql $PSQL_CONN -f "$MIGRATIONS_DIR/../init.sql"
+    echo "init.sql applied."
+  else
+    echo "Schema already initialized, skipping init.sql."
+  fi
+fi
+
 echo "Ensuring migration_history table exists..."
-psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "
+psql $PSQL_CONN -c "
 CREATE TABLE IF NOT EXISTS migration_history (
     id SERIAL PRIMARY KEY,
     migration_name TEXT UNIQUE NOT NULL,
@@ -27,13 +46,13 @@ apply_migration() {
   local migration="$1"
   local migration_name=$(basename "$migration")
 
-  already_applied=$(psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc \
+  already_applied=$(psql $PSQL_CONN -tAc \
     "SELECT COUNT(*) FROM migration_history WHERE migration_name = '$migration_name';")
 
   if [ "$already_applied" -eq 0 ]; then
     echo "Applying migration: $migration_name"
-    psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$migration"
-    psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+    psql $PSQL_CONN -f "$migration"
+    psql $PSQL_CONN -c \
       "INSERT INTO migration_history (migration_name) VALUES ('$migration_name');"
     echo "Migration applied: $migration_name"
   else
@@ -45,13 +64,13 @@ revert_migration() {
   local migration="$1"
   local migration_name=$(basename "$migration" | sed 's/_down.sql/_up.sql/')
 
-  already_applied=$(psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -tAc \
+  already_applied=$(psql $PSQL_CONN -tAc \
     "SELECT COUNT(*) FROM migration_history WHERE migration_name = '$migration_name';")
 
   if [ "$already_applied" -eq 1 ]; then
     echo "Reverting migration: $migration_name"
-    psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -f "$migration"
-    psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c \
+    psql $PSQL_CONN -f "$migration"
+    psql $PSQL_CONN -c \
       "DELETE FROM migration_history WHERE migration_name = '$migration_name';"
     echo "Migration reverted: $migration_name"
   else
