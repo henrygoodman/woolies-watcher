@@ -4,13 +4,16 @@ FROM node:18-slim
 WORKDIR /app
 
 # Copy only package files for dependency installation
-COPY package.json package-lock.json ./
+COPY frontend/package.json frontend/package-lock.json ./
 
 # Install dependencies
 RUN npm ci
 
-# Copy the remaining application files
-COPY . .
+# Copy the frontend application files
+COPY frontend/ .
+
+# Copy shared-types into the container
+COPY shared-types/ ./shared-types/
 
 # Expose the application's port
 EXPOSE 3000
