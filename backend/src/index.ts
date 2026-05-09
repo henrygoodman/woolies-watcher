@@ -21,9 +21,15 @@ setupLogging();
 const app = express();
 const PORT = parseInt(process.env.PORT || '5000', 10);
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://frontend:3000',
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
+
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://frontend:3000'],
+    origin: allowedOrigins,
     credentials: true,
   })
 );

@@ -3,9 +3,7 @@ import rateLimit from 'express-rate-limit';
 import Redis from 'ioredis';
 import RedisStore from 'rate-limit-redis';
 
-const redis = new Redis({
-  host: 'redis',
-});
+const redis = new Redis(process.env.REDIS_URL || 'redis://redis:6379');
 
 const BLOCKLIST_KEY = 'blocklist:permanent';
 const COOLDOWN_PREFIX = 'cooldown:';
