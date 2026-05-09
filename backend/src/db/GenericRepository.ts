@@ -1,14 +1,13 @@
 import { BaseRepository } from './BaseRepository';
 import pool from './pool';
-import { ZodType } from 'zod';
 
 export class GenericRepository<T> implements BaseRepository<T> {
   private tableName: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private schema?: ZodType<any>;
+  private schema?: { parse: (data: any) => any };
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(tableName: string, schema?: ZodType<any>) {
+  constructor(tableName: string, schema?: { parse: (data: any) => any }) {
     this.tableName = tableName;
     this.schema = schema;
   }
