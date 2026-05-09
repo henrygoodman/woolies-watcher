@@ -9,6 +9,8 @@ RUN npm ci
 COPY backend/ .
 COPY shared-types/ ./shared-types/
 
+ENV NODE_ENV=production
+
 EXPOSE 5000
 
 RUN npm run build
