@@ -1,6 +1,8 @@
 import type { NextConfig } from 'next';
 import path from 'path';
 
+const sharedTypesPath = path.resolve(__dirname, 'shared-types');
+
 const nextConfig: NextConfig = {
   async rewrites() {
     const backendUrl =
@@ -32,12 +34,19 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@shared-types': sharedTypesPath,
+    };
+    return config;
+  },
   experimental: {
     turbo: {
       resolveAlias: {
         '@shared-types/api': path.resolve(__dirname, 'shared-types/api'),
         '@shared-types/db': path.resolve(__dirname, 'shared-types/db'),
-        '@shared-types': path.resolve(__dirname, 'shared-types'),
+        '@shared-types': sharedTypesPath,
       },
     },
   },
