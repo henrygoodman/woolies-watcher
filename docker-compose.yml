@@ -1,8 +1,6 @@
 services:
   frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
+    build: ./frontend
     container_name: woolies-watcher-frontend
     ports:
       - '3000:3000'
@@ -17,9 +15,7 @@ services:
     restart: always
 
   backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
+    build: ./backend
     container_name: woolies-watcher-backend
     volumes:
       - ./backend:/app:delegated
