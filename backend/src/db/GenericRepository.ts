@@ -1,12 +1,12 @@
 import { BaseRepository } from './BaseRepository';
 import pool from './pool';
-import { ZodSchema } from 'zod';
+import { ZodType } from 'zod';
 
 export class GenericRepository<T> implements BaseRepository<T> {
   private tableName: string;
-  private schema?: ZodSchema<Partial<T>>;
+  private schema?: ZodType<T, any, any>;
 
-  constructor(tableName: string, schema?: ZodSchema<Partial<T>>) {
+  constructor(tableName: string, schema?: ZodType<T, any, any>) {
     this.tableName = tableName;
     this.schema = schema;
   }
