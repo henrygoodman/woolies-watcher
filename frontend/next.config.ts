@@ -41,13 +41,11 @@ const nextConfig: NextConfig = {
     };
     return config;
   },
-  experimental: {
-    turbo: {
-      resolveAlias: {
-        '@shared-types/api': path.resolve(__dirname, 'shared-types/api'),
-        '@shared-types/db': path.resolve(__dirname, 'shared-types/db'),
-        '@shared-types': sharedTypesPath,
-      },
+  turbopack: {
+    resolveAlias: {
+      '@shared-types/api': path.resolve(__dirname, 'shared-types/api'),
+      '@shared-types/db': path.resolve(__dirname, 'shared-types/db'),
+      '@shared-types': sharedTypesPath,
     },
   },
 };

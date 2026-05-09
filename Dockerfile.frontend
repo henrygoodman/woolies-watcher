@@ -9,9 +9,8 @@ RUN npm ci
 COPY frontend/ .
 COPY shared-types/ ./shared-types/
 
-# Debug: verify shared-types are present
-RUN ls -la shared-types/ && ls -la shared-types/api/ && ls -la shared-types/db/
-
 EXPOSE 3000
 
-CMD ["sh", "-c", "if [ \"$NODE_ENV\" = \"production\" ]; then npm run build && npm run start; else npm run dev; fi"]
+RUN npm run build
+
+CMD ["npm", "run", "start"]
