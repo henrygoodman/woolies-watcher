@@ -4,7 +4,7 @@ set -e
 # Support DATABASE_URL (Railway) or individual vars (Docker Compose)
 if [ -n "$DATABASE_URL" ]; then
   PSQL_CONN="$DATABASE_URL"
-  PG_READY_CONN="$DATABASE_URL"
+  PG_READY_CONN="-d $DATABASE_URL"
 else
   DB_HOST="${PGHOST:-db}"
   export PGPASSWORD="$POSTGRES_PASSWORD"
