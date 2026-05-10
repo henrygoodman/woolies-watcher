@@ -1,33 +1,43 @@
 #!/bin/bash
 set -e
 
+MIGRATIONS_DIR="${MIGRATIONS_DIR:-/migrations}"
+
+# Helper functions to handle both DATABASE_URL and individual vars
+run_psql() {
+  if [ -n "$DATABASE_URL" ]; then
+    psql "$DATABASE_URL" "$@"
+  else
+    psql -h "$DB_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" "$@"
+  fi
+}
+
 # Support DATABASE_URL (Railway) or individual vars (Docker Compose)
-if [ -n "$DATABASE_URL" ]; then
-  PSQL_CONN="$DATABASE_URL"
-  PG_READY_CONN="-d $DATABASE_URL"
-else
+if [ -z "$DATABASE_URL" ]; then
   DB_HOST="${PGHOST:-db}"
   export PGPASSWORD="$POSTGRES_PASSWORD"
-  PSQL_CONN="-h $DB_HOST -U $POSTGRES_USER -d $POSTGRES_DB"
-  PG_READY_CONN="-h $DB_HOST -U $POSTGRES_USER"
 fi
-
-MIGRATIONS_DIR="${MIGRATIONS_DIR:-/migrations}"
 
 echo "Waiting for PostgreSQL to be ready..."
 
-until pg_isready $PG_READY_CONN; do
-  sleep 1
-done
+if [ -n "$DATABASE_URL" ]; then
+  until pg_isready -d "$DATABASE_URL"; do
+    sleep 1
+  done
+else
+  until pg_isready -h "$DB_HOST" -U "$POSTGRES_USER"; do
+    sleep 1
+  done
+fi
 
 echo "PostgreSQL is ready."
 
 # Run init.sql if schema doesn't exist yet
 if [ -f "$MIGRATIONS_DIR/../init.sql" ]; then
-  INITIALIZED=$(psql $PSQL_CONN -tAc "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'products');")
+  INITIALIZED=$(run_psql -tAc "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'products');")
   if [ "$INITIALIZED" = "f" ]; then
     echo "Running init.sql..."
-    psql $PSQL_CONN -f "$MIGRATIONS_DIR/../init.sql"
+    run_psql -f "$MIGRATIONS_DIR/../init.sql"
     echo "init.sql applied."
   else
     echo "Schema already initialized, skipping init.sql."
@@ -35,7 +45,7 @@ if [ -f "$MIGRATIONS_DIR/../init.sql" ]; then
 fi
 
 echo "Ensuring migration_history table exists..."
-psql $PSQL_CONN -c "
+run_psql -c "
 CREATE TABLE IF NOT EXISTS migration_history (
     id SERIAL PRIMARY KEY,
     migration_name TEXT UNIQUE NOT NULL,
@@ -46,13 +56,13 @@ apply_migration() {
   local migration="$1"
   local migration_name=$(basename "$migration")
 
-  already_applied=$(psql $PSQL_CONN -tAc \
+  already_applied=$(run_psql -tAc \
     "SELECT COUNT(*) FROM migration_history WHERE migration_name = '$migration_name';")
 
   if [ "$already_applied" -eq 0 ]; then
     echo "Applying migration: $migration_name"
-    psql $PSQL_CONN -f "$migration"
-    psql $PSQL_CONN -c \
+    run_psql -f "$migration"
+    run_psql -c \
       "INSERT INTO migration_history (migration_name) VALUES ('$migration_name');"
     echo "Migration applied: $migration_name"
   else
@@ -64,13 +74,13 @@ revert_migration() {
   local migration="$1"
   local migration_name=$(basename "$migration" | sed 's/_down.sql/_up.sql/')
 
-  already_applied=$(psql $PSQL_CONN -tAc \
+  already_applied=$(run_psql -tAc \
     "SELECT COUNT(*) FROM migration_history WHERE migration_name = '$migration_name';")
 
   if [ "$already_applied" -eq 1 ]; then
     echo "Reverting migration: $migration_name"
-    psql $PSQL_CONN -f "$migration"
-    psql $PSQL_CONN -c \
+    run_psql -f "$migration"
+    run_psql -c \
       "DELETE FROM migration_history WHERE migration_name = '$migration_name';"
     echo "Migration reverted: $migration_name"
   else
