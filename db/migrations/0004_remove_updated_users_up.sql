@@ -1,1 +1,1 @@
-ALTER TABLE users REMOVE COLUMN updated_at;
+ALTER TABLE users DROP COLUMN IF EXISTS updated_at;
